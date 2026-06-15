@@ -10,12 +10,19 @@ if [[ ! -f .env ]]; then
 fi
 
 # shellcheck disable=SC1091
-set -a
-source .env
-set +a
+get_env() {
+  local key="$1"
+  local line
+  line="$(grep -E "^${key}=" .env | tail -1 || true)"
+  line="${line#*=}"
+  line="${line%\"}"
+  line="${line#\"}"
+  echo "$line"
+}
 
+DOMAIN="$(get_env DOMAIN)"
 DOMAIN="${DOMAIN:-bizgrant.kr}"
-CERTBOT_EMAIL="${CERTBOT_EMAIL:-}"
+CERTBOT_EMAIL="$(get_env CERTBOT_EMAIL)"
 
 if [[ -z "$CERTBOT_EMAIL" ]]; then
   echo "오류: .env 에 CERTBOT_EMAIL=your@email.com 을 설정하세요."
