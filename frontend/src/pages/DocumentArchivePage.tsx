@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Building2,
+  Check,
   Download,
   FileDown,
   FileText,
@@ -50,6 +51,7 @@ const DocumentArchivePage: React.FC = () => {
   const [profile, setProfile] = useState<UpdateProfileForm>({});
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [files, setFiles] = useState<UserFileItem[]>([]);
   const [uploadType, setUploadType] = useState('OTHER');
@@ -92,6 +94,7 @@ const DocumentArchivePage: React.FC = () => {
   }, [loadData]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setProfileSaved(false);
     setProfile((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -108,6 +111,7 @@ const DocumentArchivePage: React.FC = () => {
         companySize: updated.companySize,
       });
       toast.success('회사 프로필이 저장되었습니다. 템플릿 자동완성에 반영됩니다.');
+      setProfileSaved(true);
     } catch {
       toast.error('프로필 저장에 실패했습니다.');
     } finally {
@@ -194,7 +198,7 @@ const DocumentArchivePage: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-6 items-start">
         <section className="premium-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Building2 className="w-5 h-5 text-brand-500" />
@@ -230,18 +234,31 @@ const DocumentArchivePage: React.FC = () => {
               </select>
             </label>
           </div>
-          <button onClick={handleSaveProfile} disabled={savingProfile} className="btn btn-primary">
-            {savingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            프로필 저장
+          <button
+            onClick={handleSaveProfile}
+            disabled={savingProfile || profileSaved}
+            className={`btn ${profileSaved ? 'btn-secondary' : 'btn-primary'}`}
+          >
+            {savingProfile ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : profileSaved ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {profileSaved ? '저장됨' : '프로필 저장'}
           </button>
         </section>
 
-        <section className="premium-card p-6 space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <section className="premium-card p-6 flex flex-col max-h-[min(70vh,560px)]">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 shrink-0">
             <FileDown className="w-5 h-5 text-brand-500" />
             서류 템플릿
           </h2>
-          <div className="space-y-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3 shrink-0">
+            총 {templates.length}개
+          </p>
+          <div className="space-y-3 overflow-y-auto min-h-0 flex-1 pr-1 -mr-1">
             {templates.map((template) => (
               <div key={template.code} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                 <div className="flex items-start justify-between gap-3">
