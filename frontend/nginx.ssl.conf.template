@@ -9,6 +9,12 @@ server {
         root /var/www/certbot;
     }
 
+    location = /healthz {
+        access_log off;
+        return 200 'ok';
+        add_header Content-Type text/plain;
+    }
+
     location / {
         return 301 https://$host$request_uri;
     }
@@ -30,6 +36,12 @@ server {
 
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+
+    location = /healthz {
+        access_log off;
+        return 200 'ok';
+        add_header Content-Type text/plain;
+    }
 
     location /api/ {
         proxy_pass http://backend:8080/api/;
