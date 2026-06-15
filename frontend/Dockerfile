@@ -4,7 +4,8 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm ci fails when lockfile was generated on another OS; install is reliable in Alpine
+RUN npm install --no-audit --no-fund
 
 COPY . .
 RUN npm run build
