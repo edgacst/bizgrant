@@ -25,9 +25,11 @@ for i in {1..40}; do
 done
 
 echo "==> 지원사업 동기화 (백그라운드, 수 분 소요)"
-nohup curl -s --max-time 1200 -X POST "http://localhost/api/grants/sync" > /tmp/bizgrant-sync.log 2>&1 &
+nohup docker compose -f docker-compose.prod.yml --env-file .env exec -T backend \
+  wget -qO- --post-data="" http://localhost:8080/api/grants/sync \
+  > /tmp/bizgrant-sync.log 2>&1 &
 echo "    진행 로그: tail -f /tmp/bizgrant-sync.log"
-echo "    완료 확인: ./deploy/vps/sync-grants.sh  또는  curl -s http://localhost/api/grants/active-count"
+echo "    완료 확인: ./deploy/vps/sync-grants.sh"
 
 echo ""
 echo "배포 완료. 브라우저에서 SITE_URL(.env) 로 접속하세요."
