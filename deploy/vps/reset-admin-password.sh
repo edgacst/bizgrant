@@ -10,19 +10,16 @@ EMAIL="${1:-freecompr20@gmail.com}"
 PASS="${2:-BizGrant2026!}"
 
 echo "==> BCrypt 해시 생성"
-HASH=$(docker run --rm python:3-alpine sh -c "
+HASH=$(docker run --rm -e PASS="$PASS" python:3-alpine sh -c '
 pip install -q bcrypt >/dev/null
-python -c \"import bcrypt; print(bcrypt.hashpw(b'${PASS}', bcrypt.gensalt(rounds=10)).decode())\"
-")
+python -c "import bcrypt, os; print(bcrypt.hashpw(os.environ[\"PASS\"].encode(), bcrypt.gensalt(rounds=10)).decode())"
+')
 
 echo "==> 비밀번호 재설정: ${EMAIL}"
-"${COMPOSE[@]}" exec -T postgres psql -U postgres -d bizgrant -v ON_ERROR_STOP=1 <<SQL
-UPDATE users
-SET password_hash = '${HASH}',
-    role = 'ADMIN',
-    status = 'ACTIVE'
-WHERE lower(email) = lower('${EMAIL}');
-SQL
+# BCrypt 해시의 $ 문자가 bash에서 깨지지 않도록 printf로 SQL 파이프
+printf "UPDATE users SET password_hash = '%s', role = 'ADMIN', status = 'ACTIVE' WHERE lower(email) = lower('%s');\n" \
+  "$HASH" "$EMAIL" \
+  | "${COMPOSE[@]}" exec -T postgres psql -U postgres -d bizgrant -v ON_ERROR_STOP=1
 
 echo ""
 echo "완료. 로그인:"
