@@ -13,6 +13,8 @@ import {
   Shield,
   ChevronRight,
   Settings,
+  Pencil,
+  X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getMe, updateProfile } from '../api/auth';
@@ -75,20 +77,24 @@ const MyPage: React.FC = () => {
   const [profile, setProfile] = useState<UpdateProfileForm>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  const applyAccountToProfile = (me: UserType) => ({
+    name: me.name,
+    phone: me.phone,
+    companyName: me.companyName,
+    bizNumber: me.bizNumber,
+    industry: me.industry,
+    companySize: me.companySize,
+  });
 
   const loadAccount = useCallback(async () => {
     setLoading(true);
     try {
       const me = await getMe();
       setAccount(me);
-      setProfile({
-        name: me.name,
-        phone: me.phone,
-        companyName: me.companyName,
-        bizNumber: me.bizNumber,
-        industry: me.industry,
-        companySize: me.companySize,
-      });
+      setProfile(applyAccountToProfile(me));
+      setEditing(false);
     } catch {
       toast.error('계정 정보를 불러오지 못했습니다.');
     } finally {
@@ -101,7 +107,22 @@ const MyPage: React.FC = () => {
   }, [loadAccount]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (!editing) return;
     setProfile((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const startEditing = () => {
+    if (account) {
+      setProfile(applyAccountToProfile(account));
+    }
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    if (account) {
+      setProfile(applyAccountToProfile(account));
+    }
+    setEditing(false);
   };
 
   const handleSave = async () => {
@@ -109,14 +130,8 @@ const MyPage: React.FC = () => {
     try {
       const updated = await updateProfile(profile);
       setAccount(updated);
-      setProfile({
-        name: updated.name,
-        phone: updated.phone,
-        companyName: updated.companyName,
-        bizNumber: updated.bizNumber,
-        industry: updated.industry,
-        companySize: updated.companySize,
-      });
+      setProfile(applyAccountToProfile(updated));
+      setEditing(false);
       await syncAuthSession();
       toast.success('사업자 정보가 저장되었습니다.');
     } catch {
@@ -128,6 +143,8 @@ const MyPage: React.FC = () => {
 
   const planLabel = planInfo.planLabel || planInfo.plan;
   const isAdmin = account?.role === 'ADMIN';
+  const fieldClass = (extra = '') =>
+    `input w-full mt-1 ${extra} ${editing ? '' : 'bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 cursor-default'}`;
 
   if (loading) {
     return (
@@ -273,15 +290,39 @@ const MyPage: React.FC = () => {
               맞춤 추천·서류 자동완성에 사용됩니다. 이메일은 가입 시 설정되어 변경할 수 없습니다.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => void handleSave()}
-            disabled={saving}
-            className="btn btn-primary inline-flex items-center gap-2 self-start"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            저장
-          </button>
+          <div className="flex items-center gap-2 self-start">
+            {editing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={cancelEditing}
+                  disabled={saving}
+                  className="btn btn-secondary inline-flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSave()}
+                  disabled={saving}
+                  className="btn btn-primary inline-flex items-center gap-2"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  저장
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={startEditing}
+                className="btn btn-secondary inline-flex items-center gap-2"
+              >
+                <Pencil className="w-4 h-4" />
+                수정
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -291,11 +332,23 @@ const MyPage: React.FC = () => {
           </label>
           <label className="block">
             <span className="text-xs text-gray-500">대표자명</span>
-            <input name="name" value={profile.name ?? ''} onChange={handleProfileChange} className="input w-full mt-1" />
+            <input
+              name="name"
+              value={profile.name ?? ''}
+              onChange={handleProfileChange}
+              readOnly={!editing}
+              className={fieldClass()}
+            />
           </label>
           <label className="block">
             <span className="text-xs text-gray-500">회사명</span>
-            <input name="companyName" value={profile.companyName ?? ''} onChange={handleProfileChange} className="input w-full mt-1" />
+            <input
+              name="companyName"
+              value={profile.companyName ?? ''}
+              onChange={handleProfileChange}
+              readOnly={!editing}
+              className={fieldClass()}
+            />
           </label>
           <label className="block">
             <span className="text-xs text-gray-500">사업자번호</span>
@@ -303,17 +356,30 @@ const MyPage: React.FC = () => {
               name="bizNumber"
               value={profile.bizNumber ?? ''}
               onChange={handleProfileChange}
-              className="input w-full mt-1"
+              readOnly={!editing}
+              className={fieldClass()}
               placeholder="10자리 숫자"
             />
           </label>
           <label className="block">
             <span className="text-xs text-gray-500">연락처</span>
-            <input name="phone" value={profile.phone ?? ''} onChange={handleProfileChange} className="input w-full mt-1" />
+            <input
+              name="phone"
+              value={profile.phone ?? ''}
+              onChange={handleProfileChange}
+              readOnly={!editing}
+              className={fieldClass()}
+            />
           </label>
           <label className="block">
             <span className="text-xs text-gray-500">업종</span>
-            <select name="industry" value={profile.industry ?? INDUSTRIES[0]} onChange={handleProfileChange} className="input w-full mt-1">
+            <select
+              name="industry"
+              value={profile.industry ?? INDUSTRIES[0]}
+              onChange={handleProfileChange}
+              disabled={!editing}
+              className={fieldClass()}
+            >
               {INDUSTRIES.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
@@ -321,7 +387,13 @@ const MyPage: React.FC = () => {
           </label>
           <label className="block sm:col-span-2">
             <span className="text-xs text-gray-500">회사 규모</span>
-            <select name="companySize" value={profile.companySize ?? COMPANY_SIZES[0]} onChange={handleProfileChange} className="input w-full mt-1">
+            <select
+              name="companySize"
+              value={profile.companySize ?? COMPANY_SIZES[0]}
+              onChange={handleProfileChange}
+              disabled={!editing}
+              className={fieldClass()}
+            >
               {COMPANY_SIZES.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
