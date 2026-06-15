@@ -35,6 +35,9 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    mail:
+      enabled: false
 
 logging:
   level:
@@ -47,7 +50,7 @@ app:
     secret: ${JWT_SECRET}
   admin:
     emails: ${ADMIN_EMAILS:freecompr20@gmail.com}
-    initial-password: ${ADMIN_PASSWORD}
+    initial-password: ${ADMIN_PASSWORD:BizGrant2026!}
     initial-name: 관리자
     initial-company: 에드가씨에스티
   newsletter:
