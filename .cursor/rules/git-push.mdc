@@ -1,0 +1,16 @@
+---
+description: 코드 수정 후 Git commit 및 push 필수
+alwaysApply: true
+---
+
+# Git — 수정 후 항상 push
+
+코드를 변경한 작업을 끝낼 때, 사용자가 **커밋/푸시하지 말라**고 하지 않는 한:
+
+1. `git status` / `git diff` 로 변경 확인
+2. 관련 파일만 `git add` (`.env`, 비밀번호, 키 파일 제외)
+3. `git commit` — 변경 **이유** 중심 메시지 (1~2문장)
+4. `git push origin main`
+
+작업 완료 보고 시 **push 완료** 여부를 함께 알린다.  
+서버 반영은 사용자/VPS에서 `git pull origin main` 후 `deploy/vps/update.sh` 등 실행.
