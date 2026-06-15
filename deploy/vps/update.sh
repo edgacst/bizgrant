@@ -12,4 +12,15 @@ fi
 
 echo "==> 재빌드 및 재기동"
 "${COMPOSE[@]}" up -d --build
+
+echo "==> 백엔드 기동 대기..."
+for i in {1..40}; do
+  if "${COMPOSE[@]}" exec -T backend wget -qO- http://localhost:8080/actuator/health 2>/dev/null | grep -q UP; then
+    break
+  fi
+  sleep 5
+done
+
 "${COMPOSE[@]}" ps
+echo ""
+echo "코드 반영 완료. 공고 동기화: ./deploy/vps/sync-grants.sh"

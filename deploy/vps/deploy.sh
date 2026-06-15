@@ -24,8 +24,10 @@ for i in {1..40}; do
   sleep 5
 done
 
-echo "==> 최초 지원사업 동기화"
-curl -sf -X POST "http://localhost/api/grants/sync" || echo "동기화 요청 실패 — 나중에: curl -X POST http://localhost/api/grants/sync"
+echo "==> 지원사업 동기화 (백그라운드, 수 분 소요)"
+nohup curl -s --max-time 1200 -X POST "http://localhost/api/grants/sync" > /tmp/bizgrant-sync.log 2>&1 &
+echo "    진행 로그: tail -f /tmp/bizgrant-sync.log"
+echo "    완료 확인: ./deploy/vps/sync-grants.sh  또는  curl -s http://localhost/api/grants/active-count"
 
 echo ""
 echo "배포 완료. 브라우저에서 SITE_URL(.env) 로 접속하세요."

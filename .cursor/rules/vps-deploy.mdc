@@ -1,0 +1,44 @@
+---
+description: BizGrant 코드 수정 후 VPS(Hostinger) 반영 절차
+alwaysApply: true
+---
+
+# VPS 배포 (bizgrant.kr)
+
+코드 수정 후 **로컬에서 push** → **서버에서 pull + 재배포**.
+
+## 서버 반영 (SSH `root@187.127.107.200`)
+
+```bash
+cd ~/bizgrant
+git pull origin main
+chmod +x deploy/vps/*.sh
+./deploy/vps/update.sh
+./deploy/vps/sync-grants.sh
+```
+
+## 공고 데이터가 0일 때
+
+최초 배포·동기화 실패 시 수동 동기화 (5~15분 소요):
+
+```bash
+cd ~/bizgrant
+./deploy/vps/sync-grants.sh
+```
+
+상태 확인:
+
+```bash
+curl -s http://localhost/api/grants/active-count
+curl -s http://localhost/api/grants/sync/status
+```
+
+## 기타 운영
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f backend   # 로그
+./deploy/vps/backup-db.sh                                   # DB 백업
+./deploy/vps/renew-https.sh                                  # SSL 갱신
+```
+
+상세: `deploy/hostinger/README.md`, `deploy/vps/`

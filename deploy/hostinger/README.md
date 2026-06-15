@@ -133,6 +133,13 @@ nano .env
 ## 7. 운영
 
 ```bash
+# 코드 수정 후 서버 반영
+git pull origin main
+./deploy/vps/update.sh
+
+# 공고 데이터 동기화 (0건일 때)
+./deploy/vps/sync-grants.sh
+
 # 로그
 docker compose -f docker-compose.prod.yml logs -f backend
 
