@@ -6,6 +6,7 @@ import DarkModeToggle from './DarkModeToggle';
 const PublicHeader: React.FC = () => {
   const location = useLocation();
   const isPricing = location.pathname === '/pricing';
+  const isGuide = location.pathname === '/guide';
 
   return (
     <header className="sticky top-0 inset-x-0 z-50 glass border-b border-gray-200/50 dark:border-gray-700/50">
@@ -20,6 +21,14 @@ const PublicHeader: React.FC = () => {
         </Link>
         <div className="flex items-center gap-3">
           <DarkModeToggle />
+          <Link
+            to="/guide"
+            className={`hidden sm:inline text-sm font-semibold transition-colors ${
+              isGuide ? 'text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300 hover:text-brand-600'
+            }`}
+          >
+            사용방법
+          </Link>
           <Link
             to="/pricing"
             className={`hidden sm:inline text-sm font-semibold transition-colors ${

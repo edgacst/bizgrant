@@ -18,6 +18,7 @@ import BookmarksPage from './pages/BookmarksPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AboutPage from './pages/AboutPage';
+import GuidePage from './pages/GuidePage';
 import NewsletterUnsubscribePage from './pages/NewsletterUnsubscribePage';
 import BackToTop from './components/BackToTop';
 import Footer from './components/Footer';
@@ -105,6 +106,7 @@ const App: React.FC = () => {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/guide" element={<GuidePage />} />
           <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
         </Route>
 

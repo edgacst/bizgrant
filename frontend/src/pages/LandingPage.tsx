@@ -216,6 +216,10 @@ const LandingPage: React.FC = () => {
                 서비스 살펴보기
                 <ArrowDown className="w-5 h-5" />
               </a>
+              <Link to="/guide" className="btn btn-secondary text-lg px-10 py-5">
+                사이트 사용방법
+                <ArrowRight className="w-5 h-5" />
+              </Link>
             </div>
 
             {/* Bottom trust line */}

@@ -89,6 +89,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">회사</h4>
             <ul className="space-y-2 text-sm">
+              <li><FooterLink to="/guide" className="hover:text-white transition-colors">사용방법</FooterLink></li>
               <li><FooterLink to="/about" className="hover:text-white transition-colors">소개</FooterLink></li>
               <li><FooterLink to="/pricing" className="hover:text-white transition-colors">요금제</FooterLink></li>
               <li>
