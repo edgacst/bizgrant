@@ -30,9 +30,10 @@
 4. **Networking → Virtual Cloud Networks → Security List → Ingress Rules**
    - **22** TCP (SSH), **0.0.0.0/0**
    - **80** TCP (HTTP), **0.0.0.0/0**
+   - **443** TCP (HTTPS), **0.0.0.0/0** — HTTPS 사용 시
 5. 인스턴스 **Public IP** 메모
 
-> 처음에는 `http://공인IP` 로 접속합니다. 도메인·HTTPS는 나중에 추가.
+> 처음에는 `http://공인IP` 로 접속합니다. **bizgrant.kr** 연결·HTTPS는 [DNS-HTTPS.md](./DNS-HTTPS.md) 참고.
 
 ---
 
@@ -110,7 +111,19 @@ crontab -e
 
 ---
 
-## 6. 리소스·비용
+## 7. 도메인 · HTTPS (bizgrant.kr)
+
+[DNS-HTTPS.md](./DNS-HTTPS.md) 전체 가이드.
+
+```bash
+# .env 에 DOMAIN, CERTBOT_EMAIL 설정 후
+chmod +x deploy/oracle/setup-https.sh deploy/oracle/renew-https.sh
+./deploy/oracle/setup-https.sh
+```
+
+---
+
+## 8. 리소스·비용
 
 | 항목 | Always Free |
 |------|-------------|
@@ -121,12 +134,11 @@ crontab -e
 
 ---
 
-## 7. 나중에 (가입자·유료 전환 시)
+## 9. 나중에 (가입자·유료 전환 시)
 
-1. 도메인 + HTTPS
-2. SMTP (`MAIL_*`)
-3. API 인증 강화
-4. Hetzner 등 유료 호스팅 이전 검토
+1. SMTP (`MAIL_*`) — 뉴스레터·알림 메일
+2. API 인증 강화
+3. Hetzner 등 유료 호스팅 이전 검토
 
 ---
 
@@ -135,11 +147,15 @@ crontab -e
 ```
 bizgrant/
 ├── docker-compose.oracle.yml
+├── docker-compose.oracle.https.yml
 ├── .env.oracle.example
 └── deploy/oracle/
     ├── README.md
+    ├── DNS-HTTPS.md
     ├── setup-server.sh
     ├── deploy.sh
+    ├── setup-https.sh
+    ├── renew-https.sh
     ├── update.sh
     └── backup-db.sh
 ```

@@ -27,6 +27,7 @@ echo "==> 방화벽 (ufw) — SSH·HTTP 허용"
 if command -v ufw &>/dev/null; then
   ufw allow OpenSSH || true
   ufw allow 80/tcp || true
+  ufw allow 443/tcp || true
   ufw --force enable || true
 fi
 
