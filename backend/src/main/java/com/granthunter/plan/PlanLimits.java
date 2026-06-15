@@ -48,7 +48,7 @@ public record PlanLimits(
                     50,
                     true,
                     true,
-                    Set.of("email", "telegram", "slack"),
+                    Set.of("email", "kakao", "sms"),
                     50,
                     true
             );
@@ -64,7 +64,7 @@ public record PlanLimits(
                     Integer.MAX_VALUE,
                     true,
                     true,
-                    Set.of("email", "telegram", "slack"),
+                    Set.of("email", "kakao", "sms"),
                     Integer.MAX_VALUE,
                     true
             );

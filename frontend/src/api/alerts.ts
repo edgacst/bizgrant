@@ -92,10 +92,14 @@ export function formatAlertChannel(channel?: string): string {
   switch ((channel ?? '').toLowerCase()) {
     case 'email':
       return '이메일';
+    case 'kakao':
+      return '카카오톡';
+    case 'sms':
+      return '문자';
     case 'telegram':
-      return 'Telegram';
+      return '카카오톡';
     case 'slack':
-      return 'Slack';
+      return '문자';
     default:
       return channel || '이메일';
   }

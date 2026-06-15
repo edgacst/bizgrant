@@ -267,6 +267,42 @@ body {
   animation: countUp 0.6s ease-out;
 }
 
+/* ========== Budget range slider ========== */
+input.budget-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+}
+input.budget-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4f46e5;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+input.budget-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4f46e5;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+input.budget-range:disabled::-webkit-slider-thumb,
+input.budget-range:disabled::-moz-range-thumb {
+  cursor: default;
+}
+.dark input.budget-range {
+  filter: brightness(0.95);
+}
+
 /* ========== Scrollbar ========== */
 ::-webkit-scrollbar {
   width: 8px;

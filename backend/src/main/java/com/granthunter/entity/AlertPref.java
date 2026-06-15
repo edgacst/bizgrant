@@ -34,7 +34,7 @@ public class AlertPref {
     private Long minBudget;       // 최소 지원금액
 
     @Column(length = 50)
-    private String channel;       // telegram, slack, email
+    private String channel;       // email, kakao, sms
 
     @Column(name = "channel_id", length = 255)
     private String channelId;     // 수신처 ID

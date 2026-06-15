@@ -31,7 +31,7 @@ export const PRICING_TIERS: PricingTier[] = [
     features: [
       { name: '맞춤 추천 50건 + 적합도 상세', included: true },
       { name: '이메일 알림 · 하루 30건', included: true },
-      { name: 'Telegram · Slack 알림', included: true },
+      { name: '이메일·카카오톡·문자 알림', included: true },
       { name: '카테고리 10 · 업종 8', included: true },
       { name: '파이프라인 무제한 · 북마크 50건', included: true },
       { name: '서류 보관함 50개', included: true },
@@ -63,13 +63,13 @@ export const FEATURE_COMPARISON = [
   { name: '일일 이메일 알림', free: '1건', pro: '30건', enterprise: '무제한' },
   { name: '관심 카테고리', free: '1개', pro: '10개', enterprise: '무제한' },
   { name: '관심 업종', free: '2개', pro: '8개', enterprise: '무제한' },
-  { name: '알림 채널', free: '이메일', pro: '이메일+Telegram+Slack', enterprise: '전체' },
+  { name: '알림 채널', free: '이메일', pro: '이메일+카톡+문자', enterprise: '전체' },
   { name: '파이프라인', free: '1건', pro: '무제한', enterprise: '무제한' },
   { name: '북마크', free: '5건', pro: '50건', enterprise: '무제한' },
   { name: '서류 보관함', free: '5개', pro: '50개', enterprise: '무제한' },
   { name: '체크리스트 저장', free: false, pro: true, enterprise: true },
   { name: '템플릿 자동완성', free: false, pro: true, enterprise: true },
-  { name: 'Telegram / Slack', free: false, pro: true, enterprise: true },
+  { name: '카카오톡 / 문자', free: false, pro: true, enterprise: true },
 ];
 
 export const FAQS = [

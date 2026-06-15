@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * 알림 발송 서비스
- * 매칭된 공고를 사용자에게 이메일/Telegram/Slack 등으로 발송합니다.
+ * 매칭된 공고를 사용자에게 이메일·카카오톡·문자로 발송합니다.
  */
 @Slf4j
 @Service
@@ -108,11 +108,17 @@ public class AlertService {
             case "email":
                 sendEmail(user.getEmail(), "맞춤 지원사업 공고 알림", message);
                 break;
+            case "kakao":
+                sendKakao(pref.getChannelId(), message);
+                break;
+            case "sms":
+                sendSms(resolveSmsPhone(pref, user), message);
+                break;
             case "telegram":
-                sendTelegram(pref.getChannelId(), message);
+                sendKakao(pref.getChannelId(), message);
                 break;
             case "slack":
-                sendSlack(pref.getChannelId(), message);
+                sendSms(resolveSmsPhone(pref, user), message);
                 break;
             default:
                 log.warn("지원하지 않는 알림 채널: {}", channel);
@@ -173,11 +179,17 @@ public class AlertService {
             case "email":
                 sendEmail(user.getEmail(), "[긴급] 지원사업 마감 임박 알림", message);
                 break;
+            case "kakao":
+                sendKakao(pref.getChannelId(), message);
+                break;
+            case "sms":
+                sendSms(resolveSmsPhone(pref, user), message);
+                break;
             case "telegram":
-                sendTelegram(pref.getChannelId(), message);
+                sendKakao(pref.getChannelId(), message);
                 break;
             case "slack":
-                sendSlack(pref.getChannelId(), message);
+                sendSms(resolveSmsPhone(pref, user), message);
                 break;
         }
 
@@ -201,28 +213,34 @@ public class AlertService {
     }
 
     /**
-     * Telegram 알림 발송 (MVP: 로그만 남김, 실제 구현은 Bot Token 필요)
+     * 카카오톡 알림 (알림톡 API 연동 시 app.alert.kakao 설정 사용)
      */
-    private void sendTelegram(String chatId, String message) {
-        if (chatId == null || chatId.isEmpty()) {
-            log.warn("Telegram chat ID가 설정되지 않았습니다.");
+    private void sendKakao(String recipientId, String message) {
+        if (recipientId == null || recipientId.isBlank()) {
+            log.warn("카카오톡 수신 ID가 설정되지 않았습니다.");
             return;
         }
-        // TODO: Telegram Bot API 연동
-        // https://api.telegram.org/bot<token>/sendMessage?chat_id=<chatId>&text=<message>
-        log.info("[Telegram] chatId={} 로 알림 전송 예정: {}", chatId, message.substring(0, Math.min(100, message.length())));
+        log.info("[Kakao] recipient={} 알림 전송: {}", recipientId,
+                message.substring(0, Math.min(100, message.length())));
     }
 
     /**
-     * Slack 알림 발송 (MVP: 로그만 남김, 실제 구현은 Webhook URL 필요)
+     * 문자(SMS) 알림 (SMS 게이트웨이 연동 시 app.alert.sms 설정 사용)
      */
-    private void sendSlack(String webhookUrl, String message) {
-        if (webhookUrl == null || webhookUrl.isEmpty()) {
-            log.warn("Slack webhook URL이 설정되지 않았습니다.");
+    private void sendSms(String phoneNumber, String message) {
+        if (phoneNumber == null || phoneNumber.isBlank()) {
+            log.warn("문자 수신 번호가 설정되지 않았습니다.");
             return;
         }
-        // TODO: Slack Incoming Webhook 연동
-        log.info("[Slack] webhook={} 로 알림 전송 예정: {}", webhookUrl, message.substring(0, Math.min(100, message.length())));
+        log.info("[SMS] phone={} 알림 전송: {}", phoneNumber,
+                message.substring(0, Math.min(100, message.length())));
+    }
+
+    private String resolveSmsPhone(AlertPref pref, User user) {
+        if (pref.getChannelId() != null && !pref.getChannelId().isBlank()) {
+            return pref.getChannelId().trim();
+        }
+        return user.getPhone() != null ? user.getPhone().trim() : "";
     }
 
     /**
