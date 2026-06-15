@@ -2,15 +2,18 @@
 # VM에서 프로젝트 루트(bizgrant/)에서 실행
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT"
-COMPOSE=(docker compose -f docker-compose.prod.yml --env-file .env)
+# shellcheck source=compose-env.sh
+source "$(dirname "$0")/compose-env.sh"
 
 if [[ ! -f .env ]]; then
   echo "오류: .env 파일이 없습니다."
   echo "  cp .env.prod.example .env"
   echo "  nano .env"
   exit 1
+fi
+
+if [[ -f "$SSL_CONF" ]]; then
+  echo "==> HTTPS 설정 감지 — SSL nginx 오버레이 포함"
 fi
 
 echo "==> 이미지 빌드 및 기동 (첫 빌드 5~15분 소요)"
@@ -25,7 +28,7 @@ for i in {1..40}; do
 done
 
 echo "==> 지원사업 동기화 (백그라운드, 수 분 소요)"
-nohup docker compose -f docker-compose.prod.yml --env-file .env exec -T backend \
+nohup "${COMPOSE[@]}" exec -T backend \
   wget -qO- --post-data="" http://localhost:8080/api/grants/sync \
   > /tmp/bizgrant-sync.log 2>&1 &
 echo "    진행 로그: tail -f /tmp/bizgrant-sync.log"
