@@ -13,8 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { signup, loginWithOAuth } from '../api/auth';
-import { saveAuthSession } from '../utils/authSession';
+import { signup } from '../api/auth';
 import type { SignupForm } from '../types';
 
 const INDUSTRIES = [
@@ -82,18 +81,9 @@ const SignupPage: React.FC = () => {
     }
   };
 
-  const handleOAuth = async (provider: 'google' | 'naver' | 'kakao') => {
-    setLoading(true);
-    try {
-      const tokens = await loginWithOAuth(provider);
-      saveAuthSession(tokens);
-      toast.success(`${provider === 'google' ? 'Google' : provider === 'naver' ? '네이버' : '카카오'} 회원가입 성공!`);
-      navigate(tokens.role === 'ADMIN' ? '/admin' : '/dashboard');
-    } catch {
-      toast.error('소셜 회원가입에 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
+  const handleOAuth = (provider: 'google' | 'naver' | 'kakao') => {
+    const label = provider === 'google' ? 'Google' : provider === 'naver' ? '네이버' : '카카오';
+    toast(`${label} 간편 회원가입은 추후 적용 예정입니다.`, { icon: 'ℹ️' });
   };
 
   return (
@@ -309,6 +299,7 @@ const SignupPage: React.FC = () => {
 
               <div className="mt-5 grid grid-cols-3 gap-3">
                 <button
+                  type="button"
                   onClick={() => handleOAuth('google')}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
@@ -321,6 +312,7 @@ const SignupPage: React.FC = () => {
                   Google
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleOAuth('naver')}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#03C75A] hover:bg-[#02b350] transition-all text-sm font-bold text-white"
                 >
@@ -328,6 +320,7 @@ const SignupPage: React.FC = () => {
                   네이버
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleOAuth('kakao')}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#FEE500] hover:bg-[#f0d800] transition-all text-sm font-medium text-[#191919]"
                 >

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { login, loginWithOAuth } from '../api/auth';
+import { login } from '../api/auth';
 import { saveAuthSession } from '../utils/authSession';
 
 const LoginPage: React.FC = () => {
@@ -11,18 +11,9 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
 
-  const handleOAuth = async (provider: 'google' | 'naver' | 'kakao') => {
-    setLoading(true);
-    try {
-      const tokens = await loginWithOAuth(provider);
-      saveAuthSession(tokens);
-      toast.success(`${provider === 'google' ? 'Google' : provider === 'naver' ? '네이버' : '카카오'} 로그인 성공!`);
-      navigate(tokens.role === 'ADMIN' ? '/admin' : '/dashboard');
-    } catch {
-      toast.error('소셜 로그인에 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
+  const handleOAuth = (provider: 'google' | 'naver' | 'kakao') => {
+    const label = provider === 'google' ? 'Google' : provider === 'naver' ? '네이버' : '카카오';
+    toast(`${label} 간편 로그인은 추후 적용 예정입니다.`, { icon: 'ℹ️' });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +146,7 @@ const LoginPage: React.FC = () => {
               <div className="mt-5 grid grid-cols-3 gap-3">
                 {/* Google */}
                 <button
+                  type="button"
                   onClick={() => handleOAuth('google')}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
@@ -169,6 +161,7 @@ const LoginPage: React.FC = () => {
 
                 {/* Naver */}
                 <button
+                  type="button"
                   onClick={() => handleOAuth('naver')}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#03C75A] hover:bg-[#02b350] transition-all text-sm font-bold text-white"
                 >
@@ -178,6 +171,7 @@ const LoginPage: React.FC = () => {
 
                 {/* Kakao */}
                 <button
+                  type="button"
                   onClick={() => handleOAuth('kakao')}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#FEE500] hover:bg-[#f0d800] transition-all text-sm font-medium text-[#191919]"
                 >
