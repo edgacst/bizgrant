@@ -34,14 +34,15 @@ public class AuthService {
      */
     @Transactional
     public JwtResponse signup(SignupRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String email = normalizeEmail(request.getEmail());
+        if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
         String normalizedBizNumber = normalizeBizNumber(request.getBizNumber());
 
         User user = User.builder()
-                .email(request.getEmail())
+                .email(email)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .phone(request.getPhone())
@@ -49,7 +50,7 @@ public class AuthService {
                 .bizNumber(normalizedBizNumber)
                 .industry(request.getIndustry())
                 .companySize(request.getCompanySize())
-                .role(resolveRole(request.getEmail()))
+                .role(resolveRole(email))
                 .build();
 
         user = userRepository.save(user);
@@ -62,7 +63,7 @@ public class AuthService {
      * 이메일/비밀번호 검증 후 JWT 발급
      */
     public JwtResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmailIgnoreCase(normalizeEmail(request.getEmail()))
                 .orElseThrow(() -> new BadCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
@@ -86,8 +87,8 @@ public class AuthService {
             throw new BadCredentialsException("유효하지 않은 Refresh Token입니다.");
         }
 
-        String email = jwtTokenProvider.getEmailFromToken(refreshToken);
-        User user = userRepository.findByEmail(email)
+        String email = normalizeEmail(jwtTokenProvider.getEmailFromToken(refreshToken));
+        User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new BadCredentialsException("사용자를 찾을 수 없습니다."));
 
         applyAdminRoleIfConfigured(user);
@@ -142,6 +143,13 @@ public class AuthService {
                 .filter(e -> e != null && !e.isBlank())
                 .map(e -> e.trim().toLowerCase())
                 .anyMatch(normalized::equals);
+    }
+
+    private String normalizeEmail(String email) {
+        if (email == null) {
+            return "";
+        }
+        return email.trim().toLowerCase();
     }
 
     private String normalizeBizNumber(String bizNumber) {
