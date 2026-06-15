@@ -397,13 +397,13 @@ const LandingPage: React.FC = () => {
       {/* ========== FINAL CTA ========== */}
       <section className="py-24 bg-white dark:bg-gray-950">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <div className="premium-card p-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 border-0">
+          <div className="rounded-2xl p-10 sm:p-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl border-0">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
               지금 바로 시작하세요
             </h2>
-            <p className="text-lg text-indigo-100 mb-8">
+            <p className="text-base sm:text-lg text-white/95 leading-relaxed mb-8">
               무료 회원가입 후 공고 검색, 맞춤 적합도, 알림 설정을 이용해 보세요.<br />
-              유료 요금제·결제 기능은 준비 중입니다.
+              <span className="text-white/80">유료 요금제·결제 기능은 준비 중입니다.</span>
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/signup" className="btn bg-white text-indigo-600 hover:bg-indigo-50 text-lg px-10 py-4 font-bold shadow-lg">

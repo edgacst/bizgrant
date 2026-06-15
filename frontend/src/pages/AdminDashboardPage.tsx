@@ -386,7 +386,7 @@ const AdminDashboardPage: React.FC = () => {
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             「생성」은 그 실행에서 DB에 새로 넣은 건수입니다. 활성 공고 수와 다를 수 있습니다.
           </p>
-          <div className="space-y-3">
+          <div className="max-h-[min(50vh,420px)] overflow-y-auto overflow-x-hidden pr-1 -mr-1 space-y-3">
             {(data?.recentSyncRuns ?? []).map((run: AdminSyncRun) => {
               const activeNow = activeBySource[run.source];
               return (
