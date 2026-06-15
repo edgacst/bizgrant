@@ -28,15 +28,24 @@ echo "==> 동기화 전 공고 수"
 api_get "/grants/active-count" || true
 echo ""
 
-echo "==> 전체 소스 동기화 시작 (완료까지 기다림, 최대 20분)..."
-if api_post "/grants/sync"; then
+echo "==> 기업마당(bizinfo) 동기화 (2~5분)..."
+if api_post "/grants/sync/bizinfo"; then
   echo ""
-  echo "==> 동기화 완료"
+  echo "==> bizinfo 완료"
 else
   echo ""
-  echo "오류: 동기화 요청 실패. 로그 확인:"
+  echo "오류: bizinfo 동기화 실패"
+  echo "  ./deploy/vps/fix-api-key.sh"
   echo "  docker compose -f docker-compose.prod.yml logs backend --tail 50"
   exit 1
+fi
+
+echo ""
+echo "==> (선택) 전체 소스 동기화 — HTML 포함, 30분+ 소요"
+echo "    api_post \"/grants/sync\"  또는  ./deploy/vps/sync-grants.sh --all"
+if [[ "${1:-}" == "--all" ]]; then
+  echo "==> 전체 동기화 시작..."
+  api_post "/grants/sync" || true
 fi
 
 echo ""

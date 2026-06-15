@@ -21,7 +21,8 @@ chmod +x deploy/vps/*.sh
 
 ```bash
 ./deploy/vps/fix-api-key.sh      # API 키 .env 반영
-./deploy/vps/sync-grants.sh      # 동기화 (5~15분)
+./deploy/vps/sync-bizinfo.sh     # 기업마당만 (빠름, 권장)
+# ./deploy/vps/sync-grants.sh    # 전체 소스 (느림)
 ```
 
 상태 확인 (HTTPS 적용 후에는 백엔드 직접 호출):

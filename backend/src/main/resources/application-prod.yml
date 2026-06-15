@@ -61,5 +61,23 @@ app:
   grant-sync:
     enabled: ${GRANT_SYNC_ENABLED:true}
     cron: ${GRANT_SYNC_CRON:0 0 3 * * *}
+    max-pages-per-source: 30
     public-data:
       api-key: ${PUBLIC_DATA_API_KEY:4kpciVHyniZJV%2BUGGyjbU80aUlB1VqT2BHBRMimmTdySD9O89LhD%2B3JYi%2FpZieBhoDnf5NjvrpBEjIK05TfNpA%3D%3D}
+    # VPS: API만 (HTML 스크래핑은 느리고 타임아웃 잦음)
+    sources:
+      - name: bizinfo
+        url: https://www.bizinfo.go.kr
+        enabled: true
+        type: API
+        max-pages: 40
+      - name: g2b
+        url: https://www.g2b.go.kr
+        enabled: true
+        type: API
+        max-pages: 10
+      - name: g2b-award
+        url: https://www.g2b.go.kr
+        enabled: true
+        type: API
+        max-pages: 10
