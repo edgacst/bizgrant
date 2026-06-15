@@ -39,6 +39,10 @@ fi
 echo ""
 
 echo "==> 해결 방법"
-echo "  HTTP만 되고 HTTPS 안 됨 → ./deploy/vps/update.sh (프론트 재빌드, SSL 자동 감지)"
+if curl -sS -o /dev/null --connect-timeout 2 http://127.0.0.1/healthz 2>/dev/null \
+  && ! curl -sS -o /dev/null --connect-timeout 2 -k https://127.0.0.1/healthz 2>/dev/null; then
+  echo "  ★ 지금 상태: HTTP만 동작 → ./deploy/vps/fix-https.sh 실행"
+fi
+echo "  HTTP만 되고 HTTPS 안 됨 → ./deploy/vps/fix-https.sh"
 echo "  둘 다 안 됨 → hPanel 방화벽에서 TCP 80·443 열기"
 echo "  인증서 없음 → ./deploy/vps/setup-https.sh"
