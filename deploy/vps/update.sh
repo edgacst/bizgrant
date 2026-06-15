@@ -29,6 +29,9 @@ done
 "${COMPOSE[@]}" ps
 echo ""
 echo "코드 반영 완료. 공고 동기화: ./deploy/vps/sync-grants.sh"
-if [[ -f "$SSL_CONF" ]]; then
-  echo "HTTPS 접속: $(grep -E '^SITE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
+
+SITE_URL="$(grep -E '^SITE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
+if [[ "$SITE_URL" == https://* ]]; then
+  echo "==> HTTPS 사이트 — SSL nginx 복구"
+  "$(dirname "$0")/fix-https.sh" || echo "경고: fix-https 실패 — ./deploy/vps/recover.sh 실행"
 fi
