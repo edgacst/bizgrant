@@ -1,0 +1,371 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Save,
+  Bell,
+  Mail,
+  MessageCircle,
+  Smartphone,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Sparkles,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import client from '../api/client';
+import type { AlertPrefForm, AlertHistory } from '../types';
+import { usePlan } from '../hooks/usePlan';
+import { formatLimit, isUnlimited } from '../api/plan';
+import PlanUpgradeHint from '../components/PlanUpgradeHint';
+
+const ALL_CATEGORIES = ['R&D', '창업', '수출', '제조혁신', '인력', '마케팅', '기타'];
+const ALL_INDUSTRIES = [
+  'IT/소프트웨어', '제조/하드웨어', '서비스/유통', '건설/인테리어',
+  '교육/컨설팅', '바이오/헬스케어', '문화/콘텐츠', '프리랜서/개인',
+];
+
+const AlertConfigPage: React.FC = () => {
+  const { planInfo, limits, usage } = usePlan();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [history, setHistory] = useState<AlertHistory[]>([]);
+  const [form, setForm] = useState<AlertPrefForm>({
+    categories: ['R&D', '창업'],
+    industries: ['IT/소프트웨어'],
+    minBudget: 10000000,
+    channel: 'email',
+    channelId: '',
+    enabled: true,
+  });
+
+  useEffect(() => {
+    const fetchPrefs = async () => {
+      try {
+        const res = await client.get('/prefs');
+        const prefs = res.data;
+        if (prefs) {
+          setForm({
+            categories: (typeof prefs.categories === 'string' ? prefs.categories.split(',') : prefs.categories) || [],
+            industries: (typeof prefs.industries === 'string' ? prefs.industries.split(',') : prefs.industries) || [],
+            minBudget: prefs.minBudget || 10000000,
+            channel: prefs.channel || 'email',
+            channelId: prefs.channelId || '',
+            enabled: prefs.enabled !== undefined ? prefs.enabled : true,
+          });
+        }
+      } catch { /* use defaults */ }
+    };
+
+    const fetchHistory = async () => {
+      try {
+        const res = await client.get('/history');
+        setHistory(res.data || []);
+      } catch {
+        setHistory([]);
+      }
+    };
+
+    Promise.all([fetchPrefs(), fetchHistory()]).finally(() => setLoading(false));
+  }, []);
+
+  const toggleCategory = (cat: string) => {
+    setForm(prev => {
+      if (!prev.categories.includes(cat) && !isUnlimited(limits.maxAlertCategories)
+          && prev.categories.length >= limits.maxAlertCategories) {
+        toast.error(`관심 카테고리는 ${limits.maxAlertCategories}개까지 선택할 수 있습니다.`);
+        return prev;
+      }
+      return {
+        ...prev,
+        categories: prev.categories.includes(cat)
+          ? prev.categories.filter(c => c !== cat)
+          : [...prev.categories, cat],
+      };
+    });
+  };
+
+  const toggleIndustry = (ind: string) => {
+    setForm(prev => {
+      if (!prev.industries.includes(ind) && !isUnlimited(limits.maxAlertIndustries)
+          && prev.industries.length >= limits.maxAlertIndustries) {
+        toast.error(`관심 업종은 ${limits.maxAlertIndustries}개까지 선택할 수 있습니다.`);
+        return prev;
+      }
+      return {
+        ...prev,
+        industries: prev.industries.includes(ind)
+          ? prev.industries.filter(i => i !== ind)
+          : [...prev.industries, ind],
+      };
+    });
+  };
+
+  const handleSave = async () => {
+    if (!limits.allowedAlertChannels.includes(form.channel)) {
+      toast.error(`${form.channel} 알림은 Pro 이상에서 설정할 수 있습니다.`);
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        ...form,
+        categories: form.categories.join(','),
+        industries: form.industries.join(','),
+      };
+      await client.post('/prefs', payload).catch(() => client.put('/prefs', payload));
+      toast.success('알림 설정이 저장되었습니다.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || '알림 설정 저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const formatBudget = (amount: number) => {
+    if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억원`;
+    if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만원`;
+    return `${amount.toLocaleString()}원`;
+  };
+
+  const budgetPresets = [1000000, 5000000, 10000000, 50000000, 100000000];
+
+  const statusIcon = (status: string) => {
+    switch (status) {
+      case 'sent': return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'failed': return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'pending': return <Clock className="w-4 h-4 text-yellow-500" />;
+      default: return null;
+    }
+  };
+
+  const statusText = (status: string) => {
+    switch (status) {
+      case 'sent': return '전송 완료';
+      case 'failed': return '전송 실패';
+      case 'pending': return '대기 중';
+      default: return status;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 space-y-6">
+        <div className="skeleton h-8 w-40" />
+        <div className="premium-card p-8 space-y-6">
+          <div className="skeleton h-6 w-32" />
+          <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="skeleton h-10 w-20 rounded-xl" />)}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
+          <Bell className="w-7 h-7 inline mr-2 text-brand-500" />
+          알림 설정
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {planInfo.planLabel} · 카테고리 {form.categories.length}/{formatLimit(limits.maxAlertCategories)}
+          · 일일 알림 {usage?.alertsSentToday ?? 0}/{formatLimit(limits.maxDailyAlerts)}
+        </p>
+      </div>
+
+      {planInfo.plan === 'free' && (
+        <PlanUpgradeHint
+          compact
+          message="Pro에서는 카테고리 10개, 일일 알림 30건, Telegram·Slack을 사용할 수 있습니다."
+          requiredPlan="Pro"
+        />
+      )}
+
+      <div className="premium-card mb-8">
+        <div className="p-6 sm:p-8 space-y-6">
+          <h2 className="text-lg font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-brand-500" />
+            알림 기본 설정
+          </h2>
+
+          {/* Enabled Toggle */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white">알림 활성화</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">전체 알림 수신 여부</p>
+            </div>
+            <button
+              onClick={() => setForm(prev => ({ ...prev, enabled: !prev.enabled }))}
+              className={`relative w-12 h-7 rounded-full transition-colors ${form.enabled ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+            >
+              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.enabled ? 'translate-x-6.5' : 'translate-x-0.5'}`} />
+            </button>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-white mb-2">
+              관심 카테고리
+              <span className="ml-2 text-xs font-normal text-gray-500">
+                (최대 {formatLimit(limits.maxAlertCategories)})
+              </span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {ALL_CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => toggleCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                    form.categories.includes(cat)
+                      ? 'bg-brand-600 text-white border-brand-600 shadow-md'
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-brand-300'
+                  }`}
+                >{cat}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Industries */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-white mb-2">
+              관심 업종
+              <span className="ml-2 text-xs font-normal text-gray-500">
+                (최대 {formatLimit(limits.maxAlertIndustries)})
+              </span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {ALL_INDUSTRIES.map(ind => (
+                <button key={ind} onClick={() => toggleIndustry(ind)}
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                    form.industries.includes(ind)
+                      ? 'bg-brand-600 text-white border-brand-600 shadow-md'
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-brand-300'
+                  }`}
+                >{ind}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Budget */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-white mb-2">
+              최소 지원금액: <span className="gradient-text font-extrabold">{formatBudget(form.minBudget)}</span>
+            </label>
+            <input type="range" min={0} max={200000000} step={1000000} value={form.minBudget}
+              onChange={e => setForm(prev => ({ ...prev, minBudget: Number(e.target.value) }))}
+              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-600"
+            />
+            <div className="flex justify-between mt-2">
+              {budgetPresets.map(preset => (
+                <button key={preset} onClick={() => setForm(prev => ({ ...prev, minBudget: preset }))}
+                  className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
+                    form.minBudget === preset
+                      ? 'bg-brand-100 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 font-bold'
+                      : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                >{formatBudget(preset)}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Channel */}
+          <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Free는 이메일만, Pro 이상은 Telegram·Slack도 설정할 수 있습니다.
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: 'email' as const, label: '이메일', icon: Mail },
+                { value: 'telegram' as const, label: 'Telegram', icon: MessageCircle },
+                { value: 'slack' as const, label: 'Slack', icon: Smartphone },
+              ].map(ch => {
+                const Icon = ch.icon;
+                const allowed = limits.allowedAlertChannels.includes(ch.value);
+                return (
+                  <button key={ch.value}
+                    type="button"
+                    disabled={!allowed}
+                    onClick={() => allowed && setForm(prev => ({ ...prev, channel: ch.value }))}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
+                      !allowed
+                        ? 'opacity-50 cursor-not-allowed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-400'
+                        : form.channel === ch.value
+                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 shadow-md'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <Icon className={`w-6 h-6 ${form.channel === ch.value ? 'text-brand-600' : ''}`} />
+                    <span className="text-sm font-bold">{ch.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <div className="pt-4">
+            <button onClick={handleSave} disabled={saving}
+              className="btn btn-primary w-full justify-center py-3 text-base font-bold"
+            >
+              {saving ? (
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <><Save className="w-5 h-5 mr-2" />알림 설정 저장</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Alert History */}
+      <div className="premium-card">
+        <div className="p-6 sm:p-8">
+          <h2 className="text-lg font-extrabold text-gray-900 dark:text-white mb-4">알림 이력</h2>
+          {history.length === 0 ? (
+            <p className="text-sm text-gray-400 py-8 text-center">아직 발송된 알림이 없습니다.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800 text-left">
+                    <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400">날짜</th>
+                    <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400">공고명</th>
+                    <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400">채널</th>
+                    <th className="py-3 font-semibold text-gray-500 dark:text-gray-400">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((item, i) => (
+                    <tr key={item.id || i}
+                      className={i < history.length - 1 ? 'border-b border-gray-50 dark:border-gray-800/50' : ''}
+                    >
+                      <td className="py-3 pr-4 text-sm text-gray-600 dark:text-gray-400">
+                        {new Date(item.sentAt ?? item.date ?? '').toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="py-3 pr-4 text-sm text-gray-900 dark:text-white">
+                        {item.noticeTitle || '—'}
+                        {item.organization && (
+                          <span className="block text-xs text-gray-500 mt-0.5">{item.organization}</span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4 text-sm text-gray-600 dark:text-gray-400">
+                        {item.channel === 'email' ? '이메일' : item.channel}
+                      </td>
+                      <td className="py-3">
+                        <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${
+                          item.status === 'sent' ? 'text-green-600' : item.status === 'failed' ? 'text-red-500' : 'text-yellow-600'
+                        }`}>
+                          {statusIcon(item.status)}
+                          {statusText(item.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AlertConfigPage;

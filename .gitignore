@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+mock-server/node_modules/
+
+# Build outputs
+frontend/dist/
+backend/build/
+backend/.gradle/
+!backend/gradle/wrapper/gradle-wrapper.jar
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+!.env.oracle.example
+
+# IDE & OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker overrides
+docker-compose.override.yml
+
+# Local test artifacts
+award-test.json
+biz-test.xml
+g2b-resp.txt
+award-api-page.html

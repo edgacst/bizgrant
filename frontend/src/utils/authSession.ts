@@ -1,0 +1,116 @@
+import axios from 'axios';
+import type { JwtTokens } from '../types';
+import { getMe } from '../api/auth';
+
+export function saveAuthSession(tokens: JwtTokens & { role?: string; email?: string; name?: string }) {
+  localStorage.setItem('accessToken', tokens.accessToken);
+  localStorage.setItem('refreshToken', tokens.refreshToken);
+  if (tokens.role) {
+    localStorage.setItem('userRole', tokens.role);
+  }
+  if (tokens.email) {
+    localStorage.setItem('userEmail', tokens.email);
+  }
+  if (tokens.name) {
+    localStorage.setItem('userName', tokens.name);
+  }
+  notifyAuthSessionUpdated();
+}
+
+export function clearAuthSession() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userPlan');
+  notifyAuthSessionUpdated();
+}
+
+export function isAdminUser(): boolean {
+  return localStorage.getItem('userRole') === 'ADMIN';
+}
+
+export function isLoggedIn(): boolean {
+  return Boolean(localStorage.getItem('accessToken'));
+}
+
+export function getHomePath(): string {
+  return isLoggedIn() ? '/dashboard' : '/';
+}
+
+export function isAccessTokenExpired(bufferMs = 30_000): boolean {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    return true;
+  }
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1])) as { exp?: number };
+    if (!payload.exp) {
+      return true;
+    }
+    return payload.exp * 1000 <= Date.now() + bufferMs;
+  } catch {
+    return true;
+  }
+}
+
+export async function refreshAuthTokens(): Promise<boolean> {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    return false;
+  }
+
+  try {
+    const { data } = await axios.post<JwtTokens>(
+      '/api/auth/refresh',
+      { refreshToken },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      },
+    );
+    saveAuthSession(data);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function syncAuthSession(): Promise<void> {
+  if (!isLoggedIn()) {
+    return;
+  }
+
+  if (isAccessTokenExpired()) {
+    const refreshed = await refreshAuthTokens();
+    if (!refreshed) {
+      return;
+    }
+  }
+
+  try {
+    const me = await getMe();
+    if (me.role) {
+      localStorage.setItem('userRole', me.role);
+    }
+    if (me.email) {
+      localStorage.setItem('userEmail', me.email);
+    }
+    if (me.name) {
+      localStorage.setItem('userName', me.name);
+    }
+    if (me.plan) {
+      localStorage.setItem('userPlan', me.plan);
+    }
+    notifyAuthSessionUpdated();
+  } catch {
+    // client interceptor handles auth failures
+  }
+}
+
+export function notifyAuthSessionUpdated() {
+  window.dispatchEvent(new Event('auth-session-updated'));
+}

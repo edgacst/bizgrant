@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: granthunter-db
+    environment:
+      POSTGRES_DB: granthunter
+      POSTGRES_USER: granthunter
+      POSTGRES_PASSWORD: granthunter
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U granthunter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: granthunter-api
+    environment:
+      DB_PASSWORD: granthunter
+      JWT_SECRET: change-this-to-a-strong-secret-in-production
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/granthunter
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

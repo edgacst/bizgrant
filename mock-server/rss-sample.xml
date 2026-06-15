@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+<channel>
+<title><![CDATA[기업마당 지원사업정보]]></title>
+<link>https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/list.do</link>
+<description><![CDATA[최신지원사업정보를 구독하세요]]></description>
+<language>ko-kr</language>
+<copyright>bizinfo</copyright>
+<managingEditor>develover@smba.go.kr</managingEditor>
+<webMaster>kosi@bizinfo.go.kr</webMaster>
+<pubDate></pubDate>
+<lastBuildDate></lastBuildDate>
+<category>bizinfo</category>
+<ttl>60</ttl>
+<reqErr><![CDATA[인증키를 입력해주세요.]]></reqErr>
+</channel>
+</rss>
+

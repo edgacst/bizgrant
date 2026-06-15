@@ -1,0 +1,90 @@
+[
+  {
+    "code": "MSS_BUSINESS_PLAN",
+    "name": "중소벤처기업부 R&D 사업계획서",
+    "sourceLabel": "중소벤처기업부",
+    "sources": ["mss", "bizinfo"],
+    "documentTypes": ["BUSINESS_PLAN"],
+    "categories": ["R&D", "제조혁신"],
+    "officialUrl": "https://www.bizinfo.go.kr",
+    "hwpOfficialUrl": "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310",
+    "docxVariant": "MSS_BUSINESS_PLAN"
+  },
+  {
+    "code": "KSTARTUP_BUSINESS_PLAN",
+    "name": "K-Startup 사업화계획서",
+    "sourceLabel": "K-Startup",
+    "sources": ["kstartup"],
+    "documentTypes": ["BUSINESS_PLAN"],
+    "categories": ["창업"],
+    "officialUrl": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+    "hwpOfficialUrl": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+    "docxVariant": "KSTARTUP_BUSINESS_PLAN"
+  },
+  {
+    "code": "MSS_FINANCIAL",
+    "name": "중소기업 재무제표 제출 양식",
+    "sourceLabel": "중소벤처기업부",
+    "sources": ["mss", "bizinfo", "kstartup"],
+    "documentTypes": ["FINANCIAL"],
+    "categories": [],
+    "officialUrl": "https://www.bizinfo.go.kr",
+    "hwpOfficialUrl": "https://www.hometax.go.kr",
+    "docxVariant": "MSS_FINANCIAL"
+  },
+  {
+    "code": "BIZINFO_TAX",
+    "name": "국세·지방세 완납증명 안내",
+    "sourceLabel": "국세청·위택스",
+    "sources": ["bizinfo", "mss", "kstartup", "g2b"],
+    "documentTypes": ["TAX"],
+    "categories": [],
+    "officialUrl": "https://www.hometax.go.kr",
+    "hwpOfficialUrl": "https://www.wetax.go.kr",
+    "docxVariant": "BIZINFO_TAX"
+  },
+  {
+    "code": "MSS_INSURANCE",
+    "name": "4대보험 완납증명서",
+    "sourceLabel": "사회보험통합징수포털",
+    "sources": ["mss", "bizinfo", "kstartup", "g2b"],
+    "documentTypes": ["INSURANCE"],
+    "categories": [],
+    "officialUrl": "https://www.gov.kr/portal/service/serviceInfo/PTR000050374",
+    "hwpOfficialUrl": "https://si4n.nhis.or.kr",
+    "docxVariant": "MSS_INSURANCE"
+  },
+  {
+    "code": "KSTARTUP_APPLICATION",
+    "name": "K-Startup 지원사업 신청서",
+    "sourceLabel": "K-Startup",
+    "sources": ["kstartup"],
+    "documentTypes": ["APPLICATION"],
+    "categories": ["창업"],
+    "officialUrl": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+    "hwpOfficialUrl": "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do",
+    "docxVariant": "KSTARTUP_APPLICATION"
+  },
+  {
+    "code": "MSS_APPLICATION",
+    "name": "중소벤처기업부 지원사업 신청서",
+    "sourceLabel": "중소벤처기업부",
+    "sources": ["mss", "bizinfo"],
+    "documentTypes": ["APPLICATION"],
+    "categories": [],
+    "officialUrl": "https://www.bizinfo.go.kr",
+    "hwpOfficialUrl": "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310",
+    "docxVariant": "MSS_APPLICATION"
+  },
+  {
+    "code": "BIZINFO_CERTIFICATE",
+    "name": "사업자등록증·증명서류",
+    "sourceLabel": "정부24·홈택스",
+    "sources": ["bizinfo", "mss", "kstartup", "g2b"],
+    "documentTypes": ["CERTIFICATE"],
+    "categories": [],
+    "officialUrl": "https://www.gov.kr",
+    "hwpOfficialUrl": "https://www.hometax.go.kr",
+    "docxVariant": "BIZINFO_CERTIFICATE"
+  }
+]
