@@ -1,5 +1,5 @@
-# BizGrant — Oracle Cloud (레거시 파일명, docker-compose.prod.yml 과 동일)
-# 신규 배포는 docker-compose.prod.yml 사용
+# BizGrant — VPS 프로덕션 배포 (Hostinger, Oracle, Hetzner 등)
+# 사용: deploy/hostinger/README.md 또는 deploy/oracle/README.md
 
 services:
   postgres:

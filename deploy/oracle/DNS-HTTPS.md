@@ -46,7 +46,7 @@ dig +short www.bizgrant.kr
 cd ~/bizgrant
 cp .env.oracle.example .env
 nano .env   # JWT_SECRET, POSTGRES_PASSWORD, PUBLIC_DATA_API_KEY, CERTBOT_EMAIL
-./deploy/oracle/deploy.sh
+./deploy/vps/deploy.sh
 ```
 
 처음에는 `SITE_URL=http://공인IP` 로 두고 `http://공인IP` 접속이 되는지 확인합니다.
@@ -65,8 +65,8 @@ CERTBOT_EMAIL=admin@bizgrant.kr
 실행:
 
 ```bash
-chmod +x deploy/oracle/setup-https.sh deploy/oracle/renew-https.sh
-./deploy/oracle/setup-https.sh
+chmod +x deploy/vps/setup-https.sh deploy/vps/renew-https.sh
+./deploy/vps/setup-https.sh
 ```
 
 성공 시:
@@ -84,7 +84,7 @@ crontab -e
 ```
 
 ```cron
-0 4 * * 1 /home/ubuntu/bizgrant/deploy/oracle/renew-https.sh >> /home/ubuntu/bizgrant/backups/cert-renew.log 2>&1
+0 4 * * 1 /home/ubuntu/bizgrant/deploy/vps/renew-https.sh >> /home/ubuntu/bizgrant/backups/cert-renew.log 2>&1
 ```
 
 ---
@@ -103,7 +103,7 @@ crontab -e
 
 | 파일 | 설명 |
 |------|------|
-| `setup-https.sh` | Certbot 발급 + HTTPS nginx 적용 |
-| `renew-https.sh` | 인증서 갱신 |
-| `docker-compose.oracle.https.yml` | SSL nginx 설정 오버레이 |
+| `setup-https.sh` | `deploy/vps/setup-https.sh` |
+| `renew-https.sh` | `deploy/vps/renew-https.sh` |
+| `docker-compose.prod.https.yml` | SSL nginx 오버레이 |
 | `frontend/nginx.ssl.conf.template` | HTTPS nginx 템플릿 |

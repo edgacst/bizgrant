@@ -3,6 +3,8 @@
 가입자가 생길 때까지 **0원**으로 운영합니다.  
 프론트(nginx) + 백엔드(Spring) + PostgreSQL을 한 VM에서 Docker로 실행합니다.
 
+> 배포 스크립트는 `deploy/vps/` 공통입니다. Hostinger는 [deploy/hostinger/README.md](../hostinger/README.md).
+
 ---
 
 ## 빠른 체크리스트
@@ -50,8 +52,8 @@ scp -i C:\path\to\your-key.pem -r F:\bizgrant ubuntu@YOUR_PUBLIC_IP:~/bizgrant
 ```bash
 ssh -i your-key.pem ubuntu@YOUR_PUBLIC_IP
 cd ~/bizgrant
-chmod +x deploy/oracle/*.sh
-sudo ./deploy/oracle/setup-server.sh
+chmod +x deploy/vps/*.sh deploy/oracle/*.sh
+sudo ./deploy/vps/setup-server.sh
 exit
 # 재로그인 (docker 그룹 적용)
 ssh -i your-key.pem ubuntu@YOUR_PUBLIC_IP
@@ -63,7 +65,7 @@ ssh -i your-key.pem ubuntu@YOUR_PUBLIC_IP
 
 ```bash
 cd ~/bizgrant
-cp .env.oracle.example .env
+cp .env.prod.example .env
 nano .env
 ```
 
@@ -81,7 +83,7 @@ nano .env
 ## 4. 배포 실행
 
 ```bash
-./deploy/oracle/deploy.sh
+./deploy/vps/deploy.sh
 ```
 
 - 사이트: `.env`의 `SITE_URL`
@@ -96,17 +98,16 @@ nano .env
 
 ```bash
 # 로그
-docker compose -f docker-compose.oracle.yml logs -f backend
+docker compose -f docker-compose.prod.yml logs -f backend
 
 # 코드 수정 후 재배포
-./deploy/oracle/update.sh
+./deploy/vps/update.sh
 
 # DB 백업
-./deploy/oracle/backup-db.sh
+./deploy/vps/backup-db.sh
 
 # 매일 새벽 3시 백업 (cron)
-crontab -e
-# 0 3 * * * /home/ubuntu/bizgrant/deploy/oracle/backup-db.sh >> /home/ubuntu/bizgrant/backups/backup.log 2>&1
+# 0 3 * * * /home/ubuntu/bizgrant/deploy/vps/backup-db.sh >> /home/ubuntu/bizgrant/backups/backup.log 2>&1
 ```
 
 ---
@@ -117,8 +118,8 @@ crontab -e
 
 ```bash
 # .env 에 DOMAIN, CERTBOT_EMAIL 설정 후
-chmod +x deploy/oracle/setup-https.sh deploy/oracle/renew-https.sh
-./deploy/oracle/setup-https.sh
+chmod +x deploy/vps/setup-https.sh deploy/vps/renew-https.sh
+./deploy/vps/setup-https.sh
 ```
 
 ---
@@ -138,7 +139,7 @@ chmod +x deploy/oracle/setup-https.sh deploy/oracle/renew-https.sh
 
 1. SMTP (`MAIL_*`) — 뉴스레터·알림 메일
 2. API 인증 강화
-3. Hetzner 등 유료 호스팅 이전 검토
+3. Hostinger 등 유료 VPS 이전 검토
 
 ---
 
@@ -146,16 +147,13 @@ chmod +x deploy/oracle/setup-https.sh deploy/oracle/renew-https.sh
 
 ```
 bizgrant/
-├── docker-compose.oracle.yml
-├── docker-compose.oracle.https.yml
-├── .env.oracle.example
-└── deploy/oracle/
-    ├── README.md
-    ├── DNS-HTTPS.md
-    ├── setup-server.sh
-    ├── deploy.sh
-    ├── setup-https.sh
-    ├── renew-https.sh
-    ├── update.sh
-    └── backup-db.sh
+├── docker-compose.prod.yml
+├── docker-compose.prod.https.yml
+├── .env.prod.example
+└── deploy/
+    ├── vps/              ← 배포 스크립트 (공통)
+    ├── hostinger/
+    └── oracle/
+        ├── README.md
+        └── DNS-HTTPS.md
 ```

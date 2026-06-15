@@ -1,5 +1,4 @@
-# HTTPS 적용 후 사용 (setup-https.sh 가 자동 호출)
-# docker compose -f docker-compose.oracle.yml -f docker-compose.oracle.https.yml ...
+# HTTPS 적용 후 사용 (deploy/vps/setup-https.sh)
 
 services:
   frontend:
