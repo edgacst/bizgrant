@@ -71,7 +71,16 @@ export async function markAlertsRead(ids?: number[]): Promise<number> {
 }
 
 export async function deleteAlertHistory(id: number): Promise<void> {
-  await client.delete(`/history/${id}`);
+  try {
+    await client.delete(`/history/${id}`);
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 404 || status === 405) {
+      await client.post('/history/delete', { ids: [id] });
+      return;
+    }
+    throw err;
+  }
 }
 
 export async function deleteAlertHistoryBatch(options?: { ids?: number[]; all?: boolean }): Promise<number> {

@@ -127,6 +127,10 @@ const AlertConfigPage: React.FC = () => {
   }, []);
 
   const handleDeleteOne = async (id: number) => {
+    if (!id) {
+      toast.error('삭제할 알림 ID가 없습니다. 페이지를 새로고침해주세요.');
+      return;
+    }
     if (!window.confirm('이 알림 이력을 삭제할까요?')) return;
     setDeletingId(id);
     try {
@@ -134,8 +138,14 @@ const AlertConfigPage: React.FC = () => {
       setHistory(prev => prev.filter(item => item.id !== id));
       notifyAlertHistoryUpdated();
       toast.success('알림 이력을 삭제했습니다.');
-    } catch {
-      toast.error('삭제에 실패했습니다.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string }; status?: number } })?.response?.data?.message;
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        toast.error('삭제 API를 찾을 수 없습니다. 백엔드를 최신 코드로 재시작해주세요.');
+      } else {
+        toast.error(msg || '삭제에 실패했습니다.');
+      }
     } finally {
       setDeletingId(null);
     }
@@ -145,12 +155,22 @@ const AlertConfigPage: React.FC = () => {
     if (!window.confirm(`알림 이력 ${history.length}건을 모두 삭제할까요?`)) return;
     setDeletingAll(true);
     try {
-      await deleteAlertHistoryBatch({ all: true });
+      const deleted = await deleteAlertHistoryBatch({ all: true });
+      if (deleted === 0 && history.length > 0) {
+        toast.error('삭제된 항목이 없습니다. 백엔드를 재시작했는지 확인해주세요.');
+        return;
+      }
       setHistory([]);
       notifyAlertHistoryUpdated();
       toast.success('알림 이력을 모두 삭제했습니다.');
-    } catch {
-      toast.error('전체 삭제에 실패했습니다.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string }; status?: number } })?.response?.data?.message;
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        toast.error('삭제 API를 찾을 수 없습니다. 백엔드를 최신 코드로 재시작해주세요.');
+      } else {
+        toast.error(msg || '전체 삭제에 실패했습니다.');
+      }
     } finally {
       setDeletingAll(false);
     }
