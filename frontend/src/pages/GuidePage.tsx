@@ -10,7 +10,6 @@ import {
   Kanban,
   Bell,
   FileCheck,
-  Calendar,
   LayoutDashboard,
   Gavel,
   FolderOpen,
