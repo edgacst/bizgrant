@@ -62,4 +62,4 @@ app:
     enabled: ${GRANT_SYNC_ENABLED:true}
     cron: ${GRANT_SYNC_CRON:0 0 3 * * *}
     public-data:
-      api-key: ${PUBLIC_DATA_API_KEY}
+      api-key: ${PUBLIC_DATA_API_KEY:4kpciVHyniZJV%2BUGGyjbU80aUlB1VqT2BHBRMimmTdySD9O89LhD%2B3JYi%2FpZieBhoDnf5NjvrpBEjIK05TfNpA%3D%3D}

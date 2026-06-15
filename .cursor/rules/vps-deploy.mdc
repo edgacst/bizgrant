@@ -19,11 +19,9 @@ chmod +x deploy/vps/*.sh
 
 ## 공고 데이터가 0일 때
 
-최초 배포·동기화 실패 시 수동 동기화 (5~15분 소요):
-
 ```bash
-cd ~/bizgrant
-./deploy/vps/sync-grants.sh
+./deploy/vps/fix-api-key.sh      # API 키 .env 반영
+./deploy/vps/sync-grants.sh      # 동기화 (5~15분)
 ```
 
 상태 확인:
