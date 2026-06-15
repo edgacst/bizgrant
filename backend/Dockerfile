@@ -22,6 +22,8 @@ RUN addgroup -S bizgrant && adduser -S bizgrant -G bizgrant \
 
 COPY --from=builder /app/build/libs/*.jar app.jar
 
+RUN mkdir -p /app/uploads && chown -R bizgrant:bizgrant /app
+
 USER bizgrant
 
 EXPOSE 8080
