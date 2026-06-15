@@ -11,10 +11,16 @@ import {
   Sparkles,
   Pencil,
   X,
+  Trash2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
-import { formatAlertChannel } from '../api/alerts';
+import {
+  deleteAlertHistory,
+  deleteAlertHistoryBatch,
+  formatAlertChannel,
+  notifyAlertHistoryUpdated,
+} from '../api/alerts';
 import type { AlertPrefForm, AlertHistory } from '../types';
 import { usePlan } from '../hooks/usePlan';
 import { formatLimit, isUnlimited } from '../api/plan';
@@ -81,6 +87,8 @@ const AlertConfigPage: React.FC = () => {
   const [editing, setEditing] = useState(true);
   const [hasSavedPrefs, setHasSavedPrefs] = useState(false);
   const [history, setHistory] = useState<AlertHistory[]>([]);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingAll, setDeletingAll] = useState(false);
   const [form, setForm] = useState<AlertPrefForm>(DEFAULT_FORM);
   const [savedForm, setSavedForm] = useState<AlertPrefForm>(DEFAULT_FORM);
 
@@ -117,6 +125,36 @@ const AlertConfigPage: React.FC = () => {
 
     Promise.all([fetchPrefs(), fetchHistory()]).finally(() => setLoading(false));
   }, []);
+
+  const handleDeleteOne = async (id: number) => {
+    if (!window.confirm('이 알림 이력을 삭제할까요?')) return;
+    setDeletingId(id);
+    try {
+      await deleteAlertHistory(id);
+      setHistory(prev => prev.filter(item => item.id !== id));
+      notifyAlertHistoryUpdated();
+      toast.success('알림 이력을 삭제했습니다.');
+    } catch {
+      toast.error('삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!window.confirm(`알림 이력 ${history.length}건을 모두 삭제할까요?`)) return;
+    setDeletingAll(true);
+    try {
+      await deleteAlertHistoryBatch({ all: true });
+      setHistory([]);
+      notifyAlertHistoryUpdated();
+      toast.success('알림 이력을 모두 삭제했습니다.');
+    } catch {
+      toast.error('전체 삭제에 실패했습니다.');
+    } finally {
+      setDeletingAll(false);
+    }
+  };
 
   const toggleCategory = (cat: string) => {
     if (!editing) return;
@@ -440,7 +478,24 @@ const AlertConfigPage: React.FC = () => {
 
       <div className="premium-card">
         <div className="p-6 sm:p-8">
-          <h2 className="text-lg font-extrabold text-gray-900 dark:text-white mb-4">알림 이력</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">알림 이력</h2>
+            {history.length > 0 && (
+              <button
+                type="button"
+                onClick={() => void handleDeleteAll()}
+                disabled={deletingAll}
+                className="btn btn-secondary text-sm text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 self-start"
+              >
+                {deletingAll ? (
+                  <span className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                전체 삭제
+              </button>
+            )}
+          </div>
           {history.length === 0 ? (
             <p className="text-sm text-gray-400 py-8 text-center">아직 발송된 알림이 없습니다.</p>
           ) : (
@@ -452,6 +507,7 @@ const AlertConfigPage: React.FC = () => {
                     <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400">공고명</th>
                     <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400">채널</th>
                     <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400">상태</th>
+                    <th className="py-3 pr-4 font-semibold text-gray-500 dark:text-gray-400 w-12">삭제</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -481,6 +537,22 @@ const AlertConfigPage: React.FC = () => {
                           {statusIcon(item.status)}
                           {statusText(item.status)}
                         </span>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteOne(item.id)}
+                          disabled={deletingId === item.id}
+                          className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                          title="삭제"
+                          aria-label="알림 이력 삭제"
+                        >
+                          {deletingId === item.id ? (
+                            <span className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin inline-block" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
                       </td>
                     </tr>
                   ))}

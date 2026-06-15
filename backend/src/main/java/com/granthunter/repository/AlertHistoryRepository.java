@@ -21,6 +21,10 @@ public interface AlertHistoryRepository extends JpaRepository<AlertHistory, Long
 
     List<AlertHistory> findByUserIdAndIdInAndReadAtIsNull(Long userId, List<Long> ids);
 
+    List<AlertHistory> findByUserIdAndIdIn(Long userId, List<Long> ids);
+
+    long countByUserId(Long userId);
+
     long countByUserIdAndReadAtIsNull(Long userId);
 
     List<AlertHistory> findByUserIdAndNoticeId(Long userId, Long noticeId);

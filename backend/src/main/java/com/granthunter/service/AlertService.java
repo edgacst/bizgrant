@@ -369,4 +369,32 @@ public class AlertService {
         alertHistoryRepository.saveAll(items);
         return items.size();
     }
+
+    @Transactional
+    public int deleteHistory(Long userId, Long id) {
+        List<AlertHistory> items = alertHistoryRepository.findByUserIdAndIdIn(userId, List.of(id));
+        if (items.isEmpty()) {
+            return 0;
+        }
+        alertHistoryRepository.deleteAll(items);
+        return items.size();
+    }
+
+    @Transactional
+    public int deleteHistory(Long userId, List<Long> ids, boolean deleteAll) {
+        if (deleteAll) {
+            long count = alertHistoryRepository.countByUserId(userId);
+            alertHistoryRepository.deleteByUserId(userId);
+            return (int) count;
+        }
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+        List<AlertHistory> items = alertHistoryRepository.findByUserIdAndIdIn(userId, ids);
+        if (items.isEmpty()) {
+            return 0;
+        }
+        alertHistoryRepository.deleteAll(items);
+        return items.size();
+    }
 }

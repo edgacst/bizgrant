@@ -137,6 +137,37 @@ public class AlertController {
         return ResponseEntity.ok(Map.of("updated", updated));
     }
 
+    @DeleteMapping("/history/{id}")
+    @Operation(summary = "알림 이력 삭제", description = "단일 알림 이력을 삭제합니다.")
+    public ResponseEntity<Map<String, Integer>> deleteHistoryItem(
+            Authentication auth,
+            @PathVariable Long id) {
+        Long userId = getCurrentUserId(auth);
+        int deleted = alertService.deleteHistory(userId, id);
+        if (deleted == 0) {
+            throw new IllegalArgumentException("삭제할 알림을 찾을 수 없습니다.");
+        }
+        return ResponseEntity.ok(Map.of("deleted", deleted));
+    }
+
+    @PostMapping("/history/delete")
+    @Operation(summary = "알림 이력 일괄 삭제", description = "ids 목록 또는 all=true로 이력을 삭제합니다.")
+    public ResponseEntity<Map<String, Integer>> deleteHistoryBatch(
+            Authentication auth,
+            @RequestBody(required = false) Map<String, Object> body) {
+        Long userId = getCurrentUserId(auth);
+        boolean deleteAll = body != null && Boolean.TRUE.equals(body.get("all"));
+        List<Long> ids = null;
+        if (body != null && body.get("ids") instanceof List<?> rawIds) {
+            ids = rawIds.stream()
+                    .map(Object::toString)
+                    .map(Long::valueOf)
+                    .toList();
+        }
+        int deleted = alertService.deleteHistory(userId, ids, deleteAll);
+        return ResponseEntity.ok(Map.of("deleted", deleted));
+    }
+
     @PostMapping("/alerts/send")
     @Operation(summary = "매칭 알림 수동 발송", description = "현재 사용자에게 매칭 알림을 수동으로 발송합니다.")
     public ResponseEntity<Map<String, String>> sendAlerts(Authentication auth) {

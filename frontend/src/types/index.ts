@@ -64,7 +64,10 @@ export interface AlertPref {
 export interface AlertHistory {
   id: number;
   date: string;
+  sentAt?: string;
+  readAt?: string | null;
   noticeTitle: string;
+  organization?: string;
   channel: string;
   status: 'sent' | 'failed' | 'pending';
 }

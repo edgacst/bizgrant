@@ -89,7 +89,11 @@ const NotificationBell: React.FC = () => {
     void refreshUnreadCount();
     const onUpdate = () => { void refreshUnreadCount(); };
     window.addEventListener('auth-session-updated', onUpdate);
-    return () => window.removeEventListener('auth-session-updated', onUpdate);
+    window.addEventListener('alert-history-updated', onUpdate);
+    return () => {
+      window.removeEventListener('auth-session-updated', onUpdate);
+      window.removeEventListener('alert-history-updated', onUpdate);
+    };
   }, [refreshUnreadCount]);
 
   if (!isLoggedIn()) {

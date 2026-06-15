@@ -70,6 +70,22 @@ export async function markAlertsRead(ids?: number[]): Promise<number> {
   return data?.updated ?? 0;
 }
 
+export async function deleteAlertHistory(id: number): Promise<void> {
+  await client.delete(`/history/${id}`);
+}
+
+export async function deleteAlertHistoryBatch(options?: { ids?: number[]; all?: boolean }): Promise<number> {
+  const { data } = await client.post<{ deleted?: number }>('/history/delete', {
+    ids: options?.ids,
+    all: options?.all ?? false,
+  });
+  return data?.deleted ?? 0;
+}
+
+export function notifyAlertHistoryUpdated() {
+  window.dispatchEvent(new Event('alert-history-updated'));
+}
+
 export function isAlertUnread(item: AlertHistoryItem): boolean {
   return !item.readAt;
 }
