@@ -92,7 +92,9 @@ public interface GrantNoticeRepository extends JpaRepository<GrantNotice, Long> 
             @Param("today") LocalDate today);
 
     @Query("SELECT g FROM GrantNotice g WHERE g.scrapedAt >= :since AND g.applyEnd >= :today " +
-           "AND (g.status = 'ACTIVE' OR g.status = 'active') ORDER BY g.scrapedAt DESC")
+           "AND (g.status = 'ACTIVE' OR g.status = 'active') " +
+           "AND UPPER(g.source) NOT IN ('G2B', 'G2B_AWARD') " +
+           "ORDER BY g.scrapedAt DESC")
     Page<GrantNotice> findRecentActiveNotices(
             @Param("since") ZonedDateTime since,
             @Param("today") LocalDate today,
