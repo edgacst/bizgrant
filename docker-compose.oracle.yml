@@ -63,6 +63,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_GOOGLE_SITE_VERIFICATION: ${VITE_GOOGLE_SITE_VERIFICATION:-}
+        VITE_NAVER_SITE_VERIFICATION: ${VITE_NAVER_SITE_VERIFICATION:-}
+        VITE_BING_SITE_VERIFICATION: ${VITE_BING_SITE_VERIFICATION:-}
     container_name: bizgrant-web
     restart: unless-stopped
     ports:
