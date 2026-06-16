@@ -66,12 +66,12 @@ const AdminDashboardPage: React.FC = () => {
     (['free', 'pro', 'enterprise'].includes(plan || '') ? plan : 'free') as string;
 
   const renderPlanSelect = (user: AdminUserSummary) => (
-    <div className="space-y-1">
+    <div className="space-y-1 max-w-full">
       <select
         value={planSelectValue(user.plan)}
         disabled={updatingPlanUserId === user.id}
         onChange={(e) => void handlePlanChange(user, e.target.value)}
-        className="text-xs rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 min-w-[6.5rem]"
+        className="block w-full max-w-[7.5rem] text-xs rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1"
         aria-label={`${user.email} 플랜`}
       >
         <option value="free">free</option>
@@ -79,9 +79,21 @@ const AdminDashboardPage: React.FC = () => {
         <option value="enterprise">enterprise</option>
       </select>
       {user.role === 'ADMIN' && (
-        <p className="text-[10px] text-gray-400 leading-tight">관리자·기능 전체</p>
+        <p className="text-[10px] text-gray-400 leading-tight whitespace-nowrap">관리자·기능 전체</p>
       )}
     </div>
+  );
+
+  const recentUsersColGroup = (
+    <colgroup>
+      <col className="w-[4.5rem]" />
+      <col />
+      <col className="w-[7.5rem]" />
+      <col className="w-[8.5rem]" />
+      <col className="w-[4.5rem]" />
+      <col className="w-[6.5rem]" />
+      <col className="w-[4rem]" />
+    </colgroup>
   );
 
   const loadDashboard = useCallback(async () => {
@@ -336,22 +348,28 @@ const AdminDashboardPage: React.FC = () => {
           </form>
           {memberResults.length > 0 && (
             <div className="overflow-x-auto -mx-1 px-1">
-              <table className="w-full min-w-[640px] text-sm">
+              <table className="w-full min-w-[640px] text-sm table-fixed">
+                <colgroup>
+                  <col />
+                  <col className="w-[5.5rem]" />
+                  <col className="w-[8.5rem]" />
+                  <col className="w-[4.5rem]" />
+                </colgroup>
                 <thead>
                   <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                    <th className="pb-2 pr-3">이메일</th>
-                    <th className="pb-2 pr-3">이름</th>
-                    <th className="pb-2 pr-3 w-32">플랜</th>
-                    <th className="pb-2">역할</th>
+                    <th className="pb-2 pr-3 font-medium">이메일</th>
+                    <th className="pb-2 pr-3 font-medium">이름</th>
+                    <th className="pb-2 pr-3 font-medium">플랜</th>
+                    <th className="pb-2 font-medium">역할</th>
                   </tr>
                 </thead>
                 <tbody>
                   {memberResults.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800">
-                      <td className="py-3 pr-3 truncate">{user.email}</td>
-                      <td className="py-3 pr-3 whitespace-nowrap">{user.name}</td>
-                      <td className="py-3 pr-3">{renderPlanSelect(user)}</td>
-                      <td className="py-3 text-gray-500">{user.role === 'ADMIN' ? '관리자' : '일반'}</td>
+                    <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 align-top">
+                      <td className="py-3 pr-3 truncate align-top" title={user.email}>{user.email}</td>
+                      <td className="py-3 pr-3 whitespace-nowrap align-top">{user.name}</td>
+                      <td className="py-3 pr-3 align-top">{renderPlanSelect(user)}</td>
+                      <td className="py-3 text-gray-500 align-top">{user.role === 'ADMIN' ? '관리자' : '일반'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -367,33 +385,34 @@ const AdminDashboardPage: React.FC = () => {
           </p>
           <div className="overflow-x-auto -mx-1 px-1">
             <table className="w-full min-w-[860px] text-sm table-fixed">
+              {recentUsersColGroup}
               <thead>
                 <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                  <th className="pb-2 pr-3 w-[88px] whitespace-nowrap">이름</th>
-                  <th className="pb-2 pr-3 whitespace-nowrap">이메일</th>
-                  <th className="pb-2 pr-3 w-[120px] whitespace-nowrap">회사</th>
-                  <th className="pb-2 pr-3 w-[88px] whitespace-nowrap">플랜</th>
-                  <th className="pb-2 pr-3 w-[72px] whitespace-nowrap">역할</th>
-                  <th className="pb-2 pr-3 w-[96px] whitespace-nowrap">가입일</th>
-                  <th className="pb-2 w-[72px] text-right whitespace-nowrap">관리</th>
+                  <th className="pb-2 pr-3 font-medium whitespace-nowrap">이름</th>
+                  <th className="pb-2 pr-3 font-medium whitespace-nowrap">이메일</th>
+                  <th className="pb-2 pr-3 font-medium whitespace-nowrap">회사</th>
+                  <th className="pb-2 pr-3 font-medium whitespace-nowrap">플랜</th>
+                  <th className="pb-2 pr-3 font-medium whitespace-nowrap">역할</th>
+                  <th className="pb-2 pr-3 font-medium whitespace-nowrap">가입일</th>
+                  <th className="pb-2 pr-3 font-medium text-right whitespace-nowrap">관리</th>
                 </tr>
               </thead>
               <tbody>
                 {(data?.recentUsers ?? []).map((user: AdminUserSummary) => (
-                  <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800">
-                    <td className="py-3 pr-3 font-medium text-gray-900 dark:text-white whitespace-nowrap truncate" title={user.name}>
+                  <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 align-top">
+                    <td className="py-3 pr-3 font-medium text-gray-900 dark:text-white whitespace-nowrap truncate align-top" title={user.name}>
                       {user.name}
                     </td>
-                    <td className="py-3 pr-3 text-gray-600 dark:text-gray-300 truncate" title={user.email}>
+                    <td className="py-3 pr-3 text-gray-600 dark:text-gray-300 truncate align-top" title={user.email}>
                       {user.email}
                     </td>
-                    <td className="py-3 pr-3 text-gray-600 dark:text-gray-300 truncate" title={user.companyName}>
+                    <td className="py-3 pr-3 text-gray-600 dark:text-gray-300 truncate align-top" title={user.companyName}>
                       {user.companyName || '—'}
                     </td>
-                    <td className="py-3 pr-3 whitespace-nowrap">
+                    <td className="py-3 pr-3 align-top">
                       {renderPlanSelect(user)}
                     </td>
-                    <td className="py-3 pr-3 whitespace-nowrap">
+                    <td className="py-3 pr-3 align-top">
                       <span
                         className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${
                           user.role === 'ADMIN'
@@ -404,7 +423,7 @@ const AdminDashboardPage: React.FC = () => {
                         {user.role === 'ADMIN' ? '관리자' : '일반'}
                       </span>
                     </td>
-                    <td className="py-3 pr-3 text-gray-500 whitespace-nowrap">
+                    <td className="py-3 pr-3 text-gray-500 whitespace-nowrap align-top">
                       {user.createdAt
                         ? new Date(user.createdAt).toLocaleDateString('ko-KR', {
                             year: 'numeric',
@@ -413,7 +432,7 @@ const AdminDashboardPage: React.FC = () => {
                           })
                         : '-'}
                     </td>
-                    <td className="py-3 text-right whitespace-nowrap">
+                    <td className="py-3 pr-3 text-right align-top">
                       {user.role === 'ADMIN' ? (
                         <span className="text-xs text-gray-400">—</span>
                       ) : (
