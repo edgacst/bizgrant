@@ -101,7 +101,7 @@ const SignupPage: React.FC = () => {
                 BizGrant와 함께 정부지원금사업을 찾아보세요
               </p>
               <p className="mt-3 text-sm font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-900/40 rounded-xl px-4 py-3 text-left leading-relaxed">
-                <span className="font-extrabold">회원가입만 하면 모든 기능을 이용</span>할 수 있습니다. 요금제 결제·제한은 추후 적용됩니다.
+                <span className="font-extrabold">회원가입만 하면 모든 기능을 이용</span>할 수 있습니다.
               </p>
             </div>
 
