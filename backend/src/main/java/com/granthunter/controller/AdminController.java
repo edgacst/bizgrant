@@ -55,7 +55,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.triggerNewsletter());
     }
 
-    @PatchMapping("/users/{id}/plan")
+    @PutMapping("/users/{id}/plan")
     @Operation(summary = "회원 요금제 변경")
     public ResponseEntity<Map<String, Object>> updateUserPlan(
             Authentication authentication,
