@@ -68,13 +68,11 @@ if [[ "$CERT_OK" -eq 0 ]]; then
   exit 0
 fi
 
-if [[ "${INTERNAL_443:-0}" -eq 0 ]]; then
-  echo "==> 5) SSL nginx 수동 적용"
-  GEN_DIR="$ROOT/deploy/vps/generated"
-  mkdir -p "$GEN_DIR"
-  sed "s/__DOMAIN__/${DOMAIN}/g" "$ROOT/frontend/nginx.ssl.conf.template" > "$GEN_DIR/nginx.ssl.conf"
-  docker compose -f docker-compose.prod.yml -f docker-compose.prod.https.yml --env-file .env up -d --force-recreate frontend
-  sleep 2
+if [[ "${INTERNAL_443:-0}" -eq 0 && "$CERT_OK" -eq 1 ]]; then
+  echo "==> 5) frontend 강제 재생성"
+  docker compose -f docker-compose.prod.yml --env-file .env up -d --force-recreate --build frontend
+  sleep 4
+  "${COMPOSE[@]}" logs frontend --tail 10 || true
   curl -sS -o /dev/null -w "  127.0.0.1:443 HTTPS %{http_code}\n" --connect-timeout 3 -k "https://127.0.0.1/healthz" \
     || echo "  여전히 443 실패 — docker compose logs frontend 확인"
 fi

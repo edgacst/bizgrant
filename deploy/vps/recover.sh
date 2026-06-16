@@ -33,17 +33,10 @@ if ! curl -sf --connect-timeout 3 http://127.0.0.1/healthz >/dev/null 2>&1; then
   "${COMPOSE[@]}" up -d --build
 fi
 
-echo "==> 4) HTTPS nginx (인증서 있으면 자동)"
-sleep 3
-"${COMPOSE[@]}" logs frontend --tail 3 || true
-
-if ! "${COMPOSE[@]}" exec -T frontend sh -c "nginx -T 2>/dev/null | grep -q 'listen 443 ssl'"; then
-  echo "    SSL nginx 수동 적용..."
-  mkdir -p deploy/vps/generated
-  sed "s/__DOMAIN__/${DOMAIN}/g" frontend/nginx.ssl.conf.template > deploy/vps/generated/nginx.ssl.conf
-  docker compose -f docker-compose.prod.yml -f docker-compose.prod.https.yml --env-file .env up -d --force-recreate frontend
-  sleep 2
-fi
+echo "==> 4) frontend 재기동 (entrypoint SSL)"
+"${COMPOSE[@]}" up -d --force-recreate frontend
+sleep 4
+"${COMPOSE[@]}" logs frontend --tail 5 || true
 
 echo "==> 5) 내부 테스트"
 curl -sS -o /dev/null -w "  80  → %{http_code}\n" --connect-timeout 5 http://127.0.0.1/healthz || echo "  80  → 실패"

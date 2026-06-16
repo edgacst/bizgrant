@@ -30,13 +30,6 @@ if [[ -z "$CERTBOT_EMAIL" ]]; then
 fi
 
 COMPOSE_BASE=(docker compose -f docker-compose.prod.yml --env-file .env)
-COMPOSE_HTTPS=(docker compose -f docker-compose.prod.yml -f docker-compose.prod.https.yml --env-file .env)
-GEN_DIR="$ROOT/deploy/vps/generated"
-SSL_CONF="$GEN_DIR/nginx.ssl.conf"
-TEMPLATE="$ROOT/frontend/nginx.ssl.conf.template"
-
-mkdir -p "$GEN_DIR"
-sed "s/__DOMAIN__/${DOMAIN}/g" "$TEMPLATE" > "$SSL_CONF"
 
 echo "==> 방화벽 443 허용"
 if command -v ufw &>/dev/null; then
@@ -68,8 +61,8 @@ echo "==> Let's Encrypt 인증서 발급"
   --agree-tos --no-eff-email \
   --non-interactive
 
-echo "==> HTTPS nginx 적용"
-"${COMPOSE_HTTPS[@]}" up -d frontend
+echo "==> HTTPS nginx 적용 (entrypoint)"
+"${COMPOSE_BASE[@]}" up -d --force-recreate frontend
 
 if grep -q '^SITE_URL=' .env; then
   if [[ "$(uname)" == Darwin ]]; then
