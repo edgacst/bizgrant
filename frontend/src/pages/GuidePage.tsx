@@ -18,6 +18,8 @@ import {
   ChevronRight,
   BookOpen,
 } from 'lucide-react';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 
 const TOC = [
   { id: 'start', label: '1. 시작하기' },
@@ -97,6 +99,7 @@ function MenuLink({ to, label }: { to: string; label: string }) {
 }
 
 export default function GuidePage() {
+  usePageSeo(PAGE_SEO.guide);
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Hero */}

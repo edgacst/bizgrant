@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLandingStats } from '../hooks/useLandingStats';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 import {
   Sparkles,
   ArrowRight,
@@ -140,6 +142,7 @@ const FAQ = [
 ];
 
 export default function AboutPage() {
+  usePageSeo(PAGE_SEO.about);
   const { grantCount } = useLandingStats();
   const grantLabel = grantCount != null ? `${grantCount.toLocaleString()}건` : '연결 중';
   const sourceLabel = '기업마당·중기부·K-Startup 등';

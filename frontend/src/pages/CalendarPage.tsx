@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import client from '../api/client';
 import type { GrantNotice } from '../types';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 
 const CATEGORY_DOT_COLORS: Record<string, string> = {
   'R&D': 'bg-purple-500',
@@ -36,6 +38,7 @@ const CATEGORY_BG_COLORS: Record<string, string> = {
 };
 
 const CalendarPage: React.FC = () => {
+  usePageSeo(PAGE_SEO.calendar);
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());

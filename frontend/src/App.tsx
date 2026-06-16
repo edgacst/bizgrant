@@ -108,6 +108,9 @@ const App: React.FC = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
+          <Route path="/grants" element={<GrantListPage />} />
+          <Route path="/grants/:id" element={<GrantDetailPage />} />
+          <Route path="/procurement" element={<ProcurementPage />} />
         </Route>
 
         {/* Protected routes */}
@@ -119,9 +122,6 @@ const App: React.FC = () => {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/grants" element={<GrantListPage />} />
-          <Route path="/procurement" element={<ProcurementPage />} />
-          <Route path="/grants/:id" element={<GrantDetailPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/documents" element={<DocumentArchivePage />} />

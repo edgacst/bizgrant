@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLandingStats } from '../hooks/useLandingStats';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO, SITE_NAME, SITE_URL } from '../seo/config';
 
 type LiveSource = {
   title: string;
@@ -122,6 +124,28 @@ const LandingPage: React.FC = () => {
     { icon: Gavel, value: bidCount != null ? `${bidLabel}건` : '연결 중', label: '나라장터 입찰공고', color: 'text-slate-600' },
     { icon: TrendingUp, value: totalLabel !== '—' ? `${totalLabel}건` : '연결 중', label: '수집·연동 공고 합계', color: 'text-green-500' },
   ];
+
+  usePageSeo({
+    ...PAGE_SEO.home,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          name: SITE_NAME,
+          url: SITE_URL,
+          description: PAGE_SEO.home.description,
+          inLanguage: 'ko-KR',
+        },
+        {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          url: SITE_URL,
+          description: '정부지원금사업·나라장터 공고 검색 플랫폼',
+        },
+      ],
+    },
+  });
 
   useEffect(() => {
     setHeroVisible(true);

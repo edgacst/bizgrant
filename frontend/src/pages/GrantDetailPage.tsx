@@ -40,6 +40,8 @@ import { usePlan } from '../hooks/usePlan';
 import PlanUpgradeHint from '../components/PlanUpgradeHint';
 import GrantCard from '../components/GrantCard';
 import type { GrantChecklist, GrantDocumentItem, GrantNotice, MatchingScore, UserFileItem } from '../types';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 
 const mapGrantResponse = (data: GrantNotice & { url?: string }): GrantNotice => ({
   ...data,
@@ -71,6 +73,17 @@ const GrantDetailPage: React.FC = () => {
   const [savingChecklist, setSavingChecklist] = useState(false);
   const [downloadingTemplate, setDownloadingTemplate] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  usePageSeo({
+    title: grant?.title ?? '정부지원금사업 공고 상세',
+    description: grant
+      ? `${grant.organization} · ${grant.category} · 마감 ${grant.applyEnd}${grant.budget ? ` · ${grant.budget}` : ''}`
+      : '정부지원금사업 공고의 지원 내용, 신청 기간, 자격 요건을 확인하세요.',
+    path: id ? `/grants/${id}` : '/grants',
+    keywords: grant
+      ? `${grant.title}, ${grant.organization}, 정부지원금사업, ${grant.category}`
+      : PAGE_SEO.grants.keywords,
+  });
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400);

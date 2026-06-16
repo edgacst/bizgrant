@@ -13,8 +13,11 @@ import {
 import toast from 'react-hot-toast';
 import PricingCard from '../components/PricingCard';
 import { PRICING_TIERS, FEATURE_COMPARISON, FAQS } from './pricingData';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 
 const PricingPage: React.FC = () => {
+  usePageSeo(PAGE_SEO.pricing);
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });

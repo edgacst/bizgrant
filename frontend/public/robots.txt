@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Allow: /grants
+Allow: /procurement
+Allow: /about
+Allow: /guide
+Allow: /pricing
+Allow: /calendar
+
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /mypage
+Disallow: /alerts
+Disallow: /pipeline
+Disallow: /bookmarks
+Disallow: /documents
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://bizgrant.kr/sitemap.xml

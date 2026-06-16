@@ -13,6 +13,8 @@ import ProcurementCard from '../components/ProcurementCard';
 import AwardCard from '../components/AwardCard';
 import client from '../api/client';
 import { getVisiblePages } from '../utils/pagination';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 import type { GrantNotice } from '../types';
 
 type ProcTab = 'bid' | 'award';
@@ -33,6 +35,8 @@ const TAB_CONFIG: Record<ProcTab, { source: string; label: string; icon: typeof 
 };
 
 const ProcurementPage: React.FC = () => {
+  usePageSeo(PAGE_SEO.procurement);
+
   const [activeTab, setActiveTab] = useState<ProcTab>('bid');
   const [grants, setGrants] = useState<GrantNotice[]>([]);
   const [loading, setLoading] = useState(true);

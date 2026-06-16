@@ -12,6 +12,8 @@ import {
 import GrantCard from '../components/GrantCard';
 import client from '../api/client';
 import { getVisiblePages } from '../utils/pagination';
+import { usePageSeo } from '../hooks/usePageSeo';
+import { PAGE_SEO } from '../seo/config';
 import type { GrantNotice, MatchingScore } from '../types';
 
 const CATEGORIES = ['전체', 'R&D', '창업', '수출', '제조혁신', '인력', '마케팅', '기타'];
@@ -28,6 +30,8 @@ const SORT_OPTIONS = [
 ];
 
 const GrantListPage: React.FC = () => {
+  usePageSeo(PAGE_SEO.grants);
+
   const [grants, setGrants] = useState<GrantNotice[]>([]);
   const [scores, setScores] = useState<Map<number, MatchingScore>>(new Map());
   const [loading, setLoading] = useState(true);
