@@ -4,12 +4,14 @@ import client from '../api/client';
 export type LandingStats = {
   grantCount: number | null;
   bidCount: number | null;
-  partnerCounts: Record<string, number>;
+  awardCount: number | null;
+  partnerCounts: Record<string, number | null>;
 };
 
+/** 파트너 카드 abbr → DB source 코드 (인트로 active-count 와 동일 기준) */
 const PARTNER_SOURCES: Record<string, string[]> = {
   MSS: ['MSS'],
-  G2B: ['G2B', 'G2B_AWARD'],
+  G2B: ['G2B'],
   BIZ: ['BIZINFO', 'BIZINFO_API'],
   KITA: ['KITA'],
   SBA: ['SBA'],
@@ -23,28 +25,14 @@ let cached: LandingStats | null = null;
 let cacheTime = 0;
 const CACHE_MS = 60_000;
 
-function parseBySource(data: unknown): Record<string, number> {
-  const map: Record<string, number> = {};
-  if (!data || typeof data !== 'object' || !('bySource' in data)) {
-    return map;
-  }
-  const rows = (data as { bySource: unknown }).bySource;
-  if (!Array.isArray(rows)) return map;
-  for (const row of rows) {
-    if (Array.isArray(row) && row.length >= 2) {
-      map[String(row[0])] = Number(row[1]) || 0;
-    }
-  }
-  return map;
-}
-
-function sumSources(bySource: Record<string, number>, keys: string[]): number {
-  return keys.reduce((sum, key) => sum + (bySource[key] ?? 0), 0);
+async function fetchActiveCount(params?: { source?: string; excludeSource?: string }): Promise<number> {
+  const res = await client.get('/grants/active-count', { params });
+  return Number(res.data?.total ?? 0);
 }
 
 export function useLandingStats(): LandingStats {
   const [stats, setStats] = useState<LandingStats>(
-    cached ?? { grantCount: null, bidCount: null, partnerCounts: {} },
+    cached ?? { grantCount: null, bidCount: null, awardCount: null, partnerCounts: {} },
   );
 
   useEffect(() => {
@@ -57,30 +45,33 @@ export function useLandingStats(): LandingStats {
       }
 
       try {
-        const [grantRes, bidRes, syncRes] = await Promise.all([
-          client.get('/grants/active-count', { params: { excludeSource: 'G2B' } }),
-          client.get('/grants/active-count', { params: { source: 'G2B' } }),
-          client.get('/grants/sync/status'),
+        const sourceKeys = [...new Set(Object.values(PARTNER_SOURCES).flat())];
+        const [grantCount, bidCount, awardCount, ...sourceTotals] = await Promise.all([
+          fetchActiveCount({ excludeSource: 'G2B' }),
+          fetchActiveCount({ source: 'G2B' }),
+          fetchActiveCount({ source: 'G2B_AWARD' }),
+          ...sourceKeys.map((source) => fetchActiveCount({ source })),
         ]);
 
-        const bySource = parseBySource(syncRes.data);
-        const partnerCounts: Record<string, number> = {};
+        const bySource: Record<string, number> = {};
+        sourceKeys.forEach((key, i) => {
+          bySource[key] = sourceTotals[i] ?? 0;
+        });
+
+        const partnerCounts: Record<string, number | null> = {};
         for (const [abbr, keys] of Object.entries(PARTNER_SOURCES)) {
-          partnerCounts[abbr] = sumSources(bySource, keys);
+          const total = keys.reduce((sum, key) => sum + (bySource[key] ?? 0), 0);
+          partnerCounts[abbr] = total;
         }
 
         if (!cancelled) {
-          cached = {
-            grantCount: grantRes.data?.total ?? null,
-            bidCount: bidRes.data?.total ?? null,
-            partnerCounts,
-          };
+          cached = { grantCount, bidCount, awardCount, partnerCounts };
           cacheTime = Date.now();
           setStats(cached);
         }
       } catch {
         if (!cancelled) {
-          setStats({ grantCount: null, bidCount: null, partnerCounts: {} });
+          setStats({ grantCount: null, bidCount: null, awardCount: null, partnerCounts: {} });
         }
       }
     };

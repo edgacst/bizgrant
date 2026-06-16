@@ -76,9 +76,10 @@ const SERVICE_HIGHLIGHTS = [
 
 const LandingPage: React.FC = () => {
   const [heroVisible, setHeroVisible] = useState(false);
-  const { grantCount, bidCount, partnerCounts } = useLandingStats();
+  const { grantCount, bidCount, awardCount, partnerCounts } = useLandingStats();
   const grantLabel = grantCount != null ? grantCount.toLocaleString() : '—';
   const bidLabel = bidCount != null ? bidCount.toLocaleString() : '—';
+  const awardLabel = awardCount != null ? awardCount.toLocaleString() : '—';
   const totalLabel = grantCount != null && bidCount != null
     ? (grantCount + bidCount).toLocaleString()
     : '—';
@@ -174,7 +175,12 @@ const LandingPage: React.FC = () => {
                   <p className="mt-3 text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                     나라장터 입찰공고
                   </p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">나라장터 API 수집 (동기화 주기에 따라 갱신)</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    나라장터 입찰 API 수집
+                    {awardCount != null && awardCount > 0 && (
+                      <span className="block mt-0.5 text-xs">낙찰 {awardLabel}건 · 나라장터 메뉴</span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
@@ -294,12 +300,18 @@ const LandingPage: React.FC = () => {
             공공·기관 <span className="gradient-text">공개 공고</span> 수집
           </h2>
           <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
-            카드 숫자는 DB에 저장된 활성 공고 건수입니다. 기관별 소스 분류 후 갱신됩니다.
+            숫자는 마감 전 활성 공고 기준이며, 인트로 상단 통계와 동일하게 집계합니다. 아직 연동하지 않은 기관은「연동 예정」으로 표시합니다.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
             {TRUST_PARTNERS.map((org) => {
               const Icon = org.icon;
               const count = partnerCounts[org.abbr];
+              const countLabel =
+                count == null
+                  ? null
+                  : count > 0
+                    ? `· ${count.toLocaleString()}건`
+                    : '· 연동 예정';
               return (
                 <div
                   key={org.name}
@@ -322,9 +334,20 @@ const LandingPage: React.FC = () => {
                     </p>
                     <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-400 dark:text-gray-500">
                       {org.abbr}
-                      {count != null && (
-                        <span className="ml-1.5 text-brand-600 dark:text-brand-400">
-                          · {count.toLocaleString()}건
+                      {countLabel != null && (
+                        <span
+                          className={
+                            count != null && count > 0
+                              ? 'ml-1.5 text-brand-600 dark:text-brand-400'
+                              : 'ml-1.5 text-gray-400 dark:text-gray-500'
+                          }
+                        >
+                          {countLabel}
+                        </span>
+                      )}
+                      {org.abbr === 'G2B' && awardCount != null && awardCount > 0 && (
+                        <span className="block mt-0.5 text-[11px] font-medium text-gray-400">
+                          낙찰 {awardCount.toLocaleString()}건
                         </span>
                       )}
                     </p>
