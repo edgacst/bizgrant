@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -178,10 +179,12 @@ public class PlanService {
         if (request.getChannel() != null && !request.getChannel().isBlank()) {
             String channel = request.getChannel().toLowerCase(Locale.ROOT);
             if (!limits.allowedAlertChannels().contains(channel)) {
+                boolean enterpriseChannel = Set.of("slack", "telegram", "webhook").contains(channel);
+                PlanType required = enterpriseChannel ? PlanType.ENTERPRISE : PlanType.PRO;
                 throw new PlanLimitException(
-                        channel + " 알림은 " + PlanType.PRO.getLabel() + " 이상에서 설정할 수 있습니다.",
+                        channel + " 알림은 " + required.getLabel() + " 이상에서 설정할 수 있습니다.",
                         resolvePlan(user).getCode(),
-                        PlanType.PRO.getCode()
+                        required.getCode()
                 );
             }
         }

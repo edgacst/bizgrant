@@ -12,6 +12,9 @@ import {
   Pencil,
   X,
   Trash2,
+  Hash,
+  Send,
+  Webhook,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
@@ -48,15 +51,33 @@ const DEFAULT_FORM: AlertPrefForm = {
 function normalizeChannel(channel?: string): AlertPrefForm['channel'] {
   switch ((channel ?? 'email').toLowerCase()) {
     case 'kakao':
-    case 'telegram':
       return 'kakao';
     case 'sms':
-    case 'slack':
       return 'sms';
+    case 'slack':
+      return 'slack';
+    case 'telegram':
+      return 'telegram';
+    case 'webhook':
+      return 'webhook';
     default:
       return 'email';
   }
 }
+
+const ALERT_CHANNELS: Array<{
+  value: AlertPrefForm['channel'];
+  label: string;
+  icon: typeof Mail;
+  enterpriseOnly?: boolean;
+}> = [
+  { value: 'email', label: '이메일', icon: Mail },
+  { value: 'kakao', label: '카카오톡', icon: MessageCircle },
+  { value: 'sms', label: '문자', icon: Smartphone },
+  { value: 'slack', label: 'Slack', icon: Hash, enterpriseOnly: true },
+  { value: 'telegram', label: 'Telegram', icon: Send, enterpriseOnly: true },
+  { value: 'webhook', label: 'Webhook', icon: Webhook, enterpriseOnly: true },
+];
 
 function parsePrefs(prefs: Record<string, unknown>): AlertPrefForm {
   return {
@@ -433,14 +454,10 @@ const AlertConfigPage: React.FC = () => {
 
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Free는 이메일만, Pro 이상은 카카오톡·문자도 설정할 수 있습니다.
+                Free는 이메일만, Pro는 카카오톡·문자, Enterprise는 Slack·Telegram·Webhook도 설정할 수 있습니다.
               </p>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { value: 'email' as const, label: '이메일', icon: Mail },
-                  { value: 'kakao' as const, label: '카카오톡', icon: MessageCircle },
-                  { value: 'sms' as const, label: '문자', icon: Smartphone },
-                ].map(ch => {
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {ALERT_CHANNELS.map(ch => {
                   const Icon = ch.icon;
                   const allowed = limits.allowedAlertChannels.includes(ch.value);
                   return (
@@ -459,6 +476,9 @@ const AlertConfigPage: React.FC = () => {
                     >
                       <Icon className={`w-6 h-6 ${form.channel === ch.value ? 'text-brand-600' : ''}`} />
                       <span className="text-sm font-bold">{ch.label}</span>
+                      {ch.enterpriseOnly && !allowed && (
+                        <span className="text-[10px] font-semibold text-gray-400">Enterprise</span>
+                      )}
                     </button>
                   );
                 })}
@@ -488,6 +508,34 @@ const AlertConfigPage: React.FC = () => {
                   onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
                   readOnly={fieldLocked}
                   placeholder="01012345678"
+                  className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
+                />
+              </label>
+            )}
+
+            {(form.channel === 'slack' || form.channel === 'webhook') && (
+              <label className="block">
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">Incoming Webhook URL</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">Slack 또는 사내 시스템 Webhook 주소</p>
+                <input
+                  value={form.channelId}
+                  onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
+                  readOnly={fieldLocked}
+                  placeholder="https://hooks.slack.com/services/..."
+                  className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
+                />
+              </label>
+            )}
+
+            {form.channel === 'telegram' && (
+              <label className="block">
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">Telegram Chat ID</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">봇 연동 후 수신할 채팅 ID</p>
+                <input
+                  value={form.channelId}
+                  onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
+                  readOnly={fieldLocked}
+                  placeholder="-1001234567890"
                   className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
                 />
               </label>

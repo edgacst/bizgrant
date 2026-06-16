@@ -55,7 +55,7 @@ export interface AlertPref {
   categories: string[];
   industries: string[];
   minBudget: number;
-  channel: 'email' | 'kakao' | 'sms';
+  channel: 'email' | 'kakao' | 'sms' | 'slack' | 'telegram' | 'webhook';
   channelId: string;
   enabled: boolean;
   userId: number;
@@ -167,7 +167,7 @@ export interface AlertPrefForm {
   categories: string[];
   industries: string[];
   minBudget: number;
-  channel: 'email' | 'kakao' | 'sms';
+  channel: 'email' | 'kakao' | 'sms' | 'slack' | 'telegram' | 'webhook';
   channelId: string;
   enabled: boolean;
 }

@@ -52,7 +52,7 @@ public record PlanLimits(
                     50,
                     true
             );
-            case ENTERPRISE, ADMIN -> new PlanLimits(
+            case ENTERPRISE -> new PlanLimits(
                     plan,
                     Integer.MAX_VALUE,
                     true,
@@ -64,7 +64,23 @@ public record PlanLimits(
                     Integer.MAX_VALUE,
                     true,
                     true,
-                    Set.of("email", "kakao", "sms"),
+                    Set.of("email", "kakao", "sms", "slack", "telegram", "webhook"),
+                    Integer.MAX_VALUE,
+                    true
+            );
+            case ADMIN -> new PlanLimits(
+                    plan,
+                    Integer.MAX_VALUE,
+                    true,
+                    true,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    true,
+                    true,
+                    Set.of("email", "kakao", "sms", "slack", "telegram", "webhook"),
                     Integer.MAX_VALUE,
                     true
             );

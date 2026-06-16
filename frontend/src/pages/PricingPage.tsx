@@ -177,7 +177,8 @@ const PricingPage: React.FC = () => {
               Enterprise <span className="gradient-text">문의</span>
             </h2>
             <p className="mt-2 text-gray-500 dark:text-gray-400">
-              팀·기관용 맞춤 견적이 필요하면 아래 양식을 작성해 주세요.
+              컨설팅사·액셀러레이터·조달 담당팀을 위한 플랜입니다.
+              고객사 수·팀 규모에 따라 시트와 다중 프로필 한도를 조정해 드립니다.
             </p>
           </div>
 

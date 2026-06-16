@@ -122,9 +122,11 @@ export function formatAlertChannel(channel?: string): string {
     case 'sms':
       return '문자';
     case 'telegram':
-      return '카카오톡';
+      return 'Telegram';
     case 'slack':
-      return '문자';
+      return 'Slack';
+    case 'webhook':
+      return 'Webhook';
     default:
       return channel || '이메일';
   }

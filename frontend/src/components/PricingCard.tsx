@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 interface PricingFeature {
   name: string;
   included: boolean;
+  /** contact: 맞춤 견적 항목, soon: 준비 중 */
+  tag?: 'contact' | 'soon';
 }
 
 export interface PricingTier {
@@ -109,6 +111,16 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, yearly }) => {
               }
             >
               {feature.name}
+              {feature.tag === 'contact' && (
+                <span className="ml-1.5 text-[10px] font-bold uppercase tracking-wide text-brand-600 dark:text-brand-400">
+                  맞춤
+                </span>
+              )}
+              {feature.tag === 'soon' && (
+                <span className="ml-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500">
+                  준비 중
+                </span>
+              )}
             </span>
           </li>
         ))}
