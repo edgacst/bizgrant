@@ -1,5 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import { clearAuthSession, refreshAuthTokens } from '../utils/authSession';
+import { clearAuthSession, isAccessTokenExpired, refreshAuthTokens } from '../utils/authSession';
 
 const client = axios.create({
   baseURL: '/api',
@@ -48,7 +48,10 @@ function shouldAttemptRefresh(error: AxiosError<unknown>, config?: RetryConfig):
   return false;
 }
 
-client.interceptors.request.use((config) => {
+client.interceptors.request.use(async (config) => {
+  if (isAccessTokenExpired() && localStorage.getItem('refreshToken')) {
+    await ensureFreshAccessToken();
+  }
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

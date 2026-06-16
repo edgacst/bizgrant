@@ -64,6 +64,10 @@ const AppLayout: React.FC = () => {
 // Public layout — SiteHeader shows Navbar when logged in, PublicHeader when guest
 const PublicLayout: React.FC = () => {
   useDarkModeInit();
+  useEffect(() => {
+    void syncAuthSession();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors">
       <SiteHeader />

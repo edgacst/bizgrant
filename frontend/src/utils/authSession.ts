@@ -31,8 +31,42 @@ export function isAdminUser(): boolean {
   return localStorage.getItem('userRole') === 'ADMIN';
 }
 
+export function hasStoredAuthSession(): boolean {
+  return Boolean(localStorage.getItem('accessToken') || localStorage.getItem('refreshToken'));
+}
+
 export function isLoggedIn(): boolean {
-  return Boolean(localStorage.getItem('accessToken'));
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken && !isAccessTokenExpired()) {
+    return true;
+  }
+  return Boolean(localStorage.getItem('refreshToken'));
+}
+
+/** 만료된 accessToken이 있어도 refreshToken으로 세션을 복구합니다. */
+export async function restoreAuthSession(): Promise<boolean> {
+  const accessToken = localStorage.getItem('accessToken');
+  const refreshToken = localStorage.getItem('refreshToken');
+
+  if (!accessToken && !refreshToken) {
+    return false;
+  }
+
+  if (accessToken && !isAccessTokenExpired()) {
+    return true;
+  }
+
+  if (!refreshToken) {
+    clearAuthSession();
+    return false;
+  }
+
+  const refreshed = await refreshAuthTokens();
+  if (!refreshed) {
+    clearAuthSession();
+    return false;
+  }
+  return true;
 }
 
 export function getHomePath(): string {
@@ -80,15 +114,9 @@ export async function refreshAuthTokens(): Promise<boolean> {
 }
 
 export async function syncAuthSession(): Promise<void> {
-  if (!isLoggedIn()) {
+  const restored = await restoreAuthSession();
+  if (!restored) {
     return;
-  }
-
-  if (isAccessTokenExpired()) {
-    const refreshed = await refreshAuthTokens();
-    if (!refreshed) {
-      return;
-    }
   }
 
   try {
