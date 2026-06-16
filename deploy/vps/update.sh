@@ -9,8 +9,9 @@ if [[ ! -f .env ]]; then
   exit 1
 fi
 
-if [[ -f "$SSL_CONF" ]]; then
-  echo "==> HTTPS 설정 감지 — SSL nginx 오버레이 포함"
+SITE_URL="$(grep -E '^SITE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
+if [[ "$SITE_URL" == https://* ]]; then
+  echo "==> HTTPS 사이트 (entrypoint 자동 SSL)"
 else
   echo "==> HTTP 모드 (HTTPS는 ./deploy/vps/setup-https.sh)"
 fi
