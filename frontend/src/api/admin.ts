@@ -59,6 +59,16 @@ export async function triggerNewsletterSend(): Promise<Record<string, unknown>> 
   return res.data;
 }
 
+export async function searchAdminUsers(query: string, limit = 20): Promise<AdminUserSummary[]> {
+  const res = await client.get('/admin/users', { params: { q: query, limit } });
+  return res.data;
+}
+
+export async function listAdminUsers(limit = 50): Promise<AdminUserSummary[]> {
+  const res = await client.get('/admin/users', { params: { limit } });
+  return res.data;
+}
+
 export async function updateAdminUserPlan(userId: number, plan: string): Promise<{ status: string; plan?: string }> {
   const res = await client.patch(`/admin/users/${userId}/plan`, { plan });
   return res.data;

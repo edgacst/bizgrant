@@ -29,11 +29,15 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    @Operation(summary = "최근 가입 사용자")
+    @Operation(summary = "회원 목록 (이메일 검색)")
     public ResponseEntity<List<Map<String, Object>>> users(
             Authentication authentication,
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "20") int limit) {
         requireAdmin(authentication);
+        if (q != null && !q.isBlank()) {
+            return ResponseEntity.ok(adminService.searchUsers(q, Math.min(limit, 50)));
+        }
         return ResponseEntity.ok(adminService.listRecentUsers(Math.min(limit, 50)));
     }
 

@@ -4,6 +4,7 @@ import com.granthunter.dto.AlertPrefRequest;
 import com.granthunter.dto.MatchingScoreResponse;
 import com.granthunter.dto.PlanInfoResponse;
 import com.granthunter.entity.User;
+import com.granthunter.entity.UserRole;
 import com.granthunter.exception.PlanLimitException;
 import com.granthunter.plan.PlanLimits;
 import com.granthunter.plan.PlanType;
@@ -38,6 +39,9 @@ public class PlanService {
     public PlanType resolvePlan(User user) {
         if (user == null) {
             return PlanType.FREE;
+        }
+        if (UserRole.ADMIN.equalsIgnoreCase(user.getRole())) {
+            return PlanType.ADMIN;
         }
         return PlanType.fromCode(user.getPlan());
     }

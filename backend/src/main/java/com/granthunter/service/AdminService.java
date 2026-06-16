@@ -62,6 +62,19 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    public List<Map<String, Object>> searchUsers(String query, int limit) {
+        String normalized = query != null ? query.trim() : "";
+        if (normalized.isBlank()) {
+            return listRecentUsers(limit);
+        }
+        return userRepository.findByEmailContainingIgnoreCaseOrderByCreatedAtDesc(
+                        normalized,
+                        PageRequest.of(0, limit))
+                .stream()
+                .map(this::toUserSummary)
+                .collect(Collectors.toList());
+    }
+
     public Map<String, Object> triggerSync() {
         return grantSyncService.syncAll();
     }

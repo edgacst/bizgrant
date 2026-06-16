@@ -20,6 +20,8 @@ import {
   triggerNewsletterSend,
   deleteAdminUser,
   updateAdminUserPlan,
+  searchAdminUsers,
+  listAdminUsers,
   type AdminDashboardData,
   type AdminSyncRun,
   type AdminUserSummary,
@@ -56,6 +58,31 @@ const AdminDashboardPage: React.FC = () => {
   const [sendingNewsletter, setSendingNewsletter] = useState(false);
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
   const [updatingPlanUserId, setUpdatingPlanUserId] = useState<number | null>(null);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberResults, setMemberResults] = useState<AdminUserSummary[]>([]);
+  const [memberSearchLoading, setMemberSearchLoading] = useState(false);
+
+  const planSelectValue = (plan?: string) =>
+    (['free', 'pro', 'enterprise'].includes(plan || '') ? plan : 'free') as string;
+
+  const renderPlanSelect = (user: AdminUserSummary) => (
+    <div className="space-y-1">
+      <select
+        value={planSelectValue(user.plan)}
+        disabled={updatingPlanUserId === user.id}
+        onChange={(e) => void handlePlanChange(user, e.target.value)}
+        className="text-xs rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 min-w-[6.5rem]"
+        aria-label={`${user.email} 플랜`}
+      >
+        <option value="free">free</option>
+        <option value="pro">pro</option>
+        <option value="enterprise">enterprise</option>
+      </select>
+      {user.role === 'ADMIN' && (
+        <p className="text-[10px] text-gray-400 leading-tight">관리자·기능 전체</p>
+      )}
+    </div>
+  );
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -102,17 +129,36 @@ const AdminDashboardPage: React.FC = () => {
   };
 
   const handlePlanChange = async (user: AdminUserSummary, plan: string) => {
-    if (user.role === 'ADMIN') return;
     setUpdatingPlanUserId(user.id);
     try {
       await updateAdminUserPlan(user.id, plan);
       toast.success(`${user.email} → ${plan}`);
       await loadDashboard();
+      setMemberResults((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, plan } : u)),
+      );
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       toast.error(msg || '플랜 변경에 실패했습니다.');
     } finally {
       setUpdatingPlanUserId(null);
+    }
+  };
+
+  const handleMemberSearch = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setMemberSearchLoading(true);
+    try {
+      const q = memberSearch.trim();
+      const users = q ? await searchAdminUsers(q, 30) : await listAdminUsers(30);
+      setMemberResults(users);
+      if (users.length === 0) {
+        toast.error('검색 결과가 없습니다.');
+      }
+    } catch {
+      toast.error('회원 검색에 실패했습니다.');
+    } finally {
+      setMemberSearchLoading(false);
     }
   };
 
@@ -262,8 +308,63 @@ const AdminDashboardPage: React.FC = () => {
       </p>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <section className="premium-card p-6 xl:col-span-2 border-2 border-brand-100 dark:border-brand-900/40">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">회원 플랜 변경</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            이메일로 회원을 찾은 뒤 <strong className="text-gray-700 dark:text-gray-200">free / pro / enterprise</strong>를 선택하세요.
+            관리자 계정도 변경할 수 있으며, 관리자는 기능이 전체 적용됩니다.
+          </p>
+          <form onSubmit={(e) => void handleMemberSearch(e)} className="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              type="search"
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+              placeholder="이메일 검색 (예: freecompr20@gmail.com)"
+              className="input-premium flex-1"
+            />
+            <button type="submit" disabled={memberSearchLoading} className="btn btn-primary shrink-0">
+              {memberSearchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : '검색'}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleMemberSearch()}
+              disabled={memberSearchLoading}
+              className="btn btn-secondary shrink-0"
+            >
+              전체 목록
+            </button>
+          </form>
+          {memberResults.length > 0 && (
+            <div className="overflow-x-auto -mx-1 px-1">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+                    <th className="pb-2 pr-3">이메일</th>
+                    <th className="pb-2 pr-3">이름</th>
+                    <th className="pb-2 pr-3 w-32">플랜</th>
+                    <th className="pb-2">역할</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {memberResults.map((user) => (
+                    <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800">
+                      <td className="py-3 pr-3 truncate">{user.email}</td>
+                      <td className="py-3 pr-3 whitespace-nowrap">{user.name}</td>
+                      <td className="py-3 pr-3">{renderPlanSelect(user)}</td>
+                      <td className="py-3 text-gray-500">{user.role === 'ADMIN' ? '관리자' : '일반'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
         <section className="premium-card p-6 xl:col-span-2">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">최근 가입 회원</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">최근 가입 회원</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+            표에서 <strong>플랜</strong> 열 드롭다운을 바꾸면 즉시 저장됩니다.
+          </p>
           <div className="overflow-x-auto -mx-1 px-1">
             <table className="w-full min-w-[860px] text-sm table-fixed">
               <thead>
@@ -290,20 +391,7 @@ const AdminDashboardPage: React.FC = () => {
                       {user.companyName || '—'}
                     </td>
                     <td className="py-3 pr-3 whitespace-nowrap">
-                      {user.role === 'ADMIN' ? (
-                        <span className="text-xs text-gray-400">admin</span>
-                      ) : (
-                        <select
-                          value={user.plan || 'free'}
-                          disabled={updatingPlanUserId === user.id}
-                          onChange={(e) => void handlePlanChange(user, e.target.value)}
-                          className="text-xs rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1"
-                        >
-                          <option value="free">free</option>
-                          <option value="pro">pro</option>
-                          <option value="enterprise">enterprise</option>
-                        </select>
-                      )}
+                      {renderPlanSelect(user)}
                     </td>
                     <td className="py-3 pr-3 whitespace-nowrap">
                       <span
