@@ -24,8 +24,9 @@ public class SeoService {
         entries.add(entry(siteUrl + "/", "daily", "1.0"));
         entries.add(entry(siteUrl + "/about", "weekly", "0.7"));
         entries.add(entry(siteUrl + "/guide", "weekly", "0.8"));
-        entries.add(entry(siteUrl + "/pricing", "weekly", "0.6"));
         entries.add(entry(siteUrl + "/calendar", "daily", "0.5"));
+        entries.add(entry(siteUrl + "/terms", "yearly", "0.3"));
+        entries.add(entry(siteUrl + "/privacy", "yearly", "0.3"));
 
         StringBuilder xml = new StringBuilder();
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");

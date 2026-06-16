@@ -2,8 +2,9 @@ User-agent: *
 Allow: /
 Allow: /about
 Allow: /guide
-Allow: /pricing
 Allow: /calendar
+Allow: /terms
+Allow: /privacy
 
 Disallow: /grants
 Disallow: /procurement

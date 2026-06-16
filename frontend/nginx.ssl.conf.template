@@ -54,9 +54,8 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass http://backend:8080/sitemap.xml;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        default_type application/xml;
+        try_files /sitemap.xml =404;
     }
 
     location /actuator/ {
