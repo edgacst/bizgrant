@@ -14,34 +14,61 @@ import {
   ClipboardCheck,
   ArrowDown,
   Gavel,
-  Building2,
-  Globe2,
-  Landmark,
-  Factory,
-  Rocket,
-  Clapperboard,
   Store,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLandingStats } from '../hooks/useLandingStats';
 
-type TrustPartner = {
-  name: string;
-  abbr: string;
+type LiveSource = {
+  title: string;
+  apiLabel: string;
+  note: string;
+  countKey: 'grant' | 'bid' | 'award';
   gradient: string;
-  icon?: LucideIcon;
+  icon: LucideIcon;
+  link: string;
 };
 
-const TRUST_PARTNERS: TrustPartner[] = [
-  { name: '중소벤처기업부', abbr: 'MSS', gradient: 'from-blue-600 to-indigo-700', icon: Building2 },
-  { name: '나라장터', abbr: 'G2B', gradient: 'from-slate-600 to-slate-800', icon: Gavel },
-  { name: '기업마당', abbr: 'BIZ', gradient: 'from-emerald-600 to-teal-700', icon: Store },
-  { name: '한국무역협회', abbr: 'KITA', gradient: 'from-red-600 to-rose-700', icon: Globe2 },
-  { name: '서울경제진흥원', abbr: 'SBA', gradient: 'from-sky-600 to-blue-700', icon: Landmark },
-  { name: 'KOTRA', abbr: 'KOTRA', gradient: 'from-orange-600 to-amber-700', icon: Globe2 },
-  { name: '중소기업진흥공단', abbr: 'KOSME', gradient: 'from-violet-600 to-purple-700', icon: Factory },
-  { name: '창업진흥원', abbr: 'KISED', gradient: 'from-pink-600 to-rose-700', icon: Rocket },
-  { name: '한국콘텐츠진흥원', abbr: 'KOCCA', gradient: 'from-fuchsia-600 to-purple-700', icon: Clapperboard },
+const LIVE_SOURCES: LiveSource[] = [
+  {
+    title: '지원사업',
+    apiLabel: '기업마당 API',
+    note: '중소벤처기업부 제공 · 마감 전 공고',
+    countKey: 'grant',
+    gradient: 'from-emerald-600 to-teal-700',
+    icon: Store,
+    link: '/grants',
+  },
+  {
+    title: '나라장터 입찰',
+    apiLabel: '조달청 입찰공고 API',
+    note: '최근 수집분 · 마감 전 공고',
+    countKey: 'bid',
+    gradient: 'from-slate-600 to-slate-800',
+    icon: Gavel,
+    link: '/procurement',
+  },
+  {
+    title: '나라장터 낙찰',
+    apiLabel: '조달청 낙찰정보 API',
+    note: '최근 수집분',
+    countKey: 'award',
+    gradient: 'from-amber-600 to-orange-700',
+    icon: FileCheck,
+    link: '/procurement',
+  },
+];
+
+/** 기업마당 API 공고에 자주 등장하는 기관 — 별도 건수 표시 없음(동일 API 내 포함) */
+const BIZINFO_ORG_NAMES = [
+  '중소벤처기업부',
+  '중소기업진흥공단',
+  '창업진흥원',
+  '한국무역협회',
+  'KOTRA',
+  '서울경제진흥원',
+  '한국콘텐츠진흥원',
+  '지자체·공공기관',
 ];
 
 const HOW_IT_WORKS = [
@@ -76,13 +103,19 @@ const SERVICE_HIGHLIGHTS = [
 
 const LandingPage: React.FC = () => {
   const [heroVisible, setHeroVisible] = useState(false);
-  const { grantCount, bidCount, awardCount, partnerCounts } = useLandingStats();
+  const { grantCount, bidCount, awardCount } = useLandingStats();
   const grantLabel = grantCount != null ? grantCount.toLocaleString() : '—';
   const bidLabel = bidCount != null ? bidCount.toLocaleString() : '—';
   const awardLabel = awardCount != null ? awardCount.toLocaleString() : '—';
   const totalLabel = grantCount != null && bidCount != null
     ? (grantCount + bidCount).toLocaleString()
     : '—';
+
+  const liveCount = (key: LiveSource['countKey']) => {
+    if (key === 'grant') return grantCount;
+    if (key === 'bid') return bidCount;
+    return awardCount;
+  };
 
   const stats = [
     { icon: FileCheck, value: grantCount != null ? `${grantLabel}건` : '연결 중', label: '신청 가능 지원사업', color: 'text-indigo-500' },
@@ -290,71 +323,60 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ========== TRUST (기관 로고) ========== */}
+      {/* ========== DATA SOURCES (실제 연동만) ========== */}
       <section className="py-20 sm:py-24 bg-gray-50 dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-base sm:text-lg font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-widest">
-            신뢰할 수 있는 기관 데이터
+            지금 연동 중인 데이터
           </p>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-            공공·기관 <span className="gradient-text">공개 공고</span> 수집
+            공공 API <span className="gradient-text">3개 채널</span>
           </h2>
           <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
-            숫자는 마감 전 활성 공고 기준이며, 인트로 상단 통계와 동일하게 집계합니다. 아직 연동하지 않은 기관은「연동 예정」으로 표시합니다.
+            승인받은 공공데이터 API만 실시간 집계합니다. 숫자는 <strong className="font-semibold text-gray-700 dark:text-gray-300">마감 전 활성 공고</strong> 기준이며,
+            상단 인트로 통계와 동일합니다.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
-            {TRUST_PARTNERS.map((org) => {
-              const Icon = org.icon;
-              const count = partnerCounts[org.abbr];
-              const countLabel =
-                count == null
-                  ? null
-                  : count > 0
-                    ? `· ${count.toLocaleString()}건`
-                    : '· 연동 예정';
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-12">
+            {LIVE_SOURCES.map((src) => {
+              const count = liveCount(src.countKey);
+              const label = count != null ? `${count.toLocaleString()}건` : '연결 중';
               return (
-                <div
-                  key={org.name}
-                  className="premium-card p-5 sm:p-6 flex flex-col items-center gap-4 hover:-translate-y-1 transition-all duration-300 group"
+                <Link
+                  key={src.title}
+                  to={src.link}
+                  className="premium-card p-6 sm:p-8 flex flex-col items-center gap-3 hover:-translate-y-1 transition-all duration-300 group text-center"
                 >
                   <div
-                    className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${org.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow`}
+                    className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${src.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow`}
                   >
-                    {Icon ? (
-                      <Icon className="w-8 h-8 sm:w-9 sm:h-9 text-white" strokeWidth={2} />
-                    ) : (
-                      <span className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-                        {org.abbr.slice(0, 4)}
-                      </span>
-                    )}
+                    <src.icon className="w-8 h-8 sm:w-9 sm:h-9 text-white" strokeWidth={2} />
                   </div>
-                  <div className="text-center">
-                    <p className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white leading-snug">
-                      {org.name}
-                    </p>
-                    <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-400 dark:text-gray-500">
-                      {org.abbr}
-                      {countLabel != null && (
-                        <span
-                          className={
-                            count != null && count > 0
-                              ? 'ml-1.5 text-brand-600 dark:text-brand-400'
-                              : 'ml-1.5 text-gray-400 dark:text-gray-500'
-                          }
-                        >
-                          {countLabel}
-                        </span>
-                      )}
-                      {org.abbr === 'G2B' && awardCount != null && awardCount > 0 && (
-                        <span className="block mt-0.5 text-[11px] font-medium text-gray-400">
-                          낙찰 {awardCount.toLocaleString()}건
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
+                  <p className="text-lg font-extrabold text-gray-900 dark:text-white">{src.title}</p>
+                  <p className="text-3xl font-extrabold text-brand-600 dark:text-brand-400">{label}</p>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">{src.apiLabel}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">{src.note}</p>
+                </Link>
               );
             })}
+          </div>
+          <div className="max-w-3xl mx-auto text-left sm:text-center">
+            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-3">
+              기업마당 API에 포함되는 주관·수행 기관 (예시)
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
+              아래 기관 공고는 별도 API가 아니라 <strong className="font-medium">기업마당 지원사업 {grantLabel}건</strong> 안에 포함됩니다.
+              기관별 건수 분리 표시는 추후 제공 예정입니다.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {BIZINFO_ORG_NAMES.map((name) => (
+                <span
+                  key={name}
+                  className="text-xs font-medium px-3 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
