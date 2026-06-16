@@ -26,7 +26,7 @@ const TermsPage: React.FC = () => (
         <section>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제2조 (용어의 정의)</h2>
           <ol className="list-decimal list-inside space-y-1">
-            <li>"서비스"란 회사가 제공하는 정부 지원사업·조달 정보 매칭, 알림, 파이프라인 관리 등 일체의 온라인 서비스를 말합니다.</li>
+            <li>"서비스"란 회사가 제공하는 정부지원금사업·조달 정보 매칭, 알림, 파이프라인 관리 등 일체의 온라인 서비스를 말합니다.</li>
             <li>"회원"이란 본 약관에 동의하고 회사와 이용 계약을 체결한 자를 말합니다.</li>
             <li>"유료 서비스"란 회사가 유료로 제공하는 Pro, Enterprise 등 요금제를 말합니다.</li>
           </ol>
@@ -51,7 +51,7 @@ const TermsPage: React.FC = () => (
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제5조 (서비스의 제공)</h2>
-          <p>회사는 지원사업·조달 공고 정보 수집, 규칙 기반 맞춤 적합도(참고용), 이메일 알림, 파이프라인 관리 등 서비스를 제공합니다. 공고 정보는 외부 기관 API·공개 데이터를 기반으로 하며, 회사는 정보의 완전성·정확성·최신성을 보장하지 않습니다.</p>
+          <p>회사는 정부지원금사업·조달 공고 정보 수집, 규칙 기반 맞춤 적합도(참고용), 이메일 알림, 파이프라인 관리 등 서비스를 제공합니다. 공고 정보는 외부 기관 API·공개 데이터를 기반으로 하며, 회사는 정보의 완전성·정확성·최신성을 보장하지 않습니다.</p>
         </section>
 
         <section>
@@ -70,7 +70,7 @@ const TermsPage: React.FC = () => (
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제8조 (면책)</h2>
-          <p>회사는 천재지변, 시스템 장애, 제3자 API 오류 등 불가항력으로 인한 서비스 중단에 대해 책임을 지지 않습니다. 지원사업 선정 결과에 대해 회사는 보증하지 않습니다.</p>
+          <p>회사는 천재지변, 시스템 장애, 제3자 API 오류 등 불가항력으로 인한 서비스 중단에 대해 책임을 지지 않습니다. 정부지원금사업 선정 결과에 대해 회사는 보증하지 않습니다.</p>
         </section>
 
         <section>

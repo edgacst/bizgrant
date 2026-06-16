@@ -23,7 +23,7 @@ import { clearAuthSession, isAdminUser, isLoggedIn, syncAuthSession } from '../u
 const NAV_LINKS = [
   { path: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { path: '/pipeline', label: '파이프라인', icon: Kanban },
-  { path: '/grants', label: '지원사업', icon: Search },
+  { path: '/grants', label: '정부지원금사업', icon: Search },
   { path: '/procurement', label: '나라장터', icon: Gavel },
   { path: '/documents', label: '서류센터', icon: FolderOpen },
   { path: '/pricing', label: '요금제', icon: Sparkles },

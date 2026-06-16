@@ -306,7 +306,7 @@ const GrantDetailPage: React.FC = () => {
       ? '나라장터 낙찰 목록'
       : grant?.source === 'G2B'
         ? '나라장터 입찰 목록'
-        : '지원사업 목록';
+        : '정부지원금사업 목록';
 
   if (!grant) {
     return (

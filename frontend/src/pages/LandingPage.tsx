@@ -31,7 +31,7 @@ type LiveSource = {
 
 const LIVE_SOURCES: LiveSource[] = [
   {
-    title: '지원사업',
+    title: '정부지원금사업',
     apiLabel: '기업마당 API',
     note: '중소벤처기업부 제공 · 마감 전 공고',
     countKey: 'grant',
@@ -76,7 +76,7 @@ const HOW_IT_WORKS = [
     step: '01',
     icon: Search,
     title: '공고 탐색',
-    desc: '중소벤처기업부·지자체·민간 지원사업 중\n내 기업에 맞는 공고만 필터링',
+    desc: '중소벤처기업부·지자체·민간 정부지원금사업 중\n내 기업에 맞는 공고만 필터링',
     color: 'from-indigo-500 to-blue-500',
   },
   {
@@ -118,7 +118,7 @@ const LandingPage: React.FC = () => {
   };
 
   const stats = [
-    { icon: FileCheck, value: grantCount != null ? `${grantLabel}건` : '연결 중', label: '신청 가능 지원사업', color: 'text-indigo-500' },
+    { icon: FileCheck, value: grantCount != null ? `${grantLabel}건` : '연결 중', label: '신청 가능 정부지원금사업', color: 'text-indigo-500' },
     { icon: Gavel, value: bidCount != null ? `${bidLabel}건` : '연결 중', label: '나라장터 입찰공고', color: 'text-slate-600' },
     { icon: TrendingUp, value: totalLabel !== '—' ? `${totalLabel}건` : '연결 중', label: '수집·연동 공고 합계', color: 'text-green-500' },
   ];
@@ -240,7 +240,7 @@ const LandingPage: React.FC = () => {
             {/* Trust mini-stats */}
             <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mt-10 text-sm text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-green-500" /> 공공·기관 공고 수집</span>
-              <span className="flex items-center gap-1.5"><FileCheck className="w-4 h-4 text-indigo-500" /> 지원사업 {grantLabel}건</span>
+              <span className="flex items-center gap-1.5"><FileCheck className="w-4 h-4 text-indigo-500" /> 정부지원금사업 {grantLabel}건</span>
               <span className="flex items-center gap-1.5"><Gavel className="w-4 h-4 text-slate-600" /> 나라장터 입찰 {bidLabel}건</span>
               <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4 text-green-500" /> 합계 {totalLabel}건</span>
             </div>
@@ -364,7 +364,7 @@ const LandingPage: React.FC = () => {
               기업마당 API에 포함되는 주관·수행 기관 (예시)
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
-              아래 기관 공고는 별도 API가 아니라 <strong className="font-medium">기업마당 지원사업 {grantLabel}건</strong> 안에 포함됩니다.
+              아래 기관 공고는 별도 API가 아니라 <strong className="font-medium">기업마당 정부지원금사업 {grantLabel}건</strong> 안에 포함됩니다.
               기관별 건수 분리 표시는 추후 제공 예정입니다.
             </p>
             <div className="flex flex-wrap justify-center gap-2">
@@ -389,7 +389,7 @@ const LandingPage: React.FC = () => {
               왜 <span className="gradient-text">BizGrant</span>인가요?
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-              지원사업을 더 스마트하게 관리하세요
+              정부지원금사업을 더 스마트하게 관리하세요
             </p>
           </div>
 

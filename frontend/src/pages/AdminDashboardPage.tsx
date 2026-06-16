@@ -122,7 +122,7 @@ const AdminDashboardPage: React.FC = () => {
     setSyncing(true);
     try {
       await triggerGrantSync();
-      toast.success('지원사업 동기화를 시작했습니다.');
+      toast.success('정부지원금사업 동기화를 시작했습니다.');
       await loadDashboard();
     } catch {
       toast.error('동기화 요청에 실패했습니다.');
@@ -311,7 +311,7 @@ const AdminDashboardPage: React.FC = () => {
             className="btn btn-primary inline-flex items-center gap-2"
           >
             {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            지원사업 동기화
+            정부지원금사업 동기화
           </button>
           <button
             onClick={handleNewsletter}

@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
     setSubmitting(true);
     try {
       await client.post('/newsletter/subscribe', { email: trimmed });
-      toast.success('구독 완료! 매주 월요일 오전 지원사업 요약 메일을 보내드립니다.');
+      toast.success('구독 완료! 매주 월요일 오전 정부지원금사업 요약 메일을 보내드립니다.');
       setEmail('');
     } catch (err: unknown) {
       const msg =
@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">제품</h4>
             <ul className="space-y-2 text-sm">
-              <li><FooterLink to="/grants" className="hover:text-white transition-colors">지원사업</FooterLink></li>
+              <li><FooterLink to="/grants" className="hover:text-white transition-colors">정부지원금사업</FooterLink></li>
               <li><FooterLink to="/procurement" className="hover:text-white transition-colors">나라장터</FooterLink></li>
               <li><FooterLink to="/pipeline" className="hover:text-white transition-colors">파이프라인</FooterLink></li>
               <li><FooterLink to="/calendar" className="hover:text-white transition-colors">캘린더</FooterLink></li>
@@ -102,7 +102,7 @@ const Footer: React.FC = () => {
 
           <div>
             <h4 className="text-white font-semibold mb-4">뉴스레터</h4>
-            <p className="text-sm mb-4">신규 지원사업 소식을 메일로 받아보세요</p>
+            <p className="text-sm mb-4">신규 정부지원금사업 소식을 메일로 받아보세요</p>
             <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
               <input
                 type="email"

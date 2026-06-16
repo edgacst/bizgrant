@@ -98,7 +98,7 @@ const SignupPage: React.FC = () => {
                 회원가입
               </h2>
               <p className="text-gray-500 dark:text-gray-400 mt-1.5 text-sm">
-                BizGrant와 함께 지원사업을 찾아보세요
+                BizGrant와 함께 정부지원금사업을 찾아보세요
               </p>
             </div>
 

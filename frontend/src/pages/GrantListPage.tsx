@@ -156,7 +156,7 @@ const GrantListPage: React.FC = () => {
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
             <Sparkles className="w-6 h-6 inline mr-2 text-brand-500" />
-            지원사업 탐색
+            정부지원금사업 탐색
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             신청 가능 공고 <span className="font-bold text-brand-600">{totalElements.toLocaleString()}</span>건

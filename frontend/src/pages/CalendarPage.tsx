@@ -149,7 +149,7 @@ const CalendarPage: React.FC = () => {
               공고 캘린더
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              마감일 기준으로 지원사업 일정을 확인하세요
+              마감일 기준으로 정부지원금사업 일정을 확인하세요
             </p>
           </div>
 

@@ -167,9 +167,9 @@ export default function GuidePage() {
               </p>
             </Section>
 
-            <Section id="search" icon={Search} title="2. 공고 찾기 (지원사업)">
+            <Section id="search" icon={Search} title="2. 공고 찾기 (정부지원금사업)">
               <p>
-                <MenuLink to="/grants" label="지원사업" /> 메뉴에서 기업마당·중기부·K-Startup 등에서 수집한 공고를 검색합니다.
+                <MenuLink to="/grants" label="정부지원금사업" /> 메뉴에서 기업마당·중기부·K-Startup 등에서 수집한 공고를 검색합니다.
               </p>
               <StepList
                 items={[
@@ -202,14 +202,14 @@ export default function GuidePage() {
 
             <Section id="procurement" icon={Gavel} title="3. 나라장터 (입찰공고)">
               <p>
-                지원사업(보조금·R&D)과 조달 입찰은 성격이 다릅니다. <MenuLink to="/procurement" label="나라장터" /> 메뉴에서
+                정부지원금사업(보조금·R&D)과 조달 입찰은 성격이 다릅니다. <MenuLink to="/procurement" label="나라장터" /> 메뉴에서
                 G2B 입찰·계약 공고를 별도로 검색할 수 있습니다.
               </p>
               <StepList
                 items={[
                   '입찰공고명·기관·마감일로 필터링합니다.',
                   '상세에서 원문 사이트(나라장터) 링크로 이동해 공식 공고문을 확인합니다.',
-                  '지원사업 파이프라인과 동일한 흐름으로 관리하려면, 관심 입찰도 북마크 후 별도 메모로 진행 상황을 적어 두세요.',
+                  '정부지원금사업 파이프라인과 동일한 흐름으로 관리하려면, 관심 입찰도 북마크 후 별도 메모로 진행 상황을 적어 두세요.',
                 ]}
               />
             </Section>

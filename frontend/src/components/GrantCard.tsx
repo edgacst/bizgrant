@@ -29,6 +29,13 @@ const GrantCard: React.FC<GrantCardProps> = ({ grant, matchScore }) => {
     });
   };
 
+  const formatDateShort = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   const tagColor = CATEGORY_COLORS[grant.category] || CATEGORY_COLORS['기타'];
 
   const getMatchColor = (score: number) => {
@@ -37,36 +44,38 @@ const GrantCard: React.FC<GrantCardProps> = ({ grant, matchScore }) => {
     return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
   };
 
+  const tags = (
+    <>
+      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${tagColor}`}>
+        {grant.category}
+      </span>
+      {grant.sourceLabel && (
+        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          {grant.sourceLabel}
+        </span>
+      )}
+      {matchScore !== undefined && (
+        <span className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${getMatchColor(matchScore)}`}>
+          매칭 {matchScore}%
+        </span>
+      )}
+    </>
+  );
+
   return (
     <div
       onClick={() => navigate(`/grants/${grant.id}`)}
-      className="premium-card cursor-pointer group p-5"
+      className="premium-card cursor-pointer group p-5 md:py-3 md:px-4 border-l-4 border-l-indigo-400 hover:border-l-brand-500"
     >
-      <div className="flex items-start justify-between gap-4">
+      {/* 모바일: 카드형 */}
+      <div className="md:hidden flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          {/* Category + Match score */}
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${tagColor}`}>
-              {grant.category}
-            </span>
-            {grant.sourceLabel && (
-              <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                {grant.sourceLabel}
-              </span>
-            )}
-            {matchScore !== undefined && (
-              <span className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${getMatchColor(matchScore)}`}>
-                매칭 {matchScore}%
-              </span>
-            )}
-          </div>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">{tags}</div>
 
-          {/* Title */}
           <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors line-clamp-2">
             {grant.title}
           </h3>
 
-          {/* Organization + Period */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1.5">
               <Building2 className="w-4 h-4" />
@@ -78,7 +87,6 @@ const GrantCard: React.FC<GrantCardProps> = ({ grant, matchScore }) => {
             </span>
           </div>
 
-          {/* Budget snippet */}
           {grant.budget && (
             <p className="mt-2 text-sm font-semibold text-brand-600 dark:text-brand-400">
               {grant.budget}
@@ -87,6 +95,32 @@ const GrantCard: React.FC<GrantCardProps> = ({ grant, matchScore }) => {
         </div>
 
         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 shrink-0 transition-colors mt-1" />
+      </div>
+
+      {/* PC: 게시판형 2줄 */}
+      <div className="hidden md:flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">{tags}</div>
+          <div className="flex items-center gap-3 min-w-0 text-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-white truncate min-w-0 flex-1 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+              {grant.title}
+            </h3>
+            <span className="shrink-0 text-gray-400 hidden lg:inline">|</span>
+            <span className="shrink-0 text-gray-500 dark:text-gray-400 flex items-center gap-1 max-w-[10rem] truncate">
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
+              {grant.organization}
+            </span>
+            <span className="shrink-0 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              마감 {formatDateShort(grant.applyEnd)}
+            </span>
+            {grant.budget && (
+              <span className="shrink-0 font-semibold text-brand-600 dark:text-brand-400 whitespace-nowrap">
+                {grant.budget}
+              </span>
+            )}
+          </div>
+        </div>
+        <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 shrink-0 transition-colors" />
       </div>
     </div>
   );

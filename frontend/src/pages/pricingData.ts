@@ -23,7 +23,7 @@ export const PRICING_TIERS: PricingTier[] = [
     name: 'Pro',
     monthlyPrice: 99000,
     yearlyPrice: 594000,
-    description: '우리 회사 1곳 지원사업 준비',
+    description: '우리 회사 1곳 정부지원금사업 준비',
     audience: '매월 여러 공고를 검토·신청하는 기업',
     statusNote: '관리자가 플랜 부여 (결제 미연동)',
     highlighted: true,

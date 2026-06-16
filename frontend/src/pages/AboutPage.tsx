@@ -59,10 +59,10 @@ const BENEFITS = [
   },
   {
     icon: TrendingUp,
-    title: '지원사업 탐색',
+    title: '정부지원금사업 탐색',
     subtitle: '공고·조달 분리',
-    desc: '지원사업과 나라장터 입찰을 구분해 제공합니다. 선정이나 지원금액을 보장하지 않으며, 적합 공고 발견과 준비 효율을 돕습니다.',
-    stats: [{ label: '지원사업', value: '수집 공고' }, { label: '조달', value: '별도 메뉴' }],
+    desc: '정부지원금사업과 나라장터 입찰을 구분해 제공합니다. 선정이나 지원금액을 보장하지 않으며, 적합 공고 발견과 준비 효율을 돕습니다.',
+    stats: [{ label: '정부지원금사업', value: '수집 공고' }, { label: '조달', value: '별도 메뉴' }],
     color: 'from-indigo-500 to-violet-500',
   },
 ];
@@ -115,7 +115,7 @@ const PROCESS = [
 const FAQ = [
   {
     q: 'BizGrant는 어떤 회사에 도움이 되나요?',
-    a: '지원사업 공고를 한곳에서 찾고, 프로필·알림 설정에 맞춰 참고용 적합도를 보고 싶은 중소기업·스타트업·소상공인에게 적합합니다. 선정 가능 여부는 공고별 자격요건을 직접 확인해야 합니다.',
+    a: '정부지원금사업 공고를 한곳에서 찾고, 프로필·알림 설정에 맞춰 참고용 적합도를 보고 싶은 중소기업·스타트업·소상공인에게 적합합니다. 선정 가능 여부는 공고별 자격요건을 직접 확인해야 합니다.',
   },
   {
     q: '무료로 무엇을 이용할 수 있나요?',
@@ -134,7 +134,7 @@ const FAQ = [
     a: '팀 초대·실시간 공유·SSO는 아직 제공하지 않습니다. 파이프라인은 로그인한 계정 기준으로 관리됩니다.',
   },
   {
-    q: '지원사업 선정을 보장하나요?',
+    q: '정부지원금사업 선정을 보장하나요?',
     a: '보장하지 않습니다. BizGrant는 공고 탐색·적합도 참고·서류 준비를 돕는 도구이며, 최종 판단과 제출은 이용자 책임입니다.',
   },
 ];
@@ -155,15 +155,15 @@ export default function AboutPage() {
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 glass px-5 py-2.5 rounded-full mb-8 text-sm font-semibold text-indigo-700 dark:text-indigo-300">
             <Sparkles className="w-4 h-4" />
-            정부 지원사업 탐색·준비 플랫폼
+            정부지원금사업 탐색·준비 플랫폼
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
             당신의 회사에 <span className="gradient-text">딱 맞는</span>
             <br />
-            지원사업을 찾아드립니다
+            정부지원금사업을 찾아드립니다
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
-            매년 많은 규모의 정부 지원사업 예산이 있지만, 공고를 찾기 어렵습니다.
+            매년 많은 규모의 정부지원금사업 예산이 있지만, 공고를 찾기 어렵습니다.
             <span className="font-bold text-gray-900 dark:text-white"> BizGrant</span>는 공개 공고를 모아 검색하고,
             규칙 기반 적합도와 서류 준비 도구로 지원 준비를 돕습니다.
           </p>
@@ -181,7 +181,7 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto px-4 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: grantLabel, label: '신청 가능 지원사업' },
+              { value: grantLabel, label: '신청 가능 정부지원금사업' },
               { value: sourceLabel, label: '주요 수집 소스' },
               { value: '참고용', label: '적합도 점수' },
               { value: '이메일', label: '알림 채널' },
@@ -203,7 +203,7 @@ export default function AboutPage() {
               BizGrant를 사용하면 <span className="gradient-text">무엇이 달라질까요?</span>
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-              단순한 공고 검색이 아닌, 지원사업의 전 과정을 혁신합니다
+              단순한 공고 검색이 아닌, 정부지원금사업의 전 과정을 혁신합니다
             </p>
           </div>
 
@@ -255,10 +255,10 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white">
-              <span className="gradient-text">6단계</span>로 완성되는 지원사업 성공 루틴
+              <span className="gradient-text">6단계</span>로 완성되는 정부지원금사업 성공 루틴
             </h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-              복잡한 지원사업 프로세스를 체계적으로 관리하세요
+              복잡한 정부지원금사업 프로세스를 체계적으로 관리하세요
             </p>
           </div>
 
