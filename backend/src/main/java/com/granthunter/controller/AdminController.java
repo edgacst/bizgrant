@@ -1,6 +1,8 @@
 package com.granthunter.controller;
 
+import com.granthunter.dto.MemberAnnouncementRequest;
 import com.granthunter.service.AdminService;
+import com.granthunter.service.MemberAnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final MemberAnnouncementService memberAnnouncementService;
 
     @GetMapping("/dashboard")
     @Operation(summary = "관리자 대시보드")
@@ -53,6 +56,18 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> sendNewsletter(Authentication authentication) {
         requireAdmin(authentication);
         return ResponseEntity.ok(adminService.triggerNewsletter());
+    }
+
+    @PostMapping("/announcements/send")
+    @Operation(summary = "전체 회원 공지 이메일 발송")
+    public ResponseEntity<Map<String, Object>> sendMemberAnnouncement(
+            Authentication authentication,
+            @RequestBody MemberAnnouncementRequest body) {
+        requireAdmin(authentication);
+        if (body == null) {
+            throw new IllegalArgumentException("요청 본문이 필요합니다.");
+        }
+        return ResponseEntity.ok(memberAnnouncementService.sendToAllMembers(body.getSubject(), body.getMessage()));
     }
 
     @PutMapping("/users/{id}/plan")

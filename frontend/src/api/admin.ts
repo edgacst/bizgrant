@@ -74,6 +74,24 @@ export async function updateAdminUserPlan(userId: number, plan: string): Promise
   return res.data;
 }
 
+export interface MemberAnnouncementResult {
+  status: string;
+  recipientCount: number;
+  sent: number;
+  failed: number;
+}
+
+export async function sendMemberAnnouncement(
+  subject: string,
+  message: string,
+): Promise<MemberAnnouncementResult> {
+  const res = await client.post<MemberAnnouncementResult>('/admin/announcements/send', {
+    subject,
+    message,
+  });
+  return res.data;
+}
+
 export async function deleteAdminUser(userId: number): Promise<{ status: string; email?: string }> {
   const res = await client.delete(`/admin/users/${userId}`);
   return res.data;

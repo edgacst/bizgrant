@@ -12,12 +12,14 @@ import {
   Loader2,
   Trash2,
   User,
+  Megaphone,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   getAdminDashboard,
   triggerGrantSync,
   triggerNewsletterSend,
+  sendMemberAnnouncement,
   deleteAdminUser,
   updateAdminUserPlan,
   searchAdminUsers,
@@ -61,6 +63,9 @@ const AdminDashboardPage: React.FC = () => {
   const [memberSearch, setMemberSearch] = useState('');
   const [memberResults, setMemberResults] = useState<AdminUserSummary[]>([]);
   const [memberSearchLoading, setMemberSearchLoading] = useState(false);
+  const [announcementSubject, setAnnouncementSubject] = useState('');
+  const [announcementMessage, setAnnouncementMessage] = useState('');
+  const [sendingAnnouncement, setSendingAnnouncement] = useState(false);
 
   const planSelectValue = (plan?: string) =>
     (['free', 'pro', 'enterprise'].includes(plan || '') ? plan : 'free') as string;
@@ -137,6 +142,39 @@ const AdminDashboardPage: React.FC = () => {
       toast.error('뉴스레터 발송에 실패했습니다.');
     } finally {
       setSendingNewsletter(false);
+    }
+  };
+
+  const handleMemberAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const subject = announcementSubject.trim();
+    const message = announcementMessage.trim();
+    if (!subject || !message) {
+      toast.error('제목과 내용을 모두 입력해 주세요.');
+      return;
+    }
+
+    const memberCount = data?.users.total ?? 0;
+    const confirmed = window.confirm(
+      `가입 회원 ${memberCount}명에게 공지 메일을 보냅니다.\n\n제목: ${subject}\n\n계속할까요?`,
+    );
+    if (!confirmed) return;
+
+    setSendingAnnouncement(true);
+    try {
+      const result = await sendMemberAnnouncement(subject, message);
+      if (result.failed > 0) {
+        toast.error(`발송 완료 ${result.sent}건, 실패 ${result.failed}건`);
+      } else {
+        toast.success(`전체 회원 공지 발송 완료 (${result.sent}건)`);
+      }
+      setAnnouncementSubject('');
+      setAnnouncementMessage('');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || '공지 발송에 실패했습니다.');
+    } finally {
+      setSendingAnnouncement(false);
     }
   };
 
@@ -320,6 +358,61 @@ const AdminDashboardPage: React.FC = () => {
       </p>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <section className="premium-card p-6 xl:col-span-2 border-2 border-amber-100 dark:border-amber-900/30">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+            <Megaphone className="w-5 h-5 text-amber-500" />
+            전체 회원 공지 발송
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            <strong className="text-gray-700 dark:text-gray-200">가입 회원 전원</strong>에게 이메일 공지를 보냅니다.
+            뉴스레터(푸터 구독자)나 맞춤 알림과는 별개입니다. 현재 회원{' '}
+            <strong>{(data?.users.total ?? 0).toLocaleString()}명</strong> · SMTP 설정 필요.
+          </p>
+          <form onSubmit={(e) => void handleMemberAnnouncement(e)} className="space-y-3">
+            <label className="block">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">제목</span>
+              <input
+                type="text"
+                value={announcementSubject}
+                onChange={(e) => setAnnouncementSubject(e.target.value)}
+                maxLength={200}
+                placeholder="예: [BizGrant] 서비스 점검 안내"
+                className="input-premium w-full mt-1"
+                disabled={sendingAnnouncement}
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">내용</span>
+              <textarea
+                value={announcementMessage}
+                onChange={(e) => setAnnouncementMessage(e.target.value)}
+                maxLength={5000}
+                rows={6}
+                placeholder="회원에게 전달할 공지 내용을 입력하세요."
+                className="input-premium w-full mt-1 resize-y min-h-[8rem]"
+                disabled={sendingAnnouncement}
+              />
+            </label>
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="submit"
+                disabled={sendingAnnouncement}
+                className="btn btn-primary inline-flex items-center gap-2"
+              >
+                {sendingAnnouncement ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Megaphone className="w-4 h-4" />
+                )}
+                전체 회원에게 발송
+              </button>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                발송 전 확인 창이 뜹니다. 되돌릴 수 없으니 내용을 꼭 확인하세요.
+              </p>
+            </div>
+          </form>
+        </section>
+
         <section className="premium-card p-6 xl:col-span-2 border-2 border-brand-100 dark:border-brand-900/40">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">회원 플랜 변경</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
