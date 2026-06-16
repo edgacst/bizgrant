@@ -13,6 +13,7 @@ import {
   Trash2,
   User,
   Megaphone,
+  Info,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -20,6 +21,7 @@ import {
   triggerGrantSync,
   triggerNewsletterSend,
   sendMemberAnnouncement,
+  getMemberAnnouncementTemplate,
   deleteAdminUser,
   updateAdminUserPlan,
   searchAdminUsers,
@@ -27,6 +29,7 @@ import {
   type AdminDashboardData,
   type AdminSyncRun,
   type AdminUserSummary,
+  type MemberAnnouncementTemplate,
 } from '../api/admin';
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -65,6 +68,7 @@ const AdminDashboardPage: React.FC = () => {
   const [memberSearchLoading, setMemberSearchLoading] = useState(false);
   const [announcementSubject, setAnnouncementSubject] = useState('');
   const [announcementMessage, setAnnouncementMessage] = useState('');
+  const [announcementTemplate, setAnnouncementTemplate] = useState<MemberAnnouncementTemplate | null>(null);
   const [sendingAnnouncement, setSendingAnnouncement] = useState(false);
 
   const planSelectValue = (plan?: string) =>
@@ -117,6 +121,28 @@ const AdminDashboardPage: React.FC = () => {
   useEffect(() => {
     void loadDashboard();
   }, [loadDashboard]);
+
+  useEffect(() => {
+    void getMemberAnnouncementTemplate()
+      .then(setAnnouncementTemplate)
+      .catch(() => {
+        // 템플릿 미리보기는 선택 기능
+      });
+  }, []);
+
+  const applyAnnouncementTemplate = () => {
+    if (!announcementTemplate) {
+      toast.error('템플릿을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
+      return;
+    }
+    const hasContent = announcementSubject.trim() || announcementMessage.trim();
+    if (hasContent && !window.confirm('입력 중인 제목·내용을 기본 템플릿으로 바꿉니다. 계속할까요?')) {
+      return;
+    }
+    setAnnouncementSubject(announcementTemplate.subjectExample);
+    setAnnouncementMessage(announcementTemplate.messageTemplate);
+    toast.success('기본 템플릿을 불러왔습니다. 내용을 수정한 뒤 발송하세요.');
+  };
 
   const handleSync = async () => {
     setSyncing(true);
@@ -368,6 +394,37 @@ const AdminDashboardPage: React.FC = () => {
             뉴스레터(푸터 구독자)나 맞춤 알림과는 별개입니다. 현재 회원{' '}
             <strong>{(data?.users.total ?? 0).toLocaleString()}명</strong> · SMTP 설정 필요.
           </p>
+
+          <details className="mb-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40 p-4 group">
+            <summary className="cursor-pointer text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2 list-none">
+              <Info className="w-4 h-4 text-brand-500 shrink-0" />
+              작성 가이드 · 자동으로 붙는 내용
+            </summary>
+            <div className="mt-3 space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              {announcementTemplate?.writingTips && (
+                <p className="whitespace-pre-line leading-relaxed">{announcementTemplate.writingTips}</p>
+              )}
+              <div>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">본문에 넣을 내용 (예시)</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>공지 한 줄 요약</li>
+                  <li>상세 안내 (점검·기능·정책 변경 등)</li>
+                  <li>일시·기간 (해당 시)</li>
+                  <li>회원이 확인·조치할 사항</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">발송 시 자동으로 붙는 푸터</p>
+                <pre className="text-xs whitespace-pre-wrap rounded-lg bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 p-3 text-gray-600 dark:text-gray-400 overflow-x-auto">
+                  {announcementTemplate?.autoFooterPreview ?? '사이트·공고·대시보드·알림·마이페이지 링크와 문의 이메일'}
+                </pre>
+                <p className="text-xs mt-1.5 text-gray-500">
+                  링크는 본문에 직접 넣지 않아도 됩니다. 수신자 이름 인사말도 자동으로 붙습니다.
+                </p>
+              </div>
+            </div>
+          </details>
+
           <form onSubmit={(e) => void handleMemberAnnouncement(e)} className="space-y-3">
             <label className="block">
               <span className="text-sm font-semibold text-gray-900 dark:text-white">제목</span>
@@ -376,7 +433,7 @@ const AdminDashboardPage: React.FC = () => {
                 value={announcementSubject}
                 onChange={(e) => setAnnouncementSubject(e.target.value)}
                 maxLength={200}
-                placeholder="예: [BizGrant] 서비스 점검 안내"
+                placeholder={announcementTemplate?.subjectExample ?? '예: [BizGrant] 서비스 점검 안내'}
                 className="input-premium w-full mt-1"
                 disabled={sendingAnnouncement}
               />
@@ -388,12 +445,21 @@ const AdminDashboardPage: React.FC = () => {
                 onChange={(e) => setAnnouncementMessage(e.target.value)}
                 maxLength={5000}
                 rows={6}
-                placeholder="회원에게 전달할 공지 내용을 입력하세요."
+                placeholder="공지 본문을 작성하세요. 아래 '기본 템플릿 불러오기'를 누르면 예시 형식이 채워집니다."
                 className="input-premium w-full mt-1 resize-y min-h-[8rem]"
                 disabled={sendingAnnouncement}
               />
             </label>
             <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={applyAnnouncementTemplate}
+                disabled={sendingAnnouncement}
+                className="btn btn-secondary inline-flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                기본 템플릿 불러오기
+              </button>
               <button
                 type="submit"
                 disabled={sendingAnnouncement}

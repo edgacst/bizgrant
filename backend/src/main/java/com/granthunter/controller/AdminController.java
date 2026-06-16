@@ -58,6 +58,13 @@ public class AdminController {
         return ResponseEntity.ok(adminService.triggerNewsletter());
     }
 
+    @GetMapping("/announcements/template")
+    @Operation(summary = "전체 회원 공지 작성 템플릿·자동 푸터 미리보기")
+    public ResponseEntity<Map<String, String>> memberAnnouncementTemplate(Authentication authentication) {
+        requireAdmin(authentication);
+        return ResponseEntity.ok(memberAnnouncementService.getAnnouncementTemplate());
+    }
+
     @PostMapping("/announcements/send")
     @Operation(summary = "전체 회원 공지 이메일 발송")
     public ResponseEntity<Map<String, Object>> sendMemberAnnouncement(

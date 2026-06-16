@@ -81,6 +81,20 @@ export interface MemberAnnouncementResult {
   failed: number;
 }
 
+export interface MemberAnnouncementTemplate {
+  subjectExample: string;
+  messageTemplate: string;
+  autoFooterPreview: string;
+  siteUrl: string;
+  supportEmail: string;
+  writingTips: string;
+}
+
+export async function getMemberAnnouncementTemplate(): Promise<MemberAnnouncementTemplate> {
+  const res = await client.get<MemberAnnouncementTemplate>('/admin/announcements/template');
+  return res.data;
+}
+
 export async function sendMemberAnnouncement(
   subject: string,
   message: string,

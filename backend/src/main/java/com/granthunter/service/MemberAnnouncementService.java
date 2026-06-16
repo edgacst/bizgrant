@@ -21,6 +21,11 @@ public class MemberAnnouncementService {
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
     private final NewsletterProperties newsletterProperties;
+    private final SiteEmailComposer siteEmailComposer;
+
+    public Map<String, String> getAnnouncementTemplate() {
+        return siteEmailComposer.memberAnnouncementTemplate();
+    }
 
     public Map<String, Object> sendToAllMembers(String subject, String message) {
         String trimmedSubject = subject != null ? subject.trim() : "";
@@ -49,7 +54,7 @@ public class MemberAnnouncementService {
 
         for (User user : recipients) {
             try {
-                sendEmail(user.getEmail(), trimmedSubject, buildBody(user, trimmedMessage));
+                sendEmail(user.getEmail(), trimmedSubject, siteEmailComposer.buildMemberAnnouncementBody(user, trimmedMessage));
                 sent++;
             } catch (Exception e) {
                 failed++;
@@ -65,17 +70,6 @@ public class MemberAnnouncementService {
         return result;
     }
 
-    private String buildBody(User user, String message) {
-        String siteUrl = trimSlash(newsletterProperties.getSiteUrl());
-        StringBuilder sb = new StringBuilder();
-        sb.append(user.getName() != null ? user.getName() : "회원").append("님, 안녕하세요.\n\n");
-        sb.append(message).append("\n\n");
-        sb.append("---\n");
-        sb.append("BizGrant: ").append(siteUrl).append("\n");
-        sb.append("본 메일은 BizGrant 가입 회원에게 발송된 공지입니다.\n");
-        return sb.toString();
-    }
-
     private void sendEmail(String to, String subject, String text) {
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setFrom(newsletterProperties.getFrom());
@@ -83,12 +77,5 @@ public class MemberAnnouncementService {
         mail.setSubject(subject);
         mail.setText(text);
         mailSender.send(mail);
-    }
-
-    private String trimSlash(String url) {
-        if (url == null || url.isBlank()) {
-            return "https://bizgrant.kr";
-        }
-        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 }
