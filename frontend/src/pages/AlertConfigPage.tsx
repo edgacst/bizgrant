@@ -15,6 +15,7 @@ import {
   Hash,
   Send,
   Webhook,
+  Info,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
@@ -110,6 +111,7 @@ const AlertConfigPage: React.FC = () => {
   const [history, setHistory] = useState<AlertHistory[]>([]);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
+  const [testingAlert, setTestingAlert] = useState(false);
   const [form, setForm] = useState<AlertPrefForm>(DEFAULT_FORM);
   const [savedForm, setSavedForm] = useState<AlertPrefForm>(DEFAULT_FORM);
 
@@ -243,11 +245,22 @@ const AlertConfigPage: React.FC = () => {
 
   const handleSave = async () => {
     if (!limits.allowedAlertChannels.includes(form.channel)) {
-      toast.error(`${formatAlertChannel(form.channel)} 알림은 Pro 이상에서 설정할 수 있습니다.`);
+      const needEnterprise = ['slack', 'telegram', 'webhook'].includes(form.channel);
+      toast.error(
+        `${formatAlertChannel(form.channel)} 알림은 ${needEnterprise ? 'Enterprise' : 'Pro'} 이상에서 설정할 수 있습니다.`
+      );
       return;
     }
     if (form.channel === 'kakao' && !form.channelId.trim()) {
-      toast.error('카카오톡 수신 ID 또는 연락처를 입력해주세요.');
+      toast.error('카카오 알림 수신 휴대폰 번호를 입력해 주세요.');
+      return;
+    }
+    if ((form.channel === 'slack' || form.channel === 'webhook') && !/^https?:\/\//i.test(form.channelId.trim())) {
+      toast.error('Webhook URL(https://...)을 입력해 주세요.');
+      return;
+    }
+    if (form.channel === 'telegram' && !form.channelId.trim()) {
+      toast.error('Telegram Chat ID를 입력해 주세요.');
       return;
     }
 
@@ -268,6 +281,27 @@ const AlertConfigPage: React.FC = () => {
       toast.error(msg || '알림 설정 저장에 실패했습니다.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleTestAlert = async () => {
+    if (!hasSavedPrefs) {
+      toast.error('알림 설정을 먼저 저장해 주세요.');
+      return;
+    }
+    setTestingAlert(true);
+    try {
+      const res = await client.post<{ success: boolean; message: string }>('/alerts/test');
+      if (res.data.success) {
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || '테스트 알림 발송에 실패했습니다.');
+    } finally {
+      setTestingAlert(false);
     }
   };
 
@@ -352,10 +386,25 @@ const AlertConfigPage: React.FC = () => {
                   </button>
                 </>
               ) : (
-                <button type="button" onClick={startEditing} className="btn btn-secondary inline-flex items-center gap-2">
-                  <Pencil className="w-4 h-4" />
-                  알림설정수정
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => void handleTestAlert()}
+                    disabled={testingAlert || !hasSavedPrefs}
+                    className="btn btn-secondary inline-flex items-center gap-2"
+                  >
+                    {testingAlert ? (
+                      <span className="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    테스트 발송
+                  </button>
+                  <button type="button" onClick={startEditing} className="btn btn-secondary inline-flex items-center gap-2">
+                    <Pencil className="w-4 h-4" />
+                    알림설정수정
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -487,13 +536,13 @@ const AlertConfigPage: React.FC = () => {
 
             {form.channel === 'kakao' && (
               <label className="block">
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">카카오톡 수신 ID</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">카카오 계정 연락처 또는 채널 수신 ID</p>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">카카오 알림 수신 번호</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">알림톡 또는 SMS로 수신할 휴대폰 번호 (서버에 Solapi·카카오 템플릿 설정 필요)</p>
                 <input
                   value={form.channelId}
                   onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
                   readOnly={fieldLocked}
-                  placeholder="01012345678 또는 카카오 ID"
+                  placeholder="01012345678"
                   className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
                 />
               </label>
@@ -540,6 +589,24 @@ const AlertConfigPage: React.FC = () => {
                 />
               </label>
             )}
+
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-600 dark:text-gray-300 space-y-2">
+              <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Info className="w-4 h-4 text-brand-500 shrink-0" />
+                채널별 설정 방법
+              </p>
+              <ul className="list-disc pl-5 space-y-1 text-xs sm:text-sm leading-relaxed">
+                <li><strong>이메일</strong> — 가입 이메일로 발송 (서버 SMTP 설정 필요)</li>
+                <li><strong>카카오톡</strong> — 수신 휴대폰 번호. 서버에 Solapi + 카카오 알림톡 템플릿이 있으면 알림톡, 없으면 SMS로 대체</li>
+                <li><strong>문자</strong> — 수신 번호. 서버에 Solapi 발신번호 등록 필요</li>
+                <li><strong>Slack</strong> — Slack 앱 → Incoming Webhooks → URL 복사 후 붙여넣기</li>
+                <li><strong>Webhook</strong> — 사내·n8n 등 수신 URL (JSON POST)</li>
+                <li><strong>Telegram</strong> — 서버에 봇 토큰 설정 후, 채팅방 Chat ID 입력</li>
+              </ul>
+              <p className="text-xs text-gray-500 dark:text-gray-400 pt-1">
+                저장 후 「테스트 발송」으로 수신 여부를 확인하세요. 매일 오전 9시경 새 맞춤 공고가 있으면 발송됩니다.
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -13,7 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @org.springframework.boot.context.properties.EnableConfigurationProperties({
         com.granthunter.config.GrantSyncProperties.class,
         com.granthunter.config.NewsletterProperties.class,
-        com.granthunter.config.AdminProperties.class
+        com.granthunter.config.AdminProperties.class,
+        com.granthunter.config.AlertProperties.class
 })
 public class GrantHunterApplication {
 

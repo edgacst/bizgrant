@@ -58,6 +58,18 @@ app:
     from: ${NEWSLETTER_FROM:noreply@bizgrant.kr}
     enabled: ${NEWSLETTER_ENABLED:true}
     cron: "0 0 9 * * MON"
+  alert:
+    site-name: BizGrant
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN:}
+    solapi:
+      api-key: ${SOLAPI_API_KEY:}
+      api-secret: ${SOLAPI_API_SECRET:}
+      sender: ${SOLAPI_SENDER:}
+    kakao:
+      pf-id: ${KAKAO_PF_ID:}
+      template-id: ${KAKAO_TEMPLATE_ID:}
+      content-variable: ${KAKAO_CONTENT_VARIABLE:#{내용}}
   grant-sync:
     enabled: ${GRANT_SYNC_ENABLED:true}
     cron: ${GRANT_SYNC_CRON:0 0 3 * * *}

@@ -173,6 +173,13 @@ public class AlertController {
     public ResponseEntity<Map<String, String>> sendAlerts(Authentication auth) {
         Long userId = getCurrentUserId(auth);
         alertService.sendMatchingAlerts(userId);
-        return ResponseEntity.ok(Map.of("message", "알림이 발송되었습니다."));
+        return ResponseEntity.ok(Map.of("message", "알림 발송을 처리했습니다. 새 매칭 공고가 없거나 발송 실패 시 이력에 남지 않을 수 있습니다."));
+    }
+
+    @PostMapping("/alerts/test")
+    @Operation(summary = "알림 채널 테스트", description = "저장된 채널로 테스트 메시지 1건을 발송합니다.")
+    public ResponseEntity<Map<String, Object>> testAlert(Authentication auth) {
+        Long userId = getCurrentUserId(auth);
+        return ResponseEntity.ok(alertService.sendTestNotification(userId));
     }
 }

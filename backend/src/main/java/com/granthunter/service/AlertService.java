@@ -10,10 +10,10 @@ import com.granthunter.repository.AlertHistoryRepository;
 import com.granthunter.repository.AlertPrefRepository;
 import com.granthunter.repository.GrantNoticeRepository;
 import com.granthunter.repository.UserRepository;
+import com.granthunter.config.AlertProperties;
+import com.granthunter.service.alert.AlertDeliveryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +41,9 @@ public class AlertService {
     private final AlertHistoryRepository alertHistoryRepository;
     private final GrantNoticeRepository noticeRepository;
     private final UserRepository userRepository;
-    private final JavaMailSender mailSender;
     private final PlanService planService;
+    private final AlertDeliveryService alertDeliveryService;
+    private final AlertProperties alertProperties;
 
     /**
      * 매일 오전 9시 전체 사용자 알림 스윕
@@ -101,27 +102,14 @@ public class AlertService {
 
         // 알림 메시지 생성
         String message = buildAlertMessage(user.getName(), newMatches);
+        String subject = "맞춤 지원사업 공고 알림";
 
         // 채널별 발송
         String channel = pref.getChannel() != null ? pref.getChannel() : "email";
-        switch (channel.toLowerCase()) {
-            case "email":
-                sendEmail(user.getEmail(), "맞춤 지원사업 공고 알림", message);
-                break;
-            case "kakao":
-                sendKakao(pref.getChannelId(), message);
-                break;
-            case "sms":
-                sendSms(resolveSmsPhone(pref, user), message);
-                break;
-            case "telegram":
-                sendKakao(pref.getChannelId(), message);
-                break;
-            case "slack":
-                sendSms(resolveSmsPhone(pref, user), message);
-                break;
-            default:
-                log.warn("지원하지 않는 알림 채널: {}", channel);
+        boolean sent = alertDeliveryService.deliver(channel, pref.getChannelId(), user, subject, message);
+        if (!sent) {
+            log.warn("사용자 {} 알림 발송 실패 (채널: {}) — 이력 저장 안 함", userId, channel);
+            return;
         }
 
         // 발송 이력 저장
@@ -173,74 +161,48 @@ public class AlertService {
         }
 
         String message = buildDeadlineMessage(user.getName(), urgentNotices);
+        String subject = "[긴급] 지원사업 마감 임박 알림";
 
         String channel = pref.getChannel() != null ? pref.getChannel() : "email";
-        switch (channel.toLowerCase()) {
-            case "email":
-                sendEmail(user.getEmail(), "[긴급] 지원사업 마감 임박 알림", message);
-                break;
-            case "kakao":
-                sendKakao(pref.getChannelId(), message);
-                break;
-            case "sms":
-                sendSms(resolveSmsPhone(pref, user), message);
-                break;
-            case "telegram":
-                sendKakao(pref.getChannelId(), message);
-                break;
-            case "slack":
-                sendSms(resolveSmsPhone(pref, user), message);
-                break;
+        boolean sent = alertDeliveryService.deliver(channel, pref.getChannelId(), user, subject, message);
+        if (!sent) {
+            log.warn("사용자 {} 마감 알림 발송 실패 (채널: {})", userId, channel);
+            return;
         }
 
         log.info("사용자 {} 에게 {} 건의 마감 임박 알림 발송", userId, urgentNotices.size());
     }
 
     /**
-     * 이메일 발송
+     * 저장된 채널로 테스트 메시지 1건 발송 (이력 저장 없음)
      */
-    private void sendEmail(String to, String subject, String text) {
-        try {
-            SimpleMailMessage mail = new SimpleMailMessage();
-            mail.setTo(to);
-            mail.setSubject("[GrantHunter] " + subject);
-            mail.setText(text);
-            mailSender.send(mail);
-            log.debug("이메일 발송 성공: {} -> {}", subject, to);
-        } catch (Exception e) {
-            log.error("이메일 발송 실패: {}", to, e);
+    public Map<String, Object> sendTestNotification(Long userId) {
+        AlertPref pref = alertPrefRepository.findByUserId(userId).orElse(null);
+        if (pref == null) {
+            return Map.of("success", false, "message", "알림 설정을 먼저 저장해 주세요.");
         }
-    }
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return Map.of("success", false, "message", "사용자 정보를 찾을 수 없습니다.");
+        }
 
-    /**
-     * 카카오톡 알림 (알림톡 API 연동 시 app.alert.kakao 설정 사용)
-     */
-    private void sendKakao(String recipientId, String message) {
-        if (recipientId == null || recipientId.isBlank()) {
-            log.warn("카카오톡 수신 ID가 설정되지 않았습니다.");
-            return;
-        }
-        log.info("[Kakao] recipient={} 알림 전송: {}", recipientId,
-                message.substring(0, Math.min(100, message.length())));
-    }
+        String channel = pref.getChannel() != null ? pref.getChannel() : "email";
+        String subject = "알림 채널 테스트";
+        String body = """
+                BizGrant 알림 테스트입니다.
 
-    /**
-     * 문자(SMS) 알림 (SMS 게이트웨이 연동 시 app.alert.sms 설정 사용)
-     */
-    private void sendSms(String phoneNumber, String message) {
-        if (phoneNumber == null || phoneNumber.isBlank()) {
-            log.warn("문자 수신 번호가 설정되지 않았습니다.");
-            return;
-        }
-        log.info("[SMS] phone={} 알림 전송: {}", phoneNumber,
-                message.substring(0, Math.min(100, message.length())));
-    }
+                이 메시지가 보이면 선택하신 채널 설정이 정상입니다.
+                매일 오전 9시경 맞춤 지원사업 공고가 이 채널로 발송됩니다.
+                """;
 
-    private String resolveSmsPhone(AlertPref pref, User user) {
-        if (pref.getChannelId() != null && !pref.getChannelId().isBlank()) {
-            return pref.getChannelId().trim();
+        boolean sent = alertDeliveryService.deliver(channel, pref.getChannelId(), user, subject, body);
+        if (sent) {
+            return Map.of("success", true, "message", "테스트 알림을 발송했습니다. 수신함을 확인해 주세요.");
         }
-        return user.getPhone() != null ? user.getPhone().trim() : "";
+        return Map.of(
+                "success", false,
+                "message", "발송에 실패했습니다. 채널별 수신 정보와 서버 연동 설정(SMTP·Solapi·Telegram 등)을 확인해 주세요."
+        );
     }
 
     /**
@@ -267,7 +229,7 @@ public class AlertService {
         }
 
         sb.append("━━━━━━━━━━━━━━━━━━━━\n");
-        sb.append("GrantHunter에서 더 많은 지원사업을 확인하세요!\n");
+        sb.append(alertProperties.getSiteName()).append("에서 더 많은 지원사업을 확인하세요!\n");
 
         return sb.toString();
     }

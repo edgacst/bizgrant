@@ -68,6 +68,19 @@ app:
     initial-name: 관리자
     initial-company: 에드가씨에스티
 
+  alert:
+    site-name: BizGrant
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN:}
+    solapi:
+      api-key: ${SOLAPI_API_KEY:}
+      api-secret: ${SOLAPI_API_SECRET:}
+      sender: ${SOLAPI_SENDER:}
+    kakao:
+      pf-id: ${KAKAO_PF_ID:}
+      template-id: ${KAKAO_TEMPLATE_ID:}
+      content-variable: ${KAKAO_CONTENT_VARIABLE:#{내용}}
+
   upload:
     path: ${UPLOAD_PATH:./uploads}
 
