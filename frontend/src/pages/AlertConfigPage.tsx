@@ -49,14 +49,14 @@ const DEFAULT_FORM: AlertPrefForm = {
   enabled: true,
 };
 
-const COMING_SOON_TOAST = '카카오톡·문자 알림은 추후 연동 예정입니다. 이메일 또는 Slack·Telegram·Webhook을 이용해 주세요.';
+const COMING_SOON_TOAST = '카카오톡·문자 알림은 추후 연동 예정입니다. 이메일 또는 Slack·Webhook을 이용해 주세요.';
 
 function normalizeChannel(channel?: string): AlertPrefForm['channel'] {
   switch ((channel ?? 'email').toLowerCase()) {
     case 'slack':
       return 'slack';
     case 'telegram':
-      return 'telegram';
+      return 'email';
     case 'webhook':
       return 'webhook';
     case 'kakao':
@@ -78,7 +78,6 @@ const ALERT_CHANNELS: Array<{
   { value: 'kakao', label: '카카오톡', icon: MessageCircle, comingSoon: true },
   { value: 'sms', label: '문자', icon: Smartphone, comingSoon: true },
   { value: 'slack', label: 'Slack', icon: Hash, proOnly: true },
-  { value: 'telegram', label: 'Telegram', icon: Send, proOnly: true },
   { value: 'webhook', label: 'Webhook', icon: Webhook, proOnly: true },
 ];
 
@@ -258,11 +257,6 @@ const AlertConfigPage: React.FC = () => {
       toast.error('Webhook URL(https://...)을 입력해 주세요.');
       return;
     }
-    if (form.channel === 'telegram' && !form.channelId.trim()) {
-      toast.error('Telegram Chat ID를 입력해 주세요.');
-      return;
-    }
-
     setSaving(true);
     try {
       const payload = {
@@ -358,7 +352,7 @@ const AlertConfigPage: React.FC = () => {
       {planInfo.plan === 'free' && (
         <PlanUpgradeHint
           compact
-          message="Pro에서는 Slack·Telegram·Webhook 알림과 일일 알림 30건을 사용할 수 있습니다."
+          message="Pro에서는 Slack·Webhook 알림과 일일 알림 30건을 사용할 수 있습니다."
           requiredPlan="Pro"
         />
       )}
@@ -502,7 +496,7 @@ const AlertConfigPage: React.FC = () => {
 
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                무료는 이메일만 가능합니다. Pro 이상은 Slack·Telegram·Webhook도 선택할 수 있습니다.
+                무료는 이메일만 가능합니다. Pro 이상은 Slack·Webhook도 선택할 수 있습니다.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {ALERT_CHANNELS.map(ch => {
@@ -579,22 +573,6 @@ const AlertConfigPage: React.FC = () => {
               </label>
             )}
 
-            {form.channel === 'telegram' && (
-              <label className="block">
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">Telegram 채팅 ID</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">
-                  BizGrant 봇과 대화를 시작한 뒤, 아래 안내에 따라 확인한 숫자 ID를 입력하세요.
-                </p>
-                <input
-                  value={form.channelId}
-                  onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
-                  readOnly={fieldLocked}
-                  placeholder="예: 123456789 또는 -1001234567890"
-                  className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
-                />
-              </label>
-            )}
-
             <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-600 dark:text-gray-300 space-y-3">
               <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <Info className="w-4 h-4 text-brand-500 shrink-0" />
@@ -603,43 +581,49 @@ const AlertConfigPage: React.FC = () => {
 
               <div className="space-y-3 text-xs sm:text-sm leading-relaxed">
                 <div>
-                  <p className="font-semibold text-gray-800 dark:text-gray-200">이메일 (무료 포함)</p>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">이메일</p>
                   <p className="mt-0.5 text-gray-600 dark:text-gray-400">
-                    채널에서 <strong>이메일</strong>만 선택하고 저장하세요. 가입 시 등록한 메일함으로 보냅니다.
+                    가입한 이메일로 알림이 전송됩니다. 채널에서 이메일을 선택하고 저장하세요.
                   </p>
                 </div>
 
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">Slack (Pro 이상)</p>
-                  <ol className="mt-1 list-decimal pl-5 space-y-0.5 text-gray-600 dark:text-gray-400">
-                    <li>Slack 워크스페이스에서 알림 받을 채널을 정합니다.</li>
+                  <p className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    팀 Slack 채널로 맞춤 공고를 받을 때 사용합니다.
+                  </p>
+                  <ol className="mt-1.5 list-decimal pl-5 space-y-1 text-gray-600 dark:text-gray-400">
+                    <li>Slack에서 알림을 받을 채널을 정합니다. (예: <strong>#사업공고</strong>)</li>
                     <li>
                       <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-400 hover:underline">
-                        api.slack.com/apps
+                        Slack 앱 만들기
                       </a>
-                      에서 앱을 만든 뒤 <strong>Incoming Webhooks</strong>를 켭니다.
+                      페이지에서 <strong>Create New App → From scratch</strong>로 앱을 만듭니다.
                     </li>
-                    <li>채널을 연결하면 나오는 <strong>Webhook URL</strong>을 위 입력란에 붙여넣습니다.</li>
+                    <li>왼쪽 메뉴 <strong>Incoming Webhooks</strong>를 켠 뒤, <strong>Add New Webhook to Workspace</strong>를 누릅니다.</li>
+                    <li>알림을 받을 채널을 선택하면 <strong>Webhook URL</strong>이 나옵니다. 이 주소를 복사해 위 입력란에 붙여넣습니다.</li>
+                    <li>저장 후 <strong>테스트 발송</strong>으로 채널에 메시지가 오는지 확인합니다.</li>
                   </ol>
-                  <p className="mt-1 text-gray-500 dark:text-gray-500">팀마다 URL이 다릅니다. 본인 Slack에 맞는 주소를 사용하세요.</p>
+                  <p className="mt-1 text-gray-500 dark:text-gray-500">
+                    URL은 채널마다 다릅니다. 본인·팀 Slack에 맞는 주소를 사용하세요.
+                  </p>
                 </div>
 
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">Webhook (Pro 이상)</p>
                   <p className="mt-0.5 text-gray-600 dark:text-gray-400">
-                    사용 중인 자동화·협업 도구에서 Webhook URL을 발급받아 붙여넣으세요. Slack이 아닌 다른 서비스용입니다.
+                    Slack이 아닌 다른 서비스로 알림을 보낼 때 사용합니다. n8n, Zapier, Make, Discord, 사내 시스템 등에서 Webhook URL을 발급받아 위 입력란에 붙여넣으세요.
                   </p>
-                </div>
-
-                <div>
-                  <p className="font-semibold text-gray-800 dark:text-gray-200">Telegram (Pro 이상)</p>
-                  <ol className="mt-1 list-decimal pl-5 space-y-0.5 text-gray-600 dark:text-gray-400">
-                    <li>Telegram에서 <strong>BizGrant 알림 봇</strong>을 검색해 <strong>시작</strong>을 누릅니다.</li>
-                    <li>
-                      <strong>@userinfobot</strong>에게 메시지를 보내 표시되는 <strong>Id</strong> 숫자를 복사합니다.
-                    </li>
-                    <li>위 입력란에 붙여넣고 저장합니다.</li>
-                  </ol>
+                  <p className="mt-1.5 font-medium text-gray-700 dark:text-gray-300">이런 분께 추천합니다</p>
+                  <ul className="mt-0.5 list-disc pl-5 space-y-0.5 text-gray-600 dark:text-gray-400">
+                    <li>공고 알림을 <strong>구글 시트·Notion·CRM</strong> 등에 자동으로 넣고 싶은 분</li>
+                    <li><strong>n8n, Zapier</strong> 등으로 업무 자동화를 하시는 분</li>
+                    <li>Slack 대신 <strong>디스코드·사내 메신저</strong>로 받고 싶은 분</li>
+                    <li>IT 담당자가 <strong>회사 시스템과 연동</strong>하는 경우</li>
+                  </ul>
+                  <p className="mt-1 text-gray-500 dark:text-gray-500">
+                    일반적으로 이메일이나 Slack만 쓰시면 충분합니다. Webhook은 연동 경험이 있는 분을 위한 옵션입니다.
+                  </p>
                 </div>
 
                 <div>

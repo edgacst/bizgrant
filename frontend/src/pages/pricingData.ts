@@ -31,7 +31,7 @@ export const PRICING_TIERS: PricingTier[] = [
     features: [
       { name: '맞춤 추천 50건 + 적합도 상세', included: true },
       { name: '이메일 알림 · 하루 30건', included: true },
-      { name: 'Slack · Telegram · Webhook 알림', included: true },
+      { name: 'Slack · Webhook 알림', included: true },
       { name: '카카오톡·문자 알림', included: false, tag: 'soon' },
       { name: '카테고리 10 · 업종 8', included: true },
       { name: '파이프라인 무제한 · 북마크 50건', included: true },
@@ -50,7 +50,7 @@ export const PRICING_TIERS: PricingTier[] = [
     statusNote: '시트·프로필 수 맞춤 견적',
     features: [
       { name: 'Pro 기능 전체 + 모든 한도 해제', included: true },
-      { name: 'Slack · Telegram · Webhook 알림', included: true },
+      { name: 'Slack · Webhook 알림', included: true },
       { name: '추천·알림·카테고리·북마크·서류함 무제한', included: true },
       { name: '카카오톡·문자 알림', included: false, tag: 'soon' },
       { name: '다중 사업자 프로필 (고객사별 추천)', included: true, tag: 'contact' },
@@ -68,7 +68,7 @@ export const FEATURE_COMPARISON = [
   { name: '관심 카테고리', free: '1개', pro: '10개', enterprise: '무제한' },
   { name: '관심 업종', free: '2개', pro: '8개', enterprise: '무제한' },
   { name: '알림 채널', free: '이메일', pro: '이메일·연동', enterprise: '이메일·연동' },
-  { name: 'Slack / Telegram / Webhook', free: false, pro: true, enterprise: true },
+  { name: 'Slack / Webhook', free: false, pro: true, enterprise: true },
   { name: '카카오톡 / 문자', free: false, pro: '준비 중', enterprise: '준비 중' },
   { name: '파이프라인', free: '1건', pro: '무제한', enterprise: '무제한' },
   { name: '북마크', free: '5건', pro: '50건', enterprise: '무제한' },
@@ -86,7 +86,7 @@ export const FAQS = [
   },
   {
     q: 'Enterprise는 Pro보다 무엇이 다른가요?',
-    a: '한도가 모두 해제됩니다. Pro와 동일하게 Slack·Telegram·Webhook 알림을 쓸 수 있고, 컨설팅사·액셀러레이터는 문의 시 고객사별 프로필 수·팀 시트·주간 리포트를 맞춤 구성합니다. 카카오톡·문자는 추후 연동 예정입니다.',
+    a: '한도가 모두 해제됩니다. Pro와 동일하게 Slack·Webhook 알림을 쓸 수 있고, 컨설팅사·액셀러레이터는 문의 시 고객사별 프로필 수·팀 시트·주간 리포트를 맞춤 구성합니다. 카카오톡·문자는 추후 연동 예정입니다.',
   },
   {
     q: 'Pro로 바꾸려면?',
