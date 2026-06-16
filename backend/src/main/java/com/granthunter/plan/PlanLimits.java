@@ -48,7 +48,7 @@ public record PlanLimits(
                     50,
                     true,
                     true,
-                    Set.of("email", "kakao", "sms"),
+                    Set.of("email", "slack", "telegram", "webhook"),
                     50,
                     true
             );
@@ -64,7 +64,7 @@ public record PlanLimits(
                     Integer.MAX_VALUE,
                     true,
                     true,
-                    Set.of("email", "kakao", "sms", "slack", "telegram", "webhook"),
+                    Set.of("email", "slack", "telegram", "webhook"),
                     Integer.MAX_VALUE,
                     true
             );
@@ -80,7 +80,7 @@ public record PlanLimits(
                     Integer.MAX_VALUE,
                     true,
                     true,
-                    Set.of("email", "kakao", "sms", "slack", "telegram", "webhook"),
+                    Set.of("email", "slack", "telegram", "webhook"),
                     Integer.MAX_VALUE,
                     true
             );

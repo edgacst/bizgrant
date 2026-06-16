@@ -179,8 +179,14 @@ public class PlanService {
         if (request.getChannel() != null && !request.getChannel().isBlank()) {
             String channel = request.getChannel().toLowerCase(Locale.ROOT);
             if (!limits.allowedAlertChannels().contains(channel)) {
-                boolean enterpriseChannel = Set.of("slack", "telegram", "webhook").contains(channel);
-                PlanType required = enterpriseChannel ? PlanType.ENTERPRISE : PlanType.PRO;
+                if (Set.of("kakao", "sms").contains(channel)) {
+                    throw new PlanLimitException(
+                            "카카오톡·문자 알림은 추후 연동 예정입니다.",
+                            resolvePlan(user).getCode(),
+                            null
+                    );
+                }
+                PlanType required = Set.of("email").contains(channel) ? PlanType.FREE : PlanType.PRO;
                 throw new PlanLimitException(
                         channel + " 알림은 " + required.getLabel() + " 이상에서 설정할 수 있습니다.",
                         resolvePlan(user).getCode(),

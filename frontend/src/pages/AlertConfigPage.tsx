@@ -49,18 +49,19 @@ const DEFAULT_FORM: AlertPrefForm = {
   enabled: true,
 };
 
+const COMING_SOON_TOAST = '카카오톡·문자 알림은 추후 연동 예정입니다. 이메일 또는 Slack·Telegram·Webhook을 이용해 주세요.';
+
 function normalizeChannel(channel?: string): AlertPrefForm['channel'] {
   switch ((channel ?? 'email').toLowerCase()) {
-    case 'kakao':
-      return 'kakao';
-    case 'sms':
-      return 'sms';
     case 'slack':
       return 'slack';
     case 'telegram':
       return 'telegram';
     case 'webhook':
       return 'webhook';
+    case 'kakao':
+    case 'sms':
+      return 'email';
     default:
       return 'email';
   }
@@ -70,14 +71,15 @@ const ALERT_CHANNELS: Array<{
   value: AlertPrefForm['channel'];
   label: string;
   icon: typeof Mail;
-  enterpriseOnly?: boolean;
+  proOnly?: boolean;
+  comingSoon?: boolean;
 }> = [
   { value: 'email', label: '이메일', icon: Mail },
-  { value: 'kakao', label: '카카오톡', icon: MessageCircle },
-  { value: 'sms', label: '문자', icon: Smartphone },
-  { value: 'slack', label: 'Slack', icon: Hash, enterpriseOnly: true },
-  { value: 'telegram', label: 'Telegram', icon: Send, enterpriseOnly: true },
-  { value: 'webhook', label: 'Webhook', icon: Webhook, enterpriseOnly: true },
+  { value: 'kakao', label: '카카오톡', icon: MessageCircle, comingSoon: true },
+  { value: 'sms', label: '문자', icon: Smartphone, comingSoon: true },
+  { value: 'slack', label: 'Slack', icon: Hash, proOnly: true },
+  { value: 'telegram', label: 'Telegram', icon: Send, proOnly: true },
+  { value: 'webhook', label: 'Webhook', icon: Webhook, proOnly: true },
 ];
 
 function parsePrefs(prefs: Record<string, unknown>): AlertPrefForm {
@@ -244,15 +246,12 @@ const AlertConfigPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!limits.allowedAlertChannels.includes(form.channel)) {
-      const needEnterprise = ['slack', 'telegram', 'webhook'].includes(form.channel);
-      toast.error(
-        `${formatAlertChannel(form.channel)} 알림은 ${needEnterprise ? 'Enterprise' : 'Pro'} 이상에서 설정할 수 있습니다.`
-      );
+    if (form.channel === 'kakao' || form.channel === 'sms') {
+      toast(COMING_SOON_TOAST, { icon: 'ℹ️' });
       return;
     }
-    if (form.channel === 'kakao' && !form.channelId.trim()) {
-      toast.error('카카오 알림 수신 휴대폰 번호를 입력해 주세요.');
+    if (!limits.allowedAlertChannels.includes(form.channel)) {
+      toast.error(`${formatAlertChannel(form.channel)} 알림은 Pro 이상에서 설정할 수 있습니다.`);
       return;
     }
     if ((form.channel === 'slack' || form.channel === 'webhook') && !/^https?:\/\//i.test(form.channelId.trim())) {
@@ -359,7 +358,7 @@ const AlertConfigPage: React.FC = () => {
       {planInfo.plan === 'free' && (
         <PlanUpgradeHint
           compact
-          message="Pro에서는 카테고리 10개, 일일 알림 30건, 카카오톡·문자 알림을 사용할 수 있습니다."
+          message="Pro에서는 Slack·Telegram·Webhook 알림과 일일 알림 30건을 사용할 수 있습니다."
           requiredPlan="Pro"
         />
       )}
@@ -503,64 +502,50 @@ const AlertConfigPage: React.FC = () => {
 
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Free는 이메일만, Pro는 카카오톡·문자, Enterprise는 Slack·Telegram·Webhook도 설정할 수 있습니다.
+                Free는 이메일만, Pro 이상은 Slack·Telegram·Webhook을 설정할 수 있습니다. 카카오톡·문자는 추후 연동 예정입니다.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {ALERT_CHANNELS.map(ch => {
                   const Icon = ch.icon;
-                  const allowed = limits.allowedAlertChannels.includes(ch.value);
+                  const allowed = !ch.comingSoon && limits.allowedAlertChannels.includes(ch.value);
+                  const selectable = allowed && !fieldLocked;
                   return (
                     <button
                       key={ch.value}
                       type="button"
-                      disabled={!allowed || fieldLocked}
-                      onClick={() => allowed && setForm(prev => ({ ...prev, channel: ch.value }))}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all disabled:cursor-default ${
-                        !allowed
+                      disabled={fieldLocked && !ch.comingSoon && !allowed}
+                      onClick={() => {
+                        if (fieldLocked) return;
+                        if (ch.comingSoon) {
+                          toast(COMING_SOON_TOAST, { icon: 'ℹ️' });
+                          return;
+                        }
+                        if (!allowed) return;
+                        setForm(prev => ({ ...prev, channel: ch.value, channelId: '' }));
+                      }}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
+                        ch.comingSoon
+                          ? 'opacity-60 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/30 text-gray-400 cursor-pointer hover:opacity-80'
+                          : !allowed
                           ? 'opacity-50 cursor-not-allowed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-400'
-                          : form.channel === ch.value
+                          : selectable && form.channel === ch.value
                           ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 shadow-md'
                           : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 hover:border-gray-300'
                       }`}
                     >
                       <Icon className={`w-6 h-6 ${form.channel === ch.value ? 'text-brand-600' : ''}`} />
                       <span className="text-sm font-bold">{ch.label}</span>
-                      {ch.enterpriseOnly && !allowed && (
-                        <span className="text-[10px] font-semibold text-gray-400">Enterprise</span>
+                      {ch.comingSoon && (
+                        <span className="text-[10px] font-semibold text-gray-400">추후 연동</span>
+                      )}
+                      {ch.proOnly && !allowed && !ch.comingSoon && (
+                        <span className="text-[10px] font-semibold text-gray-400">Pro</span>
                       )}
                     </button>
                   );
                 })}
               </div>
             </div>
-
-            {form.channel === 'kakao' && (
-              <label className="block">
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">카카오 알림 수신 번호</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">알림톡 또는 SMS로 수신할 휴대폰 번호 (서버에 Solapi·카카오 템플릿 설정 필요)</p>
-                <input
-                  value={form.channelId}
-                  onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
-                  readOnly={fieldLocked}
-                  placeholder="01012345678"
-                  className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
-                />
-              </label>
-            )}
-
-            {form.channel === 'sms' && (
-              <label className="block">
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">문자 수신 번호</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">비우면 마이페이지 연락처를 사용합니다</p>
-                <input
-                  value={form.channelId}
-                  onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
-                  readOnly={fieldLocked}
-                  placeholder="01012345678"
-                  className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
-                />
-              </label>
-            )}
 
             {(form.channel === 'slack' || form.channel === 'webhook') && (
               <label className="block">
@@ -596,12 +581,11 @@ const AlertConfigPage: React.FC = () => {
                 채널별 설정 방법
               </p>
               <ul className="list-disc pl-5 space-y-1 text-xs sm:text-sm leading-relaxed">
-                <li><strong>이메일</strong> — 가입 이메일로 발송 (서버 SMTP 설정 필요)</li>
-                <li><strong>카카오톡</strong> — 수신 휴대폰 번호. 서버에 Solapi + 카카오 알림톡 템플릿이 있으면 알림톡, 없으면 SMS로 대체</li>
-                <li><strong>문자</strong> — 수신 번호. 서버에 Solapi 발신번호 등록 필요</li>
-                <li><strong>Slack</strong> — Slack 앱 → Incoming Webhooks → URL 복사 후 붙여넣기</li>
-                <li><strong>Webhook</strong> — 사내·n8n 등 수신 URL (JSON POST)</li>
-                <li><strong>Telegram</strong> — 서버에 봇 토큰 설정 후, 채팅방 Chat ID 입력</li>
+                <li><strong>이메일</strong> — 가입 이메일로 발송 (서버 SMTP 설정)</li>
+                <li><strong>Slack</strong> — Incoming Webhooks URL 붙여넣기 (Pro 이상)</li>
+                <li><strong>Webhook</strong> — n8n·디스코드 등 수신 URL (JSON POST, Pro 이상)</li>
+                <li><strong>Telegram</strong> — 서버에 봇 토큰 + Chat ID (Pro 이상)</li>
+                <li><strong>카카오톡·문자</strong> — 추후 연동 예정</li>
               </ul>
               <p className="text-xs text-gray-500 dark:text-gray-400 pt-1">
                 저장 후 「테스트 발송」으로 수신 여부를 확인하세요. 매일 오전 9시경 새 맞춤 공고가 있으면 발송됩니다.
