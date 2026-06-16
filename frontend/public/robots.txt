@@ -1,12 +1,12 @@
 User-agent: *
 Allow: /
-Allow: /grants
-Allow: /procurement
 Allow: /about
 Allow: /guide
 Allow: /pricing
 Allow: /calendar
 
+Disallow: /grants
+Disallow: /procurement
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /mypage

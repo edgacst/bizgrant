@@ -1,11 +1,7 @@
 package com.granthunter.service;
 
 import com.granthunter.config.NewsletterProperties;
-import com.granthunter.entity.GrantNotice;
-import com.granthunter.repository.GrantNoticeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,35 +13,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SeoService {
 
-    private static final int MAX_GRANT_URLS = 500;
     private static final DateTimeFormatter W3C_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    private final GrantNoticeRepository noticeRepository;
     private final NewsletterProperties newsletterProperties;
 
     public String buildSitemapXml() {
         String siteUrl = trimSlash(newsletterProperties.getSiteUrl());
-        LocalDate today = LocalDate.now();
         List<SitemapEntry> entries = new ArrayList<>();
 
         entries.add(entry(siteUrl + "/", "daily", "1.0"));
-        entries.add(entry(siteUrl + "/grants", "daily", "0.9"));
-        entries.add(entry(siteUrl + "/procurement", "daily", "0.9"));
         entries.add(entry(siteUrl + "/about", "weekly", "0.7"));
-        entries.add(entry(siteUrl + "/guide", "weekly", "0.7"));
+        entries.add(entry(siteUrl + "/guide", "weekly", "0.8"));
         entries.add(entry(siteUrl + "/pricing", "weekly", "0.6"));
-        entries.add(entry(siteUrl + "/calendar", "daily", "0.6"));
-
-        noticeRepository.findActiveNotices(
-                today,
-                null,
-                null,
-                null,
-                "",
-                null,
-                null,
-                PageRequest.of(0, MAX_GRANT_URLS, Sort.by(Sort.Direction.DESC, "applyEnd"))
-        ).forEach(notice -> entries.add(grantEntry(siteUrl, notice)));
+        entries.add(entry(siteUrl + "/calendar", "daily", "0.5"));
 
         StringBuilder xml = new StringBuilder();
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -62,13 +42,6 @@ public class SeoService {
         }
         xml.append("</urlset>");
         return xml.toString();
-    }
-
-    private SitemapEntry grantEntry(String siteUrl, GrantNotice notice) {
-        String lastmod = notice.getScrapedAt() != null
-                ? notice.getScrapedAt().toLocalDate().format(W3C_DATE)
-                : (notice.getApplyStart() != null ? notice.getApplyStart().format(W3C_DATE) : null);
-        return new SitemapEntry(siteUrl + "/grants/" + notice.getId(), lastmod, "weekly", "0.8");
     }
 
     private SitemapEntry entry(String loc, String changefreq, String priority) {

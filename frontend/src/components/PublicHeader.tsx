@@ -1,14 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Search, Gavel } from 'lucide-react';
+import { Sparkles, Search } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
 
 const PublicHeader: React.FC = () => {
   const location = useLocation();
   const isPricing = location.pathname === '/pricing';
   const isGuide = location.pathname === '/guide';
-  const isGrants = location.pathname.startsWith('/grants');
-  const isProcurement = location.pathname.startsWith('/procurement');
+  const isGrants = location.pathname.startsWith('/grants') || location.pathname.startsWith('/procurement');
 
   const navLink = (active: boolean) =>
     `hidden sm:inline text-sm font-semibold transition-colors ${
@@ -28,19 +27,15 @@ const PublicHeader: React.FC = () => {
         </Link>
         <div className="flex items-center gap-3">
           <DarkModeToggle />
-          <Link to="/grants" className={navLink(isGrants)}>
-            <Search className="w-3.5 h-3.5 inline mr-1" />
-            정부지원금
-          </Link>
-          <Link to="/procurement" className={navLink(isProcurement)}>
-            <Gavel className="w-3.5 h-3.5 inline mr-1" />
-            나라장터
-          </Link>
           <Link to="/guide" className={navLink(isGuide)}>
             사용방법
           </Link>
           <Link to="/pricing" className={navLink(isPricing)}>
             요금제
+          </Link>
+          <Link to="/login" className={navLink(isGrants)}>
+            <Search className="w-3.5 h-3.5 inline mr-1" />
+            공고 탐색
           </Link>
           <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-brand-600">
             로그인
