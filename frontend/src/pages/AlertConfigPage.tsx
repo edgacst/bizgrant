@@ -502,7 +502,7 @@ const AlertConfigPage: React.FC = () => {
 
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Free는 이메일만, Pro 이상은 Slack·Telegram·Webhook을 설정할 수 있습니다. 카카오톡·문자는 추후 연동 예정입니다.
+                무료는 이메일만 가능합니다. Pro 이상은 Slack·Telegram·Webhook도 선택할 수 있습니다.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {ALERT_CHANNELS.map(ch => {
@@ -547,10 +547,12 @@ const AlertConfigPage: React.FC = () => {
               </div>
             </div>
 
-            {(form.channel === 'slack' || form.channel === 'webhook') && (
+            {form.channel === 'slack' && (
               <label className="block">
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">Incoming Webhook URL</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">Slack 또는 사내 시스템 Webhook 주소</p>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">Slack Webhook 주소</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">
+                  Slack에서 복사한 <code className="text-[11px]">https://hooks.slack.com/...</code> 주소를 붙여넣으세요.
+                </p>
                 <input
                   value={form.channelId}
                   onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
@@ -561,34 +563,93 @@ const AlertConfigPage: React.FC = () => {
               </label>
             )}
 
-            {form.channel === 'telegram' && (
+            {form.channel === 'webhook' && (
               <label className="block">
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">Telegram Chat ID</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">봇 연동 후 수신할 채팅 ID</p>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">Webhook 주소</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">
+                  n8n, 디스코드, 사내 자동화 등에서 안내받은 https:// 주소를 입력하세요.
+                </p>
                 <input
                   value={form.channelId}
                   onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
                   readOnly={fieldLocked}
-                  placeholder="-1001234567890"
+                  placeholder="https://..."
                   className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
                 />
               </label>
             )}
 
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-600 dark:text-gray-300 space-y-2">
+            {form.channel === 'telegram' && (
+              <label className="block">
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">Telegram 채팅 ID</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">
+                  BizGrant 봇과 대화를 시작한 뒤, 아래 안내에 따라 확인한 숫자 ID를 입력하세요.
+                </p>
+                <input
+                  value={form.channelId}
+                  onChange={e => setForm(prev => ({ ...prev, channelId: e.target.value }))}
+                  readOnly={fieldLocked}
+                  placeholder="예: 123456789 또는 -1001234567890"
+                  className={`input w-full ${fieldLocked ? 'bg-gray-50 dark:bg-gray-900/50 cursor-default' : ''}`}
+                />
+              </label>
+            )}
+
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-600 dark:text-gray-300 space-y-3">
               <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <Info className="w-4 h-4 text-brand-500 shrink-0" />
-                채널별 설정 방법
+                알림 채널 설정 안내
               </p>
-              <ul className="list-disc pl-5 space-y-1 text-xs sm:text-sm leading-relaxed">
-                <li><strong>이메일</strong> — 가입 이메일로 발송 (서버 SMTP 설정)</li>
-                <li><strong>Slack</strong> — Incoming Webhooks URL 붙여넣기 (Pro 이상)</li>
-                <li><strong>Webhook</strong> — n8n·디스코드 등 수신 URL (JSON POST, Pro 이상)</li>
-                <li><strong>Telegram</strong> — 서버에 봇 토큰 + Chat ID (Pro 이상)</li>
-                <li><strong>카카오톡·문자</strong> — 추후 연동 예정</li>
-              </ul>
-              <p className="text-xs text-gray-500 dark:text-gray-400 pt-1">
-                저장 후 「테스트 발송」으로 수신 여부를 확인하세요. 매일 오전 9시경 새 맞춤 공고가 있으면 발송됩니다.
+
+              <div className="space-y-3 text-xs sm:text-sm leading-relaxed">
+                <div>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">이메일 (무료 포함)</p>
+                  <p className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    채널에서 <strong>이메일</strong>만 선택하고 저장하세요. 가입 시 등록한 메일함으로 보냅니다.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">Slack (Pro 이상)</p>
+                  <ol className="mt-1 list-decimal pl-5 space-y-0.5 text-gray-600 dark:text-gray-400">
+                    <li>Slack 워크스페이스에서 알림 받을 채널을 정합니다.</li>
+                    <li>
+                      <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-400 hover:underline">
+                        api.slack.com/apps
+                      </a>
+                      에서 앱을 만든 뒤 <strong>Incoming Webhooks</strong>를 켭니다.
+                    </li>
+                    <li>채널을 연결하면 나오는 <strong>Webhook URL</strong>을 위 입력란에 붙여넣습니다.</li>
+                  </ol>
+                  <p className="mt-1 text-gray-500 dark:text-gray-500">팀마다 URL이 다릅니다. 본인 Slack에 맞는 주소를 사용하세요.</p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">Webhook (Pro 이상)</p>
+                  <p className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    사용 중인 자동화·협업 도구에서 Webhook URL을 발급받아 붙여넣으세요. Slack이 아닌 다른 서비스용입니다.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">Telegram (Pro 이상)</p>
+                  <ol className="mt-1 list-decimal pl-5 space-y-0.5 text-gray-600 dark:text-gray-400">
+                    <li>Telegram에서 <strong>BizGrant 알림 봇</strong>을 검색해 <strong>시작</strong>을 누릅니다.</li>
+                    <li>
+                      <strong>@userinfobot</strong>에게 메시지를 보내 표시되는 <strong>Id</strong> 숫자를 복사합니다.
+                    </li>
+                    <li>위 입력란에 붙여넣고 저장합니다.</li>
+                  </ol>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">카카오톡 · 문자</p>
+                  <p className="mt-0.5 text-gray-600 dark:text-gray-400">준비 중입니다. 이용 가능해지면 안내드립니다.</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-gray-700">
+                설정을 저장한 뒤 <strong>테스트 발송</strong>으로 한 번 확인해 주세요. 새 맞춤 공고가 있으면 매일 오전 9시경 발송됩니다.
               </p>
             </div>
           </div>
