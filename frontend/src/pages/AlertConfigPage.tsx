@@ -16,6 +16,7 @@ import {
   Send,
   Webhook,
   Info,
+  ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
@@ -573,13 +574,16 @@ const AlertConfigPage: React.FC = () => {
               </label>
             )}
 
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-600 dark:text-gray-300 space-y-3">
-              <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Info className="w-4 h-4 text-brand-500 shrink-0" />
-                알림 채널 설정 안내
-              </p>
+            <details className="group rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-600 dark:text-gray-300">
+              <summary className="flex items-center justify-between gap-2 cursor-pointer list-none font-semibold text-gray-900 dark:text-white select-none">
+                <span className="flex items-center gap-2">
+                  <Info className="w-4 h-4 text-brand-500 shrink-0" />
+                  알림 채널 설정 안내
+                </span>
+                <ChevronRight className="w-5 h-5 text-gray-400 shrink-0 transition-transform group-open:rotate-90" />
+              </summary>
 
-              <div className="space-y-3 text-xs sm:text-sm leading-relaxed">
+              <div className="mt-4 space-y-3 text-xs sm:text-sm leading-relaxed">
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">이메일</p>
                   <p className="mt-0.5 text-gray-600 dark:text-gray-400">
@@ -632,10 +636,10 @@ const AlertConfigPage: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-gray-500 dark:text-gray-400 pt-3 mt-3 border-t border-gray-200 dark:border-gray-700">
                 설정을 저장한 뒤 <strong>테스트 발송</strong>으로 한 번 확인해 주세요. 새 맞춤 공고가 있으면 매일 오전 9시경 발송됩니다.
               </p>
-            </div>
+            </details>
           </div>
         </div>
       </div>
