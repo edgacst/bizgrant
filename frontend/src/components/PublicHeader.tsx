@@ -5,7 +5,6 @@ import DarkModeToggle from './DarkModeToggle';
 
 const PublicHeader: React.FC = () => {
   const location = useLocation();
-  const isPricing = location.pathname === '/pricing';
   const isGuide = location.pathname === '/guide';
   const isGrants = location.pathname.startsWith('/grants') || location.pathname.startsWith('/procurement');
 
@@ -29,9 +28,6 @@ const PublicHeader: React.FC = () => {
           <DarkModeToggle />
           <Link to="/guide" className={navLink(isGuide)}>
             사용방법
-          </Link>
-          <Link to="/pricing" className={navLink(isPricing)}>
-            요금제
           </Link>
           <Link to="/login" className={navLink(isGrants)}>
             <Search className="w-3.5 h-3.5 inline mr-1" />

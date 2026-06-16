@@ -26,7 +26,6 @@ const NAV_LINKS = [
   { path: '/grants', label: '정부지원금사업', icon: Search },
   { path: '/procurement', label: '나라장터', icon: Gavel },
   { path: '/documents', label: '서류센터', icon: FolderOpen },
-  { path: '/pricing', label: '요금제', icon: Sparkles },
 ];
 
 const ACCOUNT_MENU_LINKS = [
@@ -115,12 +114,9 @@ const Navbar: React.FC = () => {
             {/* Right: Actions */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {isLoggedIn() && (
-                <Link
-                  to="/pricing"
-                  className="hidden sm:inline-flex text-[11px] font-bold uppercase px-2.5 py-1 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
-                >
+                <span className="hidden sm:inline-flex text-[11px] font-bold uppercase px-2.5 py-1 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
                   {userPlan}
-                </Link>
+                </span>
               )}
               <DarkModeToggle />
 
