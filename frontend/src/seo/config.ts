@@ -4,7 +4,7 @@ export const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://bizgrant.kr';
 export const DEFAULT_SEO = {
   title: 'BizGrant | 정부지원금사업·나라장터 공고 검색',
   description:
-    '기업마당·중소벤처기업부·K-Startup 정부지원금사업과 나라장터 입찰공고를 한곳에서 검색하세요. 맞춤 적합도·마감 알림·파이프라인으로 지원금 준비를 돕습니다.',
+    '정부지원금·나라장터 공고를 한곳에서 검색하고 맞춤 적합도·마감 알림으로 준비를 돕습니다.',
   keywords:
     '정부지원금사업, 정부지원사업, 지원사업, 나라장터, 입찰공고, 기업마당, 중소기업 지원금, K-Startup, 보조금, R&D 지원',
 };
