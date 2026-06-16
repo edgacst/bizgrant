@@ -32,6 +32,12 @@ echo "코드 반영 완료. 공고 동기화: ./deploy/vps/sync-grants.sh"
 
 SITE_URL="$(grep -E '^SITE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
 if [[ "$SITE_URL" == https://* ]]; then
-  echo "==> HTTPS 사이트 — SSL nginx 복구"
-  "$(dirname "$0")/fix-https.sh" || echo "경고: fix-https 실패 — ./deploy/vps/recover.sh 실행"
+  echo "==> HTTPS 확인"
+  sleep 2
+  if ! "${COMPOSE[@]}" exec -T frontend sh -c "nginx -T 2>/dev/null | grep -q 'listen 443 ssl'" 2>/dev/null; then
+    "$(dirname "$0")/fix-https.sh" || "$(dirname "$0")/ensure-up.sh"
+  fi
+  if ! curl -sf --connect-timeout 3 -k "https://127.0.0.1/healthz" >/dev/null 2>&1; then
+    echo "경고: HTTPS 내부 접속 실패 — ./deploy/vps/ensure-up.sh 실행"
+  fi
 fi

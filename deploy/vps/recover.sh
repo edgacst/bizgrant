@@ -26,7 +26,12 @@ git reset --hard origin/main
 chmod +x deploy/vps/*.sh
 
 echo "==> 3) Docker 기동"
-"${COMPOSE[@]}" up -d --build
+"${COMPOSE[@]}" up -d
+
+if ! curl -sf --connect-timeout 3 http://127.0.0.1/healthz >/dev/null 2>&1; then
+  echo "    내부 접속 실패 — 재빌드 시도"
+  "${COMPOSE[@]}" up -d --build
+fi
 
 echo "==> 4) HTTPS nginx (인증서 있으면 자동)"
 sleep 3
