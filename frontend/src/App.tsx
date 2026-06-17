@@ -24,6 +24,7 @@ import BackToTop from './components/BackToTop';
 import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
 import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
+import AnalyticsPageView from './components/AnalyticsPageView';
 import SiteHeader from './components/SiteHeader';
 import AdminRoute from './components/AdminRoute';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -86,6 +87,7 @@ const App: React.FC = () => {
   return (
     <>
       <ScrollToTopOnNavigate />
+      <AnalyticsPageView />
       <Toaster
         position="top-center"
         toastOptions={{

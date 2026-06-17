@@ -22,6 +22,17 @@ function injectSiteVerificationMeta(html: string, env: Record<string, string>): 
     tags.push(`<meta name="msvalidate.01" content="${bing}" />`)
   }
 
+  const gaId = env.VITE_GA_MEASUREMENT_ID?.trim()
+  if (gaId && /^G-[A-Z0-9]+$/i.test(gaId)) {
+    tags.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>`)
+    tags.push(`<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '${gaId}', { send_page_view: false });
+</script>`)
+  }
+
   if (tags.length === 0) {
     return html
   }
