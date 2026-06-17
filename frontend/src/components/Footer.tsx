@@ -1,8 +1,9 @@
-import React, { type FormEvent, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
+import { isLoggedIn } from '../utils/authSession';
 
 type FooterLinkProps = {
   to: string;
@@ -25,31 +26,40 @@ const FooterLink: React.FC<FooterLinkProps> = ({ to, children, className = '' })
 );
 
 const Footer: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('userEmail') || '');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleNewsletterSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const trimmed = email.trim();
-    if (!trimmed) {
-      toast.error('이메일을 입력해주세요.');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      toast.error('올바른 이메일 형식이 아닙니다.');
+  useEffect(() => {
+    const syncAuth = () => {
+      setLoggedIn(isLoggedIn());
+      setUserEmail(localStorage.getItem('userEmail') || '');
+    };
+    syncAuth();
+    window.addEventListener('auth-session-updated', syncAuth);
+    return () => window.removeEventListener('auth-session-updated', syncAuth);
+  }, []);
+
+  const handleNewsletterSubscribe = async () => {
+    if (!isLoggedIn()) {
+      toast.error('뉴스레터는 회원만 구독할 수 있습니다.');
       return;
     }
 
     setSubmitting(true);
     try {
-      await client.post('/newsletter/subscribe', { email: trimmed });
+      await client.post('/newsletter/subscribe');
       toast.success('구독 완료! 매주 월요일 오전 정부지원금사업 요약 메일을 보내드립니다.');
-      setEmail('');
     } catch (err: unknown) {
+      const status = (err as { response?: { status?: number; data?: { message?: string } } })?.response?.status;
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         '구독 처리에 실패했습니다. 잠시 후 다시 시도해주세요.';
-      toast.error(msg);
+      if (status === 401) {
+        toast.error('로그인이 필요합니다. 로그인 후 다시 시도해 주세요.');
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -102,24 +112,41 @@ const Footer: React.FC = () => {
 
           <div>
             <h4 className="text-white font-semibold mb-4">뉴스레터</h4>
-            <p className="text-sm mb-4">신규 정부지원금사업 소식을 메일로 받아보세요</p>
-            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="이메일 주소"
-                className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-500 focus:border-brand-500 outline-none"
-              />
-              <button
-                type="submit"
-                disabled={submitting}
-                className="btn btn-primary px-4 py-2.5 disabled:opacity-50"
-                aria-label="뉴스레터 구독"
-              >
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+            <p className="text-sm mb-4">회원 전용 주간 정부지원금사업 요약 메일</p>
+            {loggedIn ? (
+              <div className="space-y-3">
+                <p className="text-xs text-gray-500 break-all">
+                  가입 이메일: <span className="text-gray-300">{userEmail || '등록된 이메일'}</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={handleNewsletterSubscribe}
+                  disabled={submitting}
+                  className="btn btn-primary w-full sm:w-auto px-4 py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                >
+                  뉴스레터 구독
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 text-sm">
+                <p className="text-gray-500">로그인한 회원만 구독할 수 있습니다.</p>
+                <div className="flex flex-wrap gap-2">
+                  <FooterLink
+                    to="/login"
+                    className="btn btn-primary px-4 py-2 inline-flex items-center gap-1.5 text-sm"
+                  >
+                    로그인
+                  </FooterLink>
+                  <FooterLink
+                    to="/signup"
+                    className="px-4 py-2 rounded-xl border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors text-sm"
+                  >
+                    회원가입
+                  </FooterLink>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

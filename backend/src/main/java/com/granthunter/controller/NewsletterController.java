@@ -1,12 +1,16 @@
 package com.granthunter.controller;
 
 import com.granthunter.entity.NewsletterSubscriber;
+import com.granthunter.entity.User;
 import com.granthunter.repository.NewsletterSubscriberRepository;
+import com.granthunter.repository.UserRepository;
+import com.granthunter.security.AuthenticationUtils;
 import com.granthunter.service.NewsletterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -20,15 +24,19 @@ public class NewsletterController {
 
     private final NewsletterSubscriberRepository repository;
     private final NewsletterService newsletterService;
+    private final UserRepository userRepository;
 
     @PostMapping("/subscribe")
-    @Operation(summary = "뉴스레터 구독")
-    public ResponseEntity<Map<String, Object>> subscribe(@RequestBody Map<String, String> body) {
-        String email = body.getOrDefault("email", "").trim().toLowerCase();
+    @Operation(summary = "뉴스레터 구독 (회원 전용)")
+    public ResponseEntity<Map<String, Object>> subscribe(Authentication auth) {
+        Long userId = AuthenticationUtils.requireUserId(auth);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        String email = user.getEmail().trim().toLowerCase();
         if (email.isEmpty() || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", "error",
-                    "message", "올바른 이메일을 입력해주세요."
+                    "message", "회원 이메일 정보가 올바르지 않습니다. 마이페이지에서 확인해 주세요."
             ));
         }
 
