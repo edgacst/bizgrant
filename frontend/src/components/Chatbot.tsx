@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, X, Send, RotateCcw } from 'lucide-react';
 import {
-  CHATBOT_FAQ,
   CHATBOT_QUICK_REPLIES,
   CHATBOT_WELCOME,
   findChatbotAnswer,
 } from '../data/chatbotFaq';
+import { CHATBOT_OPEN_EVENT } from '../utils/chatbot';
 
 type ChatMessage = {
   id: string;
@@ -47,6 +47,12 @@ const Chatbot: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const handleOpen = () => setOpen(true);
+    window.addEventListener(CHATBOT_OPEN_EVENT, handleOpen);
+    return () => window.removeEventListener(CHATBOT_OPEN_EVENT, handleOpen);
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
     inputRef.current?.focus();
@@ -79,16 +85,16 @@ const Chatbot: React.FC = () => {
     <>
       {open && (
         <div
-          className="fixed inset-0 z-[55] bg-black/20 dark:bg-black/40 sm:hidden"
+          className="fixed inset-0 z-[90] bg-black/20 dark:bg-black/40 sm:hidden"
           onClick={() => setOpen(false)}
           aria-hidden
         />
       )}
 
-      <div className="fixed bottom-6 left-4 sm:left-6 z-[60] flex flex-col items-start gap-3">
+      <div className="fixed bottom-24 right-4 sm:right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
         {open && (
           <div
-            className="w-[min(100vw-2rem,22rem)] h-[min(70vh,32rem)] premium-card flex flex-col shadow-2xl border border-gray-200/80 dark:border-gray-700/80 overflow-hidden animate-fadeUp"
+            className="w-[min(100vw-2rem,22rem)] h-[min(70vh,32rem)] premium-card flex flex-col shadow-2xl border border-gray-200/80 dark:border-gray-700/80 overflow-hidden animate-fadeUp pointer-events-auto"
             role="dialog"
             aria-label="BizGrant 도우미"
           >
@@ -183,19 +189,32 @@ const Chatbot: React.FC = () => {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
-            open
-              ? 'bg-gray-700 hover:bg-gray-800 text-white'
-              : 'gradient-bg text-white hover:shadow-xl hover:shadow-brand-500/30'
-          }`}
-          aria-label={open ? '챗봇 닫기' : 'BizGrant 도우미 열기'}
-          aria-expanded={open}
-        >
-          {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-        </button>
+        <div className="relative pointer-events-auto">
+          {!open && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 z-10">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-brand-500" />
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
+              open
+                ? 'bg-gray-700 hover:bg-gray-800 text-white'
+                : 'gradient-bg text-white hover:shadow-xl hover:shadow-brand-500/30'
+            }`}
+            aria-label={open ? '챗봇 닫기' : 'BizGrant 도우미 열기'}
+            aria-expanded={open}
+          >
+            {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+          </button>
+          {!open && (
+            <span className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-gray-900 dark:bg-gray-800 text-white text-xs font-semibold px-3 py-1.5 shadow-lg hidden sm:inline">
+              도우미
+            </span>
+          )}
+        </div>
       </div>
     </>
   );

@@ -15,11 +15,13 @@ import {
   ArrowDown,
   Gavel,
   Store,
+  MessageCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLandingStats } from '../hooks/useLandingStats';
 import { usePageSeo } from '../hooks/usePageSeo';
 import { PAGE_SEO, SITE_NAME, SITE_URL } from '../seo/config';
+import { openChatbot } from '../utils/chatbot';
 
 type LiveSource = {
   title: string;
@@ -284,6 +286,20 @@ const LandingPage: React.FC = () => {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
+
+            <button
+              type="button"
+              onClick={openChatbot}
+              className="mt-6 inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/90 dark:bg-gray-900/90 border border-brand-200 dark:border-brand-800 shadow-lg text-sm sm:text-base font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
+            >
+              <span className="relative flex h-9 w-9 items-center justify-center rounded-full gradient-bg text-white shrink-0">
+                <MessageCircle className="w-4 h-4" />
+              </span>
+              <span className="text-left">
+                궁금한 점이 있으신가요?
+                <span className="block text-xs font-medium text-gray-500 dark:text-gray-400">도우미에게 물어보기</span>
+              </span>
+            </button>
 
             {/* Bottom trust line */}
             <div className="mt-10 flex flex-col items-center gap-3">
