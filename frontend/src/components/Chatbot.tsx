@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Send, RotateCcw } from 'lucide-react';
+import { X, Send, RotateCcw, ChevronDown } from 'lucide-react';
 import ChatbotAvatar from './ChatbotAvatar';
 import {
   CHATBOT_CATEGORIES,
@@ -50,7 +50,7 @@ function QuestionChip({
     <button
       type="button"
       onClick={onClick}
-      className="text-left text-xs px-2.5 py-1.5 rounded-full border border-brand-200 dark:border-brand-800 bg-white dark:bg-gray-800 text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
+      className="text-left text-xs px-3 py-2 rounded-xl border border-brand-200 dark:border-brand-800 bg-white dark:bg-gray-800 text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
     >
       {label}
     </button>
@@ -61,6 +61,7 @@ const Chatbot: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [showAllTopics, setShowAllTopics] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>(CHATBOT_CATEGORIES[0].key);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 'welcome', role: 'bot', text: CHATBOT_WELCOME },
   ]);
@@ -85,6 +86,14 @@ const Chatbot: React.FC = () => {
     return getRelatedQuestions(lastFaqId, askedQuestions);
   }, [lastFaqId, showAllTopics, askedQuestions]);
 
+  const activeCategoryItems = useMemo(() => {
+    const category = CHATBOT_CATEGORIES.find((c) => c.key === activeCategory);
+    if (!category) return [];
+    return category.itemIds
+      .map((id) => getFaqById(id))
+      .filter((item): item is ChatFaqItem => !!item);
+  }, [activeCategory]);
+
   useEffect(() => {
     const handleOpen = () => setOpen(true);
     window.addEventListener(CHATBOT_OPEN_EVENT, handleOpen);
@@ -95,7 +104,7 @@ const Chatbot: React.FC = () => {
     if (!open) return;
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
     inputRef.current?.focus();
-  }, [open, messages, showAllTopics, relatedSuggestions]);
+  }, [open, messages, showAllTopics, relatedSuggestions, activeCategory]);
 
   const pushBotAnswer = (question: string) => {
     const reply = resolveChatbotInput(question);
@@ -124,39 +133,52 @@ const Chatbot: React.FC = () => {
     setMessages([{ id: 'welcome', role: 'bot', text: CHATBOT_WELCOME }]);
     setInput('');
     setShowAllTopics(true);
+    setActiveCategory(CHATBOT_CATEGORIES[0].key);
   };
 
   const renderCategoryMenu = () => (
-    <div className="space-y-2.5">
-      <div className="flex items-center justify-between gap-2 px-1">
-        <p className="text-xs font-bold text-gray-700 dark:text-gray-200">자주 묻는 질문</p>
+    <div className="space-y-3 pt-1">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-bold text-gray-800 dark:text-gray-100">자주 묻는 질문</p>
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
           24개
         </span>
       </div>
-      {CHATBOT_CATEGORIES.map((category) => (
-        <div
-          key={category.key}
-          className="rounded-xl border border-gray-200/80 dark:border-gray-700/80 bg-white/80 dark:bg-gray-800/50 p-2.5"
-        >
-          <p className="text-[11px] font-bold text-brand-600 dark:text-brand-400 mb-2">
+
+      <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
+        {CHATBOT_CATEGORIES.map((category) => (
+          <button
+            key={category.key}
+            type="button"
+            onClick={() => setActiveCategory(category.key)}
+            className={`shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+              activeCategory === category.key
+                ? 'bg-brand-600 text-white border-brand-600'
+                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-brand-300'
+            }`}
+          >
             {category.key}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {category.itemIds.map((id) => {
-              const item = getFaqById(id);
-              if (!item) return null;
-              return (
-                <QuestionChip
-                  key={item.id}
-                  label={item.question}
-                  onClick={() => pushBotAnswer(item.question)}
-                />
-              );
-            })}
-          </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 p-3">
+        <p className="text-xs font-bold text-brand-600 dark:text-brand-400 mb-2.5">{activeCategory}</p>
+        <div className="flex flex-col gap-1.5">
+          {activeCategoryItems.map((item) => (
+            <QuestionChip
+              key={item.id}
+              label={item.question}
+              onClick={() => pushBotAnswer(item.question)}
+            />
+          ))}
         </div>
-      ))}
+      </div>
+
+      <p className="text-[10px] text-center text-gray-400 dark:text-gray-500 flex items-center justify-center gap-1">
+        <ChevronDown className="w-3 h-3" />
+        위 주제 탭을 눌러 다른 질문도 볼 수 있어요
+      </p>
     </div>
   );
 
@@ -176,16 +198,16 @@ const Chatbot: React.FC = () => {
     const lastItem = lastFaqId ? getFaqById(lastFaqId) : null;
 
     return (
-      <div className="space-y-2">
-        <div className="rounded-xl border border-brand-200/80 dark:border-brand-800/80 bg-brand-50/60 dark:bg-brand-900/20 px-3 py-2">
-          <p className="text-[11px] font-bold text-brand-700 dark:text-brand-300">이어서 물어보세요</p>
+      <div className="space-y-2.5 pt-1">
+        <div className="rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50/80 dark:bg-brand-900/25 px-3 py-2.5">
+          <p className="text-xs font-bold text-brand-700 dark:text-brand-300">이어서 물어보세요</p>
           {lastItem && (
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
               「{lastItem.question}」 관련
             </p>
           )}
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-col gap-1.5">
           {relatedSuggestions.map((item: ChatFaqItem) => (
             <QuestionChip
               key={item.id}
@@ -209,30 +231,30 @@ const Chatbot: React.FC = () => {
     <>
       {open && (
         <div
-          className="fixed inset-0 z-[90] bg-black/20 dark:bg-black/40 sm:hidden"
+          className="fixed inset-0 z-[90] bg-black/30 dark:bg-black/50 sm:hidden"
           onClick={() => setOpen(false)}
           aria-hidden
         />
       )}
 
-      <div className="fixed bottom-24 right-4 sm:right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
+      <div className="fixed bottom-20 right-2 left-2 sm:left-auto sm:right-6 sm:bottom-24 z-[100] flex flex-col items-stretch sm:items-end gap-3 pointer-events-none">
         {open && (
           <div
-            className="w-[min(100vw-2rem,22rem)] h-[min(70vh,32rem)] premium-card flex flex-col shadow-2xl border border-gray-200/80 dark:border-gray-700/80 overflow-hidden animate-fadeUp pointer-events-auto"
+            className="w-full sm:w-[min(100vw-2rem,28rem)] h-[min(82dvh,42rem)] sm:h-[min(78vh,42rem)] premium-card flex flex-col shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fadeUp pointer-events-auto bg-white dark:bg-gray-900"
             role="dialog"
             aria-label="BizGrant AI 도우미"
           >
-            <div className="flex items-center justify-between px-4 py-3 gradient-bg text-white shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="rounded-2xl bg-white/15 p-1 ring-1 ring-white/20 overflow-visible">
+            <div className="flex items-center justify-between px-4 py-3.5 gradient-bg text-white shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="rounded-2xl bg-white/15 p-1 ring-1 ring-white/20 overflow-visible shrink-0">
                   <ChatbotAvatar size="sm" floating />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-bold text-sm">Grant AI</p>
-                  <p className="text-xs text-white/80">BizGrant 공식 도우미</p>
+                  <p className="text-xs text-white/80 truncate">BizGrant 공식 도우미</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
                   onClick={resetChat}
@@ -252,7 +274,10 @@ const Chatbot: React.FC = () => {
               </div>
             </div>
 
-            <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-gray-50/80 dark:bg-gray-900/50">
+            <div
+              ref={listRef}
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3 bg-gray-50/90 dark:bg-gray-950/50"
+            >
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -264,7 +289,7 @@ const Chatbot: React.FC = () => {
                     </div>
                   )}
                   <div
-                    className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
                       msg.role === 'user'
                         ? 'bg-brand-600 text-white rounded-br-md'
                         : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-sm'
@@ -274,10 +299,10 @@ const Chatbot: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
 
-            <div className="shrink-0 max-h-[42%] overflow-y-auto border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-3">
-              {showAllTopics ? renderCategoryMenu() : renderRelatedMenu()}
+              <div className="pl-11">
+                {showAllTopics ? renderCategoryMenu() : renderRelatedMenu()}
+              </div>
             </div>
 
             <form
@@ -290,7 +315,7 @@ const Chatbot: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="궁금한 내용을 입력하세요"
-                className="input-premium flex-1 text-sm py-2.5"
+                className="input-premium flex-1 text-sm py-2.5 min-w-0"
                 maxLength={200}
               />
               <button
@@ -302,7 +327,7 @@ const Chatbot: React.FC = () => {
               </button>
             </form>
 
-            <div className="shrink-0 px-3 pb-2 text-[10px] text-gray-400 dark:text-gray-500 flex gap-2">
+            <div className="shrink-0 px-3 pb-2.5 text-[10px] text-gray-400 dark:text-gray-500 flex gap-2">
               <Link to="/guide" className="hover:text-brand-600 dark:hover:text-brand-400" onClick={() => setOpen(false)}>
                 사용 가이드
               </Link>
@@ -314,7 +339,7 @@ const Chatbot: React.FC = () => {
           </div>
         )}
 
-        <div className="relative pointer-events-auto">
+        <div className="relative pointer-events-auto self-end">
           {!open && (
             <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 z-10">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />

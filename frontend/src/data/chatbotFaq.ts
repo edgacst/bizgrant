@@ -8,7 +8,7 @@ export type ChatFaqItem = {
 };
 
 export const CHATBOT_WELCOME =
-  '안녕하세요! Grant AI입니다.\n아래 주제에서 궁금한 질문을 고르거나, 직접 입력해 주세요.';
+  '안녕하세요! Grant AI입니다.\n아래 주제를 고르거나 궁금한 내용을 입력해 주세요.';
 
 export const CHATBOT_CATEGORIES = [
   { key: '서비스 소개', itemIds: ['intro', 'target', 'diff', 'free'] },
