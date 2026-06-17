@@ -1,11 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Send, RotateCcw } from 'lucide-react';
 import ChatbotAvatar from './ChatbotAvatar';
 import {
-  CHATBOT_QUICK_REPLIES,
+  CHATBOT_CATEGORIES,
   CHATBOT_WELCOME,
   findChatbotAnswer,
+  getFaqById,
+  getRelatedQuestions,
+  type ChatFaqItem,
 } from '../data/chatbotFaq';
 import { CHATBOT_OPEN_EVENT } from '../utils/chatbot';
 
@@ -13,10 +16,11 @@ type ChatMessage = {
   id: string;
   role: 'bot' | 'user';
   text: string;
+  faqId?: string;
 };
 
 const FALLBACK_ANSWER =
-  '질문을 이해하지 못했습니다.\n아래 자주 묻는 질문을 누르거나, 문의: freecompr@naver.com';
+  '질문을 이해하지 못했습니다.\n아래 주제에서 고르거나 직접 입력해 주세요.\n문의: freecompr@naver.com';
 
 function renderAnswerText(text: string) {
   const parts = text.split(/(https?:\/\/[^\s]+)/g);
@@ -38,14 +42,51 @@ function renderAnswerText(text: string) {
   });
 }
 
+function QuestionChip({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-left text-xs px-2.5 py-1.5 rounded-full border border-brand-200 dark:border-brand-800 bg-white dark:bg-gray-800 text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
+    >
+      {label}
+    </button>
+  );
+}
+
 const Chatbot: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [showAllTopics, setShowAllTopics] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 'welcome', role: 'bot', text: CHATBOT_WELCOME },
   ]);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const askedQuestions = useMemo(
+    () => new Set(messages.filter((m) => m.role === 'user').map((m) => m.text)),
+    [messages],
+  );
+
+  const lastFaqId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const msg = messages[i];
+      if (msg.role === 'bot' && msg.faqId) return msg.faqId;
+    }
+    return null;
+  }, [messages]);
+
+  const relatedSuggestions = useMemo(() => {
+    if (!lastFaqId || showAllTopics) return [];
+    return getRelatedQuestions(lastFaqId, askedQuestions);
+  }, [lastFaqId, showAllTopics, askedQuestions]);
 
   useEffect(() => {
     const handleOpen = () => setOpen(true);
@@ -57,15 +98,21 @@ const Chatbot: React.FC = () => {
     if (!open) return;
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
     inputRef.current?.focus();
-  }, [open, messages]);
+  }, [open, messages, showAllTopics, relatedSuggestions]);
 
   const pushBotAnswer = (question: string) => {
     const item = findChatbotAnswer(question);
     const answer = item?.answer ?? FALLBACK_ANSWER;
+    setShowAllTopics(!item);
     setMessages((prev) => [
       ...prev,
       { id: `user-${Date.now()}`, role: 'user', text: question },
-      { id: `bot-${Date.now()}`, role: 'bot', text: answer },
+      {
+        id: `bot-${Date.now()}`,
+        role: 'bot',
+        text: answer,
+        faqId: item?.id,
+      },
     ]);
   };
 
@@ -80,6 +127,70 @@ const Chatbot: React.FC = () => {
   const resetChat = () => {
     setMessages([{ id: 'welcome', role: 'bot', text: CHATBOT_WELCOME }]);
     setInput('');
+    setShowAllTopics(true);
+  };
+
+  const renderCategoryMenu = () => (
+    <div className="space-y-3 pt-1 pl-11">
+      {CHATBOT_CATEGORIES.map((category) => (
+        <div key={category.key}>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1.5">
+            {category.key}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {category.itemIds.map((id) => {
+              const item = getFaqById(id);
+              if (!item) return null;
+              return (
+                <QuestionChip
+                  key={item.id}
+                  label={item.question}
+                  onClick={() => pushBotAnswer(item.question)}
+                />
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderRelatedMenu = () => {
+    if (relatedSuggestions.length === 0) {
+      return (
+        <div className="pt-2 pl-11">
+          <button
+            type="button"
+            onClick={() => setShowAllTopics(true)}
+            className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
+          >
+            전체 주제 보기
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2 pt-2 pl-11">
+        <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400">이어서 물어보세요</p>
+        <div className="flex flex-wrap gap-1.5">
+          {relatedSuggestions.map((item: ChatFaqItem) => (
+            <QuestionChip
+              key={item.id}
+              label={item.question}
+              onClick={() => pushBotAnswer(item.question)}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowAllTopics(true)}
+          className="text-[11px] text-gray-400 dark:text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+        >
+          다른 주제 전체 보기
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -152,18 +263,7 @@ const Chatbot: React.FC = () => {
                 </div>
               ))}
 
-              <div className="flex flex-wrap gap-1.5 pt-1 pl-11">
-                {CHATBOT_QUICK_REPLIES.map((q) => (
-                  <button
-                    key={q}
-                    type="button"
-                    onClick={() => pushBotAnswer(q)}
-                    className="text-xs px-2.5 py-1.5 rounded-full border border-brand-200 dark:border-brand-800 bg-white dark:bg-gray-800 text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
+              {showAllTopics ? renderCategoryMenu() : renderRelatedMenu()}
             </div>
 
             <form
