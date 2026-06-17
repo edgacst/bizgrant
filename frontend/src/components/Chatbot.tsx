@@ -101,8 +101,8 @@ const Chatbot: React.FC = () => {
           >
             <div className="flex items-center justify-between px-4 py-3 gradient-bg text-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="rounded-2xl bg-white/15 p-1 ring-1 ring-white/20">
-                  <ChatbotAvatar size="sm" />
+                <div className="rounded-2xl bg-white/15 p-1 ring-1 ring-white/20 overflow-visible">
+                  <ChatbotAvatar size="sm" floating />
                 </div>
                 <div>
                   <p className="font-bold text-sm">Grant AI</p>
@@ -136,8 +136,8 @@ const Chatbot: React.FC = () => {
                   className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {msg.role === 'bot' && (
-                    <div className="mt-0.5 shrink-0">
-                      <ChatbotAvatar size="sm" />
+                    <div className="mt-0.5 shrink-0 overflow-visible">
+                      <ChatbotAvatar size="sm" floating />
                     </div>
                   )}
                   <div
@@ -213,7 +213,7 @@ const Chatbot: React.FC = () => {
             className={`group relative flex items-center justify-center transition-all duration-300 ${
               open
                 ? 'w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-900 text-white shadow-lg'
-                : 'w-[4.5rem] h-[4.5rem] rounded-[1.35rem] bg-white dark:bg-gray-900 shadow-xl shadow-indigo-500/20 ring-1 ring-indigo-100 dark:ring-indigo-900/50 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5'
+                : 'w-[4.5rem] h-[4.5rem] rounded-[1.35rem] bg-white dark:bg-gray-900 shadow-xl shadow-indigo-500/20 ring-1 ring-indigo-100 dark:ring-indigo-900/50 hover:shadow-2xl hover:shadow-indigo-500/30'
             }`}
             aria-label={open ? '챗봇 닫기' : 'Grant AI 도우미 열기'}
             aria-expanded={open}

@@ -23,7 +23,7 @@ const ChatbotAvatar: React.FC<ChatbotAvatarProps> = ({
 
   return (
     <div
-      className={`relative inline-flex shrink-0 ${floating ? 'animate-float' : ''} ${className}`}
+      className={`relative inline-flex shrink-0 ${floating ? 'animate-mascot-bob' : ''} ${className}`}
       style={{ width: px, height: px }}
       aria-hidden
     >

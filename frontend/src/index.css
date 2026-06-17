@@ -207,6 +207,20 @@ body {
   animation: pulse-glow 2s infinite;
 }
 
+@keyframes mascot-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.animate-mascot-bob {
+  animation: mascot-bob 4s ease-in-out infinite;
+  will-change: transform;
+}
+
 @keyframes float {
   0%,
   100% {
