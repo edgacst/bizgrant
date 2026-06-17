@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, X, Send, RotateCcw } from 'lucide-react';
+import { X, Send, RotateCcw } from 'lucide-react';
+import ChatbotAvatar from './ChatbotAvatar';
 import {
   CHATBOT_QUICK_REPLIES,
   CHATBOT_WELCOME,
@@ -96,12 +97,17 @@ const Chatbot: React.FC = () => {
           <div
             className="w-[min(100vw-2rem,22rem)] h-[min(70vh,32rem)] premium-card flex flex-col shadow-2xl border border-gray-200/80 dark:border-gray-700/80 overflow-hidden animate-fadeUp pointer-events-auto"
             role="dialog"
-            aria-label="BizGrant 도우미"
+            aria-label="BizGrant AI 도우미"
           >
             <div className="flex items-center justify-between px-4 py-3 gradient-bg text-white shrink-0">
-              <div>
-                <p className="font-bold text-sm">BizGrant 도우미</p>
-                <p className="text-xs text-white/80">자주 묻는 질문 안내</p>
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-white/15 p-1 ring-1 ring-white/20">
+                  <ChatbotAvatar size="sm" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">Grant AI</p>
+                  <p className="text-xs text-white/80">BizGrant 공식 도우미</p>
+                </div>
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -127,13 +133,18 @@ const Chatbot: React.FC = () => {
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
+                  {msg.role === 'bot' && (
+                    <div className="mt-0.5 shrink-0">
+                      <ChatbotAvatar size="sm" />
+                    </div>
+                  )}
                   <div
-                    className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+                    className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
                       msg.role === 'user'
                         ? 'bg-brand-600 text-white rounded-br-md'
-                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-md'
+                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-sm'
                     }`}
                   >
                     {msg.role === 'bot' ? renderAnswerText(msg.text) : msg.text}
@@ -141,7 +152,7 @@ const Chatbot: React.FC = () => {
                 </div>
               ))}
 
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              <div className="flex flex-wrap gap-1.5 pt-1 pl-11">
                 {CHATBOT_QUICK_REPLIES.map((q) => (
                   <button
                     key={q}
@@ -192,27 +203,35 @@ const Chatbot: React.FC = () => {
         <div className="relative pointer-events-auto">
           {!open && (
             <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 z-10">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-brand-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500" />
             </span>
           )}
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
+            className={`group relative flex items-center justify-center transition-all duration-300 ${
               open
-                ? 'bg-gray-700 hover:bg-gray-800 text-white'
-                : 'gradient-bg text-white hover:shadow-xl hover:shadow-brand-500/30'
+                ? 'w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-900 text-white shadow-lg'
+                : 'w-[4.5rem] h-[4.5rem] rounded-[1.35rem] bg-white dark:bg-gray-900 shadow-xl shadow-indigo-500/20 ring-1 ring-indigo-100 dark:ring-indigo-900/50 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5'
             }`}
-            aria-label={open ? '챗봇 닫기' : 'BizGrant 도우미 열기'}
+            aria-label={open ? '챗봇 닫기' : 'Grant AI 도우미 열기'}
             aria-expanded={open}
           >
-            {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+            {open ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <ChatbotAvatar size="md" floating />
+            )}
           </button>
           {!open && (
-            <span className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-gray-900 dark:bg-gray-800 text-white text-xs font-semibold px-3 py-1.5 shadow-lg hidden sm:inline">
-              도우미
-            </span>
+            <div className="absolute right-[calc(100%+0.75rem)] top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2">
+              <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg px-3.5 py-2">
+                <p className="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">Grant AI</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 whitespace-nowrap">무엇을 도와드릴까요?</p>
+              </div>
+              <div className="w-2 h-2 rotate-45 bg-white dark:bg-gray-900 border-r border-b border-gray-200 dark:border-gray-700 -ml-3" />
+            </div>
           )}
         </div>
       </div>

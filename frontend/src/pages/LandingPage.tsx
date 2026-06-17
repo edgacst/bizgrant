@@ -15,8 +15,8 @@ import {
   ArrowDown,
   Gavel,
   Store,
-  MessageCircle,
 } from 'lucide-react';
+import ChatbotAvatar from '../components/ChatbotAvatar';
 import type { LucideIcon } from 'lucide-react';
 import { useLandingStats } from '../hooks/useLandingStats';
 import { usePageSeo } from '../hooks/usePageSeo';
@@ -290,14 +290,16 @@ const LandingPage: React.FC = () => {
             <button
               type="button"
               onClick={openChatbot}
-              className="mt-6 inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/90 dark:bg-gray-900/90 border border-brand-200 dark:border-brand-800 shadow-lg text-sm sm:text-base font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
+              className="mt-6 group inline-flex items-center gap-4 px-5 py-3.5 rounded-2xl bg-white/90 dark:bg-gray-900/90 border border-indigo-100 dark:border-indigo-900/50 shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/20 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all"
             >
-              <span className="relative flex h-9 w-9 items-center justify-center rounded-full gradient-bg text-white shrink-0">
-                <MessageCircle className="w-4 h-4" />
-              </span>
+              <ChatbotAvatar size="lg" floating className="group-hover:scale-105 transition-transform" />
               <span className="text-left">
-                궁금한 점이 있으신가요?
-                <span className="block text-xs font-medium text-gray-500 dark:text-gray-400">도우미에게 물어보기</span>
+                <span className="block text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+                  Grant AI에게 물어보세요
+                </span>
+                <span className="block text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                  가입·공고·알림 궁금증을 바로 해결해 드립니다
+                </span>
               </span>
             </button>
 
