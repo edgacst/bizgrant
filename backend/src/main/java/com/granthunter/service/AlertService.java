@@ -10,7 +10,6 @@ import com.granthunter.repository.AlertHistoryRepository;
 import com.granthunter.repository.AlertPrefRepository;
 import com.granthunter.repository.GrantNoticeRepository;
 import com.granthunter.repository.UserRepository;
-import com.granthunter.config.AlertProperties;
 import com.granthunter.service.alert.AlertDeliveryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,7 @@ public class AlertService {
     private final UserRepository userRepository;
     private final PlanService planService;
     private final AlertDeliveryService alertDeliveryService;
-    private final AlertProperties alertProperties;
+    private final SiteEmailComposer siteEmailComposer;
 
     /**
      * 매일 오전 9시 전체 사용자 알림 스윕
@@ -102,7 +101,7 @@ public class AlertService {
 
         // 알림 메시지 생성
         String message = buildAlertMessage(user.getName(), newMatches);
-        String subject = "맞춤 지원사업 공고 알림";
+        String subject = "맞춤 정부지원금사업 공고 알림";
 
         // 채널별 발송
         String channel = pref.getChannel() != null ? pref.getChannel() : "email";
@@ -210,7 +209,7 @@ public class AlertService {
      */
     private String buildAlertMessage(String userName, List<MatchingScoreResponse> matches) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%s님을 위한 맞춤 지원사업 공고입니다.\n\n", userName));
+        sb.append(String.format("%s님을 위한 맞춤 정부지원금사업 공고입니다.\n\n", userName));
         sb.append("━━━━━━━━━━━━━━━━━━━━\n");
 
         for (int i = 0; i < matches.size(); i++) {
@@ -224,12 +223,12 @@ public class AlertService {
             if (match.getBudget() != null) {
                 sb.append(String.format("    지원규모: %s\n", match.getBudget()));
             }
-            sb.append(String.format("    상세보기: %s\n", match.getUrl()));
+            sb.append(String.format("    상세보기: %s\n", siteEmailComposer.grantDetailUrl(match.getNoticeId())));
             sb.append("\n");
         }
 
         sb.append("━━━━━━━━━━━━━━━━━━━━\n");
-        sb.append(alertProperties.getSiteName()).append("에서 더 많은 지원사업을 확인하세요!\n");
+        sb.append(siteEmailComposer.buildAlertEmailFooter());
 
         return sb.toString();
     }
@@ -239,7 +238,7 @@ public class AlertService {
      */
     private String buildDeadlineMessage(String userName, List<GrantNotice> notices) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("[긴급] %s님, 마감 임박 지원사업이 있습니다!\n\n", userName));
+        sb.append(String.format("[긴급] %s님, 마감 임박 정부지원금사업이 있습니다!\n\n", userName));
 
         for (GrantNotice notice : notices) {
             long daysLeft = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), notice.getApplyEnd());
@@ -250,10 +249,10 @@ public class AlertService {
             sb.append(String.format("• %s\n", notice.getTitle()));
             sb.append(String.format("  %s | 마감: %s (%s)\n", 
                     notice.getOrganization(), notice.getApplyEnd(), urgency));
-            sb.append(String.format("  %s\n\n", notice.getUrl()));
+            sb.append(String.format("  상세보기: %s\n\n", siteEmailComposer.grantDetailUrl(notice.getId())));
         }
 
-        sb.append("지금 바로 확인하세요!\n");
+        sb.append(siteEmailComposer.buildAlertEmailFooter());
 
         return sb.toString();
     }

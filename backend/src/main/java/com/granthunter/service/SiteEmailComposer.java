@@ -78,4 +78,22 @@ public class SiteEmailComposer {
         }
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
+
+    public String grantDetailUrl(Long grantId) {
+        if (grantId == null) {
+            return siteUrl() + "/grants";
+        }
+        return String.format("%s/grants/%d", siteUrl(), grantId);
+    }
+
+    public String buildAlertEmailFooter() {
+        String siteUrl = siteUrl();
+        return """
+                ---
+                BizGrant 바로가기
+                • 전체 공고: %s/grants
+                • 대시보드: %s/dashboard
+                • 알림 설정: %s/alerts
+                """.formatted(siteUrl, siteUrl, siteUrl);
+    }
 }
