@@ -221,6 +221,20 @@ body {
   will-change: transform;
 }
 
+@keyframes mascot-bob-strong {
+  0%,
+  100% {
+    transform: translateY(4px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.animate-mascot-bob-strong {
+  animation: mascot-bob-strong 3.2s ease-in-out infinite;
+  will-change: transform;
+}
+
 @keyframes float {
   0%,
   100% {

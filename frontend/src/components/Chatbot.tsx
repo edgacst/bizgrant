@@ -341,18 +341,18 @@ const Chatbot: React.FC = () => {
 
         <div className="relative pointer-events-auto self-end">
           {!open && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 z-10">
+            <span className="absolute top-1 right-0 flex h-4 w-4 z-10 pointer-events-none">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 ring-2 ring-white dark:ring-gray-900" />
             </span>
           )}
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className={`group relative flex items-center justify-center transition-all duration-300 ${
+            className={`group relative flex items-center justify-center transition-transform duration-300 ${
               open
                 ? 'w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-900 text-white shadow-lg'
-                : 'w-[4.5rem] h-[4.5rem] rounded-[1.35rem] bg-white dark:bg-gray-900 shadow-xl shadow-indigo-500/20 ring-1 ring-indigo-100 dark:ring-indigo-900/50 hover:shadow-2xl hover:shadow-indigo-500/30'
+                : 'w-16 h-20 bg-transparent border-0 shadow-none p-0 hover:scale-105'
             }`}
             aria-label={open ? '챗봇 닫기' : 'Grant AI 도우미 열기'}
             aria-expanded={open}
@@ -360,7 +360,7 @@ const Chatbot: React.FC = () => {
             {open ? (
               <X className="w-5 h-5" />
             ) : (
-              <ChatbotAvatar size="md" floating />
+              <ChatbotAvatar size="lg" bob="strong" />
             )}
           </button>
           {!open && (

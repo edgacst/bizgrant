@@ -4,6 +4,7 @@ type ChatbotAvatarProps = {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   floating?: boolean;
+  bob?: 'off' | 'normal' | 'strong';
 };
 
 const SIZE_MAP = {
@@ -12,18 +13,26 @@ const SIZE_MAP = {
   lg: 72,
 } as const;
 
+const BOB_CLASS = {
+  off: '',
+  normal: 'animate-mascot-bob',
+  strong: 'animate-mascot-bob-strong',
+} as const;
+
 /** BizGrant AI 도우미 캐릭터 */
 const ChatbotAvatar: React.FC<ChatbotAvatarProps> = ({
   size = 'md',
   className = '',
   floating = false,
+  bob,
 }) => {
   const px = SIZE_MAP[size];
   const uid = useId().replace(/:/g, '');
+  const bobMode = bob ?? (floating ? 'normal' : 'off');
 
   return (
     <div
-      className={`relative inline-flex shrink-0 ${floating ? 'animate-mascot-bob' : ''} ${className}`}
+      className={`relative inline-flex shrink-0 ${BOB_CLASS[bobMode]} ${className}`}
       style={{ width: px, height: px }}
       aria-hidden
     >
