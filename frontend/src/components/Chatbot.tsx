@@ -131,10 +131,19 @@ const Chatbot: React.FC = () => {
   };
 
   const renderCategoryMenu = () => (
-    <div className="space-y-3 pt-1 pl-11">
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between gap-2 px-1">
+        <p className="text-xs font-bold text-gray-700 dark:text-gray-200">자주 묻는 질문</p>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
+          24개
+        </span>
+      </div>
       {CHATBOT_CATEGORIES.map((category) => (
-        <div key={category.key}>
-          <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1.5">
+        <div
+          key={category.key}
+          className="rounded-xl border border-gray-200/80 dark:border-gray-700/80 bg-white/80 dark:bg-gray-800/50 p-2.5"
+        >
+          <p className="text-[11px] font-bold text-brand-600 dark:text-brand-400 mb-2">
             {category.key}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -158,21 +167,28 @@ const Chatbot: React.FC = () => {
   const renderRelatedMenu = () => {
     if (relatedSuggestions.length === 0) {
       return (
-        <div className="pt-2 pl-11">
-          <button
-            type="button"
-            onClick={() => setShowAllTopics(true)}
-            className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
-          >
-            전체 주제 보기
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowAllTopics(true)}
+          className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
+        >
+          ← 전체 주제 보기 (24개)
+        </button>
       );
     }
 
+    const lastItem = lastFaqId ? getFaqById(lastFaqId) : null;
+
     return (
-      <div className="space-y-2 pt-2 pl-11">
-        <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400">이어서 물어보세요</p>
+      <div className="space-y-2">
+        <div className="rounded-xl border border-brand-200/80 dark:border-brand-800/80 bg-brand-50/60 dark:bg-brand-900/20 px-3 py-2">
+          <p className="text-[11px] font-bold text-brand-700 dark:text-brand-300">이어서 물어보세요</p>
+          {lastItem && (
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+              「{lastItem.question}」 관련
+            </p>
+          )}
+        </div>
         <div className="flex flex-wrap gap-1.5">
           {relatedSuggestions.map((item: ChatFaqItem) => (
             <QuestionChip
@@ -187,7 +203,7 @@ const Chatbot: React.FC = () => {
           onClick={() => setShowAllTopics(true)}
           className="text-[11px] text-gray-400 dark:text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
         >
-          다른 주제 전체 보기
+          ← 다른 주제 전체 보기
         </button>
       </div>
     );
@@ -240,7 +256,7 @@ const Chatbot: React.FC = () => {
               </div>
             </div>
 
-            <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/80 dark:bg-gray-900/50">
+            <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-gray-50/80 dark:bg-gray-900/50">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -262,7 +278,9 @@ const Chatbot: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
 
+            <div className="shrink-0 max-h-[42%] overflow-y-auto border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-3">
               {showAllTopics ? renderCategoryMenu() : renderRelatedMenu()}
             </div>
 
