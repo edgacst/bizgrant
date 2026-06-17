@@ -20,7 +20,7 @@ type ChatMessage = {
 };
 
 function renderAnswerText(text: string) {
-  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|https?:\/\/[^\s]+)/g);
   return parts.map((part, index) => {
     if (/^https?:\/\//.test(part)) {
       return (
@@ -33,6 +33,13 @@ function renderAnswerText(text: string) {
         >
           {part}
         </a>
+      );
+    }
+    if (/^\*\*[^*]+\*\*$/.test(part)) {
+      return (
+        <strong key={`bold-${index}`} className="font-semibold text-gray-900 dark:text-white">
+          {part.slice(2, -2)}
+        </strong>
       );
     }
     return <span key={index}>{part}</span>;
