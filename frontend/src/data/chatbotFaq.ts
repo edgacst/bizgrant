@@ -247,6 +247,118 @@ export function getRelatedQuestions(faqId: string, askedQuestions: Set<string> =
   ).slice(0, 4);
 }
 
+export const CHATBOT_FALLBACK_ANSWER =
+  '질문을 이해하지 못했습니다.\n아래 주제에서 고르거나 다시 입력해 주세요.\n문의: freecompr@naver.com';
+
+export type ChatbotReply = {
+  answer: string;
+  faqId?: string;
+  showAllTopics: boolean;
+};
+
+type ConversationalRule = {
+  id: string;
+  test: (normalized: string, raw: string) => boolean;
+  answer: string;
+  showAllTopics?: boolean;
+};
+
+function compactInput(input: string): string {
+  return input.trim().toLowerCase().replace(/\s+/g, '');
+}
+
+const CHATBOT_CONVERSATIONAL: ConversationalRule[] = [
+  {
+    id: 'greeting',
+    test: (n, raw) => {
+      if (raw.length > 24) return false;
+      return /^(안녕하세요|안녕|안뇽|하이|헬로|hello|hi|hey|반갑습니다|반가워요|반가워|ㅎㅇ|하이요|좋은아침|좋은오후|좋은저녁|굿모닝|굿이브닝)(요|요~|!|~|\.|,)*$/i.test(
+        n,
+      );
+    },
+    answer:
+      '안녕하세요! Grant AI입니다.\nBizGrant 이용이 처음이시라면 「BizGrant가 뭐예요?」부터 보시거나, 아래 주제에서 궁금한 항목을 골라 주세요.',
+    showAllTopics: true,
+  },
+  {
+    id: 'thanks',
+    test: (n, raw) =>
+      raw.length <= 30 &&
+      /^(감사합니다|감사해요|고마워요|고맙습니다|고마워|땡큐|thanks|thankyou|thx|감사)(요|요~|!|~|\.|,)*$/i.test(n),
+    answer: '도움이 되었다니 다행입니다. 다른 궁금한 점이 있으면 편하게 말씀해 주세요.',
+    showAllTopics: true,
+  },
+  {
+    id: 'bye',
+    test: (n, raw) =>
+      raw.length <= 24 &&
+      /^(잘가요|잘가|안녕히가세요|안녕히계세요|바이|bye|goodbye|또봐요|다음에봐요)(요|요~|!|~|\.|,)*$/i.test(n),
+    answer: '네, 좋은 하루 보내세요!\n다시 궁금한 점이 생기면 언제든 물어봐 주세요.',
+    showAllTopics: true,
+  },
+  {
+    id: 'who',
+    test: (n) =>
+      /누구|뭐하는|뭐하는애|정체|grantai|그랜트ai/.test(n) &&
+      (n.includes('너') || n.includes('당신') || n.includes('누구') || n.includes('grant') || n.length <= 16),
+    answer:
+      '저는 BizGrant 공식 도우미 Grant AI입니다.\n정부지원금·나라장터 공고 검색, 가입, 알림, 기능 사용법을 안내해 드립니다.',
+    showAllTopics: true,
+  },
+  {
+    id: 'help',
+    test: (n) =>
+      /^(도와줘|도움|도와주세요|help|헬프|뭐할수있|뭐해줄수|어떻게써|사용법)(요|요~|!|~|\.|,)*$/i.test(n),
+    answer:
+      '아래 「자주 묻는 질문」에서 주제를 고르시거나,\n「가입 방법」「어떤 공고를 볼 수 있나요?」「알림 받는 방법」처럼 궁금한 내용을 입력해 주세요.',
+    showAllTopics: true,
+  },
+  {
+    id: 'ok',
+    test: (n, raw) =>
+      raw.length <= 12 &&
+      /^(네|넵|응|ㅇㅇ|알겠습니다|알겠어요|알았어요|오케이|ok|ㅇㅋ)(요|요~|!|~|\.|,)*$/i.test(n),
+    answer: '네, 더 궁금한 점이 있으면 이어서 물어봐 주세요.',
+    showAllTopics: true,
+  },
+];
+
+export function findConversationalAnswer(input: string): ChatbotReply | null {
+  const raw = input.trim();
+  if (!raw) return null;
+  const normalized = compactInput(raw);
+
+  for (const rule of CHATBOT_CONVERSATIONAL) {
+    if (rule.test(normalized, raw)) {
+      return {
+        answer: rule.answer,
+        showAllTopics: rule.showAllTopics ?? true,
+      };
+    }
+  }
+
+  return null;
+}
+
+export function resolveChatbotInput(input: string): ChatbotReply {
+  const conversational = findConversationalAnswer(input);
+  if (conversational) return conversational;
+
+  const faq = findChatbotAnswer(input);
+  if (faq) {
+    return {
+      answer: faq.answer,
+      faqId: faq.id,
+      showAllTopics: false,
+    };
+  }
+
+  return {
+    answer: CHATBOT_FALLBACK_ANSWER,
+    showAllTopics: true,
+  };
+}
+
 export function findChatbotAnswer(input: string): ChatFaqItem | null {
   const normalized = input.trim().toLowerCase();
   if (!normalized) return null;

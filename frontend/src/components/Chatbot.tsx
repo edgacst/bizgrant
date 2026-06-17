@@ -5,9 +5,9 @@ import ChatbotAvatar from './ChatbotAvatar';
 import {
   CHATBOT_CATEGORIES,
   CHATBOT_WELCOME,
-  findChatbotAnswer,
   getFaqById,
   getRelatedQuestions,
+  resolveChatbotInput,
   type ChatFaqItem,
 } from '../data/chatbotFaq';
 import { CHATBOT_OPEN_EVENT } from '../utils/chatbot';
@@ -18,9 +18,6 @@ type ChatMessage = {
   text: string;
   faqId?: string;
 };
-
-const FALLBACK_ANSWER =
-  '질문을 이해하지 못했습니다.\n아래 주제에서 고르거나 직접 입력해 주세요.\n문의: freecompr@naver.com';
 
 function renderAnswerText(text: string) {
   const parts = text.split(/(https?:\/\/[^\s]+)/g);
@@ -101,17 +98,16 @@ const Chatbot: React.FC = () => {
   }, [open, messages, showAllTopics, relatedSuggestions]);
 
   const pushBotAnswer = (question: string) => {
-    const item = findChatbotAnswer(question);
-    const answer = item?.answer ?? FALLBACK_ANSWER;
-    setShowAllTopics(!item);
+    const reply = resolveChatbotInput(question);
+    setShowAllTopics(reply.showAllTopics);
     setMessages((prev) => [
       ...prev,
       { id: `user-${Date.now()}`, role: 'user', text: question },
       {
         id: `bot-${Date.now()}`,
         role: 'bot',
-        text: answer,
-        faqId: item?.id,
+        text: reply.answer,
+        faqId: reply.faqId,
       },
     ]);
   };
