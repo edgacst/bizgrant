@@ -21,6 +21,7 @@ import AboutPage from './pages/AboutPage';
 import GuidePage from './pages/GuidePage';
 import NewsletterUnsubscribePage from './pages/NewsletterUnsubscribePage';
 import BackToTop from './components/BackToTop';
+import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
 import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
 import SiteHeader from './components/SiteHeader';
@@ -99,6 +100,7 @@ const App: React.FC = () => {
           },
         }}
       />
+      <Chatbot />
       <Routes>
         {/* Public routes */}
         <Route element={<PublicLayout />}>
