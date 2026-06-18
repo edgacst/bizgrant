@@ -123,20 +123,6 @@ const Navbar: React.FC = () => {
 
               <NotificationBell />
 
-              <Link
-                to="/board"
-                onClick={scrollToTop}
-                title="게시판"
-                className={`hidden lg:inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 xl:px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  location.pathname.startsWith('/board')
-                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                <MessageSquare className="w-4 h-4 shrink-0" />
-                <span>게시판</span>
-              </Link>
-
               {/* User Avatar Dropdown */}
               <div className="relative hidden sm:block">
                 <button
@@ -217,23 +203,24 @@ const Navbar: React.FC = () => {
                 )}
               </div>
 
-              {/* Mobile Menu Toggle */}
               <Link
                 to="/board"
                 onClick={scrollToTop}
-                title="게시판"
-                className={`lg:hidden inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold shrink-0 ${
+                title="공개 게시판"
+                className={`inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors ${
                   location.pathname.startsWith('/board')
-                    ? 'text-brand-600 dark:text-brand-400'
-                    : 'text-gray-600 dark:text-gray-400'
+                    ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
+                    : 'bg-brand-50 text-brand-700 hover:bg-brand-100 dark:bg-brand-900/40 dark:text-brand-200 dark:hover:bg-brand-900/60'
                 }`}
               >
                 <MessageSquare className="w-4 h-4 shrink-0" />
-                게시판
+                <span className="hidden min-[400px]:inline">공개 게시판</span>
+                <span className="min-[400px]:hidden">게시판</span>
               </Link>
+
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 shrink-0"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
