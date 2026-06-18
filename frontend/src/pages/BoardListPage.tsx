@@ -86,7 +86,7 @@ const BoardListPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
         <div>
           <div className="inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 text-xs font-semibold mb-1">
