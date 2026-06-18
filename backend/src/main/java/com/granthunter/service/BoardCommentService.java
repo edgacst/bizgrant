@@ -8,7 +8,7 @@ import com.granthunter.entity.User;
 import com.granthunter.repository.BoardCommentRepository;
 import com.granthunter.repository.BoardPostRepository;
 import com.granthunter.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.granthunter.util.BoardAuthorUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,7 +135,7 @@ public class BoardCommentService {
                 .postId(comment.getPostId())
                 .parentId(comment.getParentId())
                 .authorId(comment.getAuthorId())
-                .authorName(comment.getAuthorName())
+                .authorName(BoardAuthorUtils.maskDisplayName(comment.getAuthorName()))
                 .content(comment.getContent())
                 .mine(mine)
                 .deletable(deletable)

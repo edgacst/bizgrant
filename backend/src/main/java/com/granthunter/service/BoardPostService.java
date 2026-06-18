@@ -7,7 +7,7 @@ import com.granthunter.entity.User;
 import com.granthunter.repository.BoardCommentRepository;
 import com.granthunter.repository.BoardPostRepository;
 import com.granthunter.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.granthunter.util.BoardAuthorUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -143,7 +143,7 @@ public class BoardPostService {
                 .content(includeContent ? post.getContent() : null)
                 .excerpt(excerpt)
                 .authorId(post.getAuthorId())
-                .authorName(post.getAuthorName())
+                .authorName(BoardAuthorUtils.maskDisplayName(post.getAuthorName()))
                 .pinned(post.isPinned())
                 .viewCount(post.getViewCount())
                 .published(post.isPublished())
