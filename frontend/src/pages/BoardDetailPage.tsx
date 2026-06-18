@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Eye, Pin, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import BoardComments from '../components/BoardComments';
 import { deleteBoardPost, fetchBoardPost, pinBoardPost, type BoardPost } from '../api/board';
 import { usePageSeo } from '../hooks/usePageSeo';
 import { isAdminUser, isLoggedIn } from '../utils/authSession';
@@ -19,6 +20,7 @@ const BoardDetailPage: React.FC = () => {
   const postId = Number(id);
   const [post, setPost] = useState<BoardPost | null>(null);
   const [loading, setLoading] = useState(true);
+  const admin = isAdminUser();
 
   usePageSeo(
     post
@@ -42,8 +44,12 @@ const BoardDetailPage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [postId, navigate]);
 
-  const handleDelete = async () => {
-    if (!post || !window.confirm('이 글을 삭제할까요?')) return;
+  const handleDelete = async (asAdmin: boolean) => {
+    if (!post) return;
+    const msg = asAdmin
+      ? '관리자 권한으로 이 글을 삭제할까요? 댓글도 함께 삭제됩니다.'
+      : '이 글을 삭제할까요? 댓글도 함께 삭제됩니다.';
+    if (!window.confirm(msg)) return;
     try {
       await deleteBoardPost(post.id);
       toast.success('삭제되었습니다.');
@@ -109,23 +115,39 @@ const BoardDetailPage: React.FC = () => {
               수정
             </Link>
           )}
-          {post.editable && (
-            <button type="button" onClick={() => void handleDelete()} className="btn btn-secondary text-sm inline-flex items-center gap-1.5 text-red-600 dark:text-red-400">
+          {post.deletable && (
+            <button
+              type="button"
+              onClick={() => void handleDelete(false)}
+              className="btn btn-secondary text-sm inline-flex items-center gap-1.5 text-red-600 dark:text-red-400"
+            >
               <Trash2 className="w-4 h-4" />
               삭제
             </button>
           )}
-          {isAdminUser() && (
+          {admin && post.adminDeletable && !post.deletable && (
+            <button
+              type="button"
+              onClick={() => void handleDelete(true)}
+              className="btn btn-secondary text-sm inline-flex items-center gap-1.5 text-red-600 dark:text-red-400"
+            >
+              <Trash2 className="w-4 h-4" />
+              관리자 삭제
+            </button>
+          )}
+          {admin && (
             <button type="button" onClick={() => void handlePin()} className="btn btn-secondary text-sm inline-flex items-center gap-1.5">
               <Pin className="w-4 h-4" />
               {post.pinned ? '고정 해제' : '상단 고정'}
             </button>
           )}
           {!isLoggedIn() && (
-            <p className="text-xs text-gray-500 self-center">글쓰기는 로그인 후 이용할 수 있습니다.</p>
+            <p className="text-xs text-gray-500 self-center">글쓰기·댓글은 로그인 후 이용할 수 있습니다.</p>
           )}
         </div>
       </article>
+
+      <BoardComments postId={post.id} />
     </div>
   );
 };

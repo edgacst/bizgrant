@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MessageSquare, Pin, Search, PenLine, Eye } from 'lucide-react';
+import { MessageSquare, Pin, Search, PenLine, Eye, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { fetchBoardPosts, type BoardPost } from '../api/board';
+import { deleteBoardPost, fetchBoardPosts, type BoardPost } from '../api/board';
 import { usePageSeo } from '../hooks/usePageSeo';
 import { PAGE_SEO } from '../seo/config';
-import { isLoggedIn } from '../utils/authSession';
+import { isAdminUser, isLoggedIn } from '../utils/authSession';
 
 function formatDate(value: string) {
   if (!value) return '';
@@ -23,6 +23,34 @@ const BoardListPage: React.FC = () => {
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
   const page = Number(searchParams.get('page') || '0');
   const loggedIn = isLoggedIn();
+  const admin = isAdminUser();
+
+  const reloadPosts = () => {
+    const q = searchParams.get('q') || '';
+    const p = Number(searchParams.get('page') || '0');
+    setLoading(true);
+    fetchBoardPosts({ q, page: p, size: 15 })
+      .then((data) => {
+        setPosts(data.content);
+        setTotalPages(data.totalPages);
+      })
+      .catch(() => toast.error('게시글 목록을 불러오지 못했습니다.'))
+      .finally(() => setLoading(false));
+  };
+
+  const handleDeletePost = async (post: BoardPost, asAdmin: boolean) => {
+    const msg = asAdmin
+      ? `관리자 권한으로 "${post.title}" 글을 삭제할까요?`
+      : `"${post.title}" 글을 삭제할까요?`;
+    if (!window.confirm(msg)) return;
+    try {
+      await deleteBoardPost(post.id);
+      toast.success('삭제되었습니다.');
+      reloadPosts();
+    } catch {
+      toast.error('삭제에 실패했습니다.');
+    }
+  };
 
   useEffect(() => {
     const q = searchParams.get('q') || '';
@@ -99,30 +127,55 @@ const BoardListPage: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
-            <Link
+            <div
               key={post.id}
-              to={`/board/${post.id}`}
-              className="premium-card block p-5 hover:border-brand-300 dark:hover:border-brand-700 transition-colors"
+              className="premium-card p-5 hover:border-brand-300 dark:hover:border-brand-700 transition-colors"
             >
-              <div className="flex items-start gap-2">
-                {post.pinned && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 shrink-0">
-                    <Pin className="w-3 h-3" />
-                    공지
+              <Link to={`/board/${post.id}`} className="block">
+                <div className="flex items-start gap-2">
+                  {post.pinned && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 shrink-0">
+                      <Pin className="w-3 h-3" />
+                      공지
+                    </span>
+                  )}
+                  <h2 className="font-bold text-gray-900 dark:text-white leading-snug">{post.title}</h2>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">{post.excerpt}</p>
+                <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-500">
+                  <span>{post.authorName}</span>
+                  <span>{formatDate(post.createdAt)}</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Eye className="w-3.5 h-3.5" />
+                    {post.viewCount}
                   </span>
-                )}
-                <h2 className="font-bold text-gray-900 dark:text-white leading-snug">{post.title}</h2>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">{post.excerpt}</p>
-              <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-500">
-                <span>{post.authorName}</span>
-                <span>{formatDate(post.createdAt)}</span>
-                <span className="inline-flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5" />
-                  {post.viewCount}
-                </span>
-              </div>
-            </Link>
+                </div>
+              </Link>
+              {(post.deletable || (admin && post.adminDeletable)) && (
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
+                  {post.deletable && (
+                    <button
+                      type="button"
+                      onClick={() => void handleDeletePost(post, false)}
+                      className="text-xs font-semibold text-red-600 dark:text-red-400 inline-flex items-center gap-1 hover:underline"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      삭제
+                    </button>
+                  )}
+                  {admin && post.adminDeletable && !post.deletable && (
+                    <button
+                      type="button"
+                      onClick={() => void handleDeletePost(post, true)}
+                      className="text-xs font-semibold text-red-600 dark:text-red-400 inline-flex items-center gap-1 hover:underline"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      관리자 삭제
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}

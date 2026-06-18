@@ -4,6 +4,7 @@ import com.granthunter.dto.BoardPostRequest;
 import com.granthunter.dto.BoardPostResponse;
 import com.granthunter.entity.BoardPost;
 import com.granthunter.entity.User;
+import com.granthunter.repository.BoardCommentRepository;
 import com.granthunter.repository.BoardPostRepository;
 import com.granthunter.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardPostService {
 
     private final BoardPostRepository boardPostRepository;
+    private final BoardCommentRepository boardCommentRepository;
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
@@ -75,7 +77,8 @@ public class BoardPostService {
     public void delete(Long id, Long userId, boolean admin) {
         BoardPost post = boardPostRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-        assertCanEdit(post, userId, admin);
+        assertCanDelete(post, userId, admin);
+        boardCommentRepository.deleteByPostId(id);
         boardPostRepository.delete(post);
     }
 
@@ -106,7 +109,16 @@ public class BoardPostService {
             return;
         }
         if (post.getAuthorId() == null || !post.getAuthorId().equals(userId)) {
-            throw new AccessDeniedException("수정·삭제 권한이 없습니다.");
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+    }
+
+    private void assertCanDelete(BoardPost post, Long userId, boolean admin) {
+        if (admin) {
+            return;
+        }
+        if (post.getAuthorId() == null || !post.getAuthorId().equals(userId)) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
     }
 
@@ -120,6 +132,8 @@ public class BoardPostService {
     private BoardPostResponse toResponse(BoardPost post, Long viewerUserId, boolean viewerAdmin, boolean includeContent) {
         boolean mine = viewerUserId != null && viewerUserId.equals(post.getAuthorId());
         boolean editable = viewerAdmin || mine;
+        boolean deletable = mine;
+        boolean adminDeletable = viewerAdmin;
         String plain = post.getContent().replaceAll("\\s+", " ").trim();
         String excerpt = plain.length() > 120 ? plain.substring(0, 120) + "…" : plain;
 
@@ -135,6 +149,8 @@ public class BoardPostService {
                 .published(post.isPublished())
                 .mine(mine)
                 .editable(editable)
+                .deletable(deletable)
+                .adminDeletable(adminDeletable)
                 .createdAt(post.getCreatedAt() != null ? post.getCreatedAt().toString() : null)
                 .updatedAt(post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : null)
                 .build();

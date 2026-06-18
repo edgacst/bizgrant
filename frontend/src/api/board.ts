@@ -12,6 +12,8 @@ export type BoardPost = {
   published: boolean;
   mine: boolean;
   editable: boolean;
+  deletable: boolean;
+  adminDeletable: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -47,3 +49,30 @@ export const deleteBoardPost = (id: number) =>
 
 export const pinBoardPost = (id: number, pinned: boolean) =>
   client.patch<BoardPost>(`/board/posts/${id}/pin`, { pinned }).then((r) => r.data);
+
+export type BoardComment = {
+  id: number;
+  postId: number;
+  parentId: number | null;
+  authorId: number | null;
+  authorName: string;
+  content: string;
+  mine: boolean;
+  deletable: boolean;
+  createdAt: string;
+  replies: BoardComment[];
+};
+
+export type BoardCommentPayload = {
+  content: string;
+  parentId?: number | null;
+};
+
+export const fetchBoardComments = (postId: number) =>
+  client.get<BoardComment[]>(`/board/posts/${postId}/comments`).then((r) => r.data);
+
+export const createBoardComment = (postId: number, payload: BoardCommentPayload) =>
+  client.post<BoardComment>(`/board/posts/${postId}/comments`, payload).then((r) => r.data);
+
+export const deleteBoardComment = (commentId: number) =>
+  client.delete(`/board/comments/${commentId}`).then((r) => r.data);

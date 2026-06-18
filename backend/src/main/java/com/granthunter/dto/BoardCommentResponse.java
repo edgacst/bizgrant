@@ -5,24 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardPostResponse {
+public class BoardCommentResponse {
     private Long id;
-    private String title;
-    private String content;
-    private String excerpt;
+    private Long postId;
+    private Long parentId;
     private Long authorId;
     private String authorName;
-    private boolean pinned;
-    private int viewCount;
-    private boolean published;
+    private String content;
     private boolean mine;
-    private boolean editable;
     private boolean deletable;
-    private boolean adminDeletable;
     private String createdAt;
-    private String updatedAt;
+    @Builder.Default
+    private List<BoardCommentResponse> replies = new ArrayList<>();
 }
