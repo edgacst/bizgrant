@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Search } from 'lucide-react';
+import { Sparkles, Search, MessageSquare } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
 
 const PublicHeader: React.FC = () => {
   const location = useLocation();
   const isGuide = location.pathname === '/guide';
+  const isBoard = location.pathname.startsWith('/board');
   const isGrants = location.pathname.startsWith('/grants') || location.pathname.startsWith('/procurement');
 
   const navLink = (active: boolean) =>
@@ -28,6 +29,10 @@ const PublicHeader: React.FC = () => {
           <DarkModeToggle />
           <Link to="/guide" className={navLink(isGuide)}>
             사용방법
+          </Link>
+          <Link to="/board" className={navLink(isBoard)}>
+            <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
+            게시판
           </Link>
           <Link to="/login" className={navLink(isGrants)}>
             <Search className="w-3.5 h-3.5 inline mr-1" />

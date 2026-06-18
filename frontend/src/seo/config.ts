@@ -49,4 +49,9 @@ export const PAGE_SEO = {
     description: '정부지원금사업 공고 마감일을 캘린더로 확인하세요.',
     path: '/calendar',
   },
+  board: {
+    title: '공개 게시판',
+    description: 'BizGrant 이용 팁, 질문, 정보를 나누는 공개 게시판입니다. 누구나 읽을 수 있고 회원은 글을 작성할 수 있습니다.',
+    path: '/board',
+  },
 } as const;

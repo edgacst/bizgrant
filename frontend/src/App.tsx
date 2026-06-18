@@ -20,6 +20,9 @@ import PrivacyPage from './pages/PrivacyPage';
 import AboutPage from './pages/AboutPage';
 import GuidePage from './pages/GuidePage';
 import NewsletterUnsubscribePage from './pages/NewsletterUnsubscribePage';
+import BoardListPage from './pages/BoardListPage';
+import BoardDetailPage from './pages/BoardDetailPage';
+import BoardWritePage from './pages/BoardWritePage';
 import BackToTop from './components/BackToTop';
 import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
@@ -115,6 +118,10 @@ const App: React.FC = () => {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/guide" element={<GuidePage />} />
+          <Route path="/board" element={<BoardListPage />} />
+          <Route path="/board/write" element={<BoardWritePage />} />
+          <Route path="/board/:id/edit" element={<BoardWritePage />} />
+          <Route path="/board/:id" element={<BoardDetailPage />} />
           <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
         </Route>
 
