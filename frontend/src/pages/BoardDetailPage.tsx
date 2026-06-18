@@ -71,20 +71,21 @@ const BoardDetailPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-500">불러오는 중…</div>;
+    return <div className="max-w-xl mx-auto px-4 py-12 text-center text-sm text-gray-500">불러오는 중…</div>;
   }
 
   if (!post) return null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-      <Link to="/board" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 mb-6">
-        <ArrowLeft className="w-4 h-4" />
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <Link to="/board" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-brand-600 mb-4">
+        <ArrowLeft className="w-3.5 h-3.5" />
         목록으로
       </Link>
 
-      <article className="premium-card p-6 sm:p-8">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
+      <article className="premium-card p-5 sm:p-6">
+        <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-gray-500 dark:text-gray-400">
+          <span className="font-bold text-brand-600 dark:text-brand-400 tabular-nums">No. {post.id}</span>
           {post.pinned && (
             <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
               <Pin className="w-3 h-3" />
@@ -92,23 +93,25 @@ const BoardDetailPage: React.FC = () => {
             </span>
           )}
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">
+        <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white leading-snug">
           {post.title}
         </h1>
-        <div className="flex flex-wrap items-center gap-3 mt-4 text-sm text-gray-500 dark:text-gray-400">
-          <span>{post.authorName}</span>
+        <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400">
+          <span className="font-medium text-gray-700 dark:text-gray-300">{post.authorName}</span>
+          <span>·</span>
           <span>{formatDateTime(post.createdAt)}</span>
+          <span>·</span>
           <span className="inline-flex items-center gap-1">
-            <Eye className="w-4 h-4" />
+            <Eye className="w-3.5 h-3.5" />
             조회 {post.viewCount}
           </span>
         </div>
 
-        <div className="mt-8 text-gray-800 dark:text-gray-100 leading-relaxed whitespace-pre-wrap break-words">
+        <div className="mt-5 pt-5 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-800 dark:text-gray-100 leading-relaxed whitespace-pre-wrap break-words">
           {post.content}
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-2">
+        <div className="mt-5 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-2">
           {post.editable && (
             <Link to={`/board/${post.id}/edit`} className="btn btn-secondary text-sm inline-flex items-center gap-1.5">
               <Pencil className="w-4 h-4" />

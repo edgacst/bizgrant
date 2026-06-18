@@ -82,14 +82,14 @@ const BoardWritePage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
       <Link to={editing && postId ? `/board/${postId}` : '/board'} className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 mb-6">
         <ArrowLeft className="w-4 h-4" />
         {editing ? '글 보기' : '목록으로'}
       </Link>
 
-      <div className="premium-card p-6 sm:p-8">
-        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-6">
+      <div className="premium-card p-5 sm:p-6">
+        <h1 className="text-xl font-extrabold text-gray-900 dark:text-white mb-5">
           {editing ? '게시글 수정' : '새 글 작성'}
         </h1>
 

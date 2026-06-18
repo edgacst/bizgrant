@@ -18,7 +18,7 @@ function formatDateTime(value: string) {
   if (!value) return '';
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString('ko-KR');
+  return d.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
@@ -90,66 +90,75 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
     }
   };
 
-  const renderComment = (comment: BoardComment, depth = 0) => (
-    <div key={comment.id} className={depth > 0 ? 'ml-4 sm:ml-8 pl-4 border-l-2 border-gray-200 dark:border-gray-700' : ''}>
-      <div className="py-4">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="font-semibold text-gray-900 dark:text-white">{comment.authorName}</span>
-          <span className="text-gray-400">{formatDateTime(comment.createdAt)}</span>
-        </div>
-        <p className="mt-2 text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words">{comment.content}</p>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          {loggedIn && depth === 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setReplyTo(comment);
-                setContent(`@${comment.authorName} `);
-              }}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-brand-600"
-            >
-              <Reply className="w-3.5 h-3.5" />
-              답글
-            </button>
-          )}
-          {comment.deletable && (
-            <button
-              type="button"
-              onClick={() => void handleDelete(comment)}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              {admin && !comment.mine ? '관리자 삭제' : '삭제'}
-            </button>
-          )}
+  const renderComment = (comment: BoardComment, label: string, depth = 0) => (
+    <div key={comment.id} className={depth > 0 ? 'ml-6 pl-3 border-l-2 border-gray-200 dark:border-gray-700' : ''}>
+      <div className="py-3">
+        <div className="flex items-start gap-2">
+          <span className="shrink-0 w-8 text-center text-[11px] font-bold text-brand-600 dark:text-brand-400 tabular-nums pt-0.5">
+            {label}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <span className="font-semibold text-gray-900 dark:text-white">{comment.authorName}</span>
+              <span className="text-gray-400">{formatDateTime(comment.createdAt)}</span>
+            </div>
+            <p className="mt-1.5 text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words">{comment.content}</p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+              {loggedIn && depth === 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReplyTo(comment);
+                    setContent(`@${comment.authorName} `);
+                  }}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500 hover:text-brand-600"
+                >
+                  <Reply className="w-3 h-3" />
+                  답글
+                </button>
+              )}
+              {comment.deletable && (
+                <button
+                  type="button"
+                  onClick={() => void handleDelete(comment)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-500 hover:text-red-600"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  {admin && !comment.mine ? '관리자 삭제' : '삭제'}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-      {comment.replies?.map((reply) => renderComment(reply, depth + 1))}
+      {comment.replies?.map((reply, replyIndex) =>
+        renderComment(reply, `${label}-${replyIndex + 1}`, depth + 1),
+      )}
     </div>
   );
 
   const totalCount = comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0);
 
   return (
-    <section className="premium-card p-6 sm:p-8 mt-6">
-      <h2 className="text-lg font-bold text-gray-900 dark:text-white inline-flex items-center gap-2">
-        <MessageCircle className="w-5 h-5 text-brand-500" />
+    <section className="premium-card p-5 sm:p-6 mt-4">
+      <h2 className="text-sm font-bold text-gray-900 dark:text-white inline-flex items-center gap-1.5">
+        <MessageCircle className="w-4 h-4 text-brand-500" />
         댓글 {totalCount}
       </h2>
 
       {loading ? (
-        <p className="mt-6 text-sm text-gray-500">댓글 불러오는 중…</p>
+        <p className="mt-4 text-xs text-gray-500">댓글 불러오는 중…</p>
       ) : comments.length === 0 ? (
-        <p className="mt-6 text-sm text-gray-500">아직 댓글이 없습니다. 첫 댓글을 남겨 보세요.</p>
+        <p className="mt-4 text-xs text-gray-500">아직 댓글이 없습니다. 첫 댓글을 남겨 보세요.</p>
       ) : (
-        <div className="mt-4 divide-y divide-gray-100 dark:divide-gray-800">
-          {comments.map((comment) => renderComment(comment))}
+        <div className="mt-3 divide-y divide-gray-100 dark:divide-gray-800">
+          {comments.map((comment, index) => renderComment(comment, String(index + 1)))}
         </div>
       )}
 
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         {replyTo && (
-          <div className="mb-3 flex items-center justify-between gap-2 text-xs text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-3 py-2 rounded-lg">
+          <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2.5 py-1.5 rounded-lg">
             <span>@{replyTo.authorName} 님에게 답글 작성 중</span>
             <button type="button" onClick={() => { setReplyTo(null); setContent(''); }} className="font-semibold hover:underline">
               취소
@@ -158,21 +167,21 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
         )}
 
         {loggedIn ? (
-          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3">
+          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-2">
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               maxLength={2000}
-              rows={4}
-              className="input-premium w-full resize-y min-h-[100px]"
+              rows={3}
+              className="input-premium w-full resize-y min-h-[72px] text-sm"
               placeholder={replyTo ? '답글을 입력하세요' : '댓글을 입력하세요'}
             />
-            <button type="submit" disabled={submitting} className="btn btn-primary text-sm disabled:opacity-50">
+            <button type="submit" disabled={submitting} className="btn btn-primary text-xs px-4 py-2 disabled:opacity-50">
               {submitting ? '등록 중…' : replyTo ? '답글 등록' : '댓글 등록'}
             </button>
           </form>
         ) : (
-          <p className="text-sm text-gray-500">
+          <p className="text-xs text-gray-500">
             댓글은 <Link to="/login" className="text-brand-600 font-semibold hover:underline">로그인</Link> 후 작성할 수 있습니다.
           </p>
         )}
