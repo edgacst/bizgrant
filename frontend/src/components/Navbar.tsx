@@ -23,11 +23,11 @@ import { clearAuthSession, isAdminUser, isLoggedIn, syncAuthSession } from '../u
 
 const NAV_LINKS = [
   { path: '/dashboard', label: '대시보드', icon: LayoutDashboard },
+  { path: '/board', label: '게시판', icon: MessageSquare },
   { path: '/pipeline', label: '파이프라인', icon: Kanban },
   { path: '/grants', label: '정부지원금사업', icon: Search },
   { path: '/procurement', label: '나라장터', icon: Gavel },
   { path: '/documents', label: '서류센터', icon: FolderOpen },
-  { path: '/board', label: '게시판', icon: MessageSquare },
 ];
 
 const ACCOUNT_MENU_LINKS = [
@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
-                    <span className="hidden xl:inline">{link.label}</span>
+                    <span className="hidden lg:inline">{link.label}</span>
                     {isActive && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full gradient-bg" />
                     )}
