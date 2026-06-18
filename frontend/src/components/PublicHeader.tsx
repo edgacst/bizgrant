@@ -25,14 +25,25 @@ const PublicHeader: React.FC = () => {
             Biz<span className="gradient-text">Grant</span>
           </span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <DarkModeToggle />
-          <Link to="/guide" className={navLink(isGuide)}>
+          <Link
+            to="/guide"
+            className={`hidden sm:inline text-sm font-semibold transition-colors ${
+              isGuide ? 'text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300 hover:text-brand-600'
+            }`}
+          >
             사용방법
           </Link>
-          <Link to="/board" className={navLink(isBoard)}>
-            <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
-            게시판
+          <Link
+            to="/board"
+            title="게시판"
+            className={`inline-flex items-center gap-1 text-sm font-semibold transition-colors ${
+              isBoard ? 'text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300 hover:text-brand-600'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span className="hidden sm:inline">게시판</span>
           </Link>
           <Link to="/login" className={navLink(isGrants)}>
             <Search className="w-3.5 h-3.5 inline mr-1" />

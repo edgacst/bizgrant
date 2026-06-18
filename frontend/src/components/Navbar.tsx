@@ -15,6 +15,7 @@ import {
   Gavel,
   FolderOpen,
   Settings,
+  MessageSquare,
 } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
 import NotificationBell from './NotificationBell';
@@ -26,6 +27,7 @@ const NAV_LINKS = [
   { path: '/grants', label: '정부지원금사업', icon: Search },
   { path: '/procurement', label: '나라장터', icon: Gavel },
   { path: '/documents', label: '서류센터', icon: FolderOpen },
+  { path: '/board', label: '게시판', icon: MessageSquare },
 ];
 
 const ACCOUNT_MENU_LINKS = [
