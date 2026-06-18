@@ -23,7 +23,6 @@ import { clearAuthSession, isAdminUser, isLoggedIn, syncAuthSession } from '../u
 
 const NAV_LINKS = [
   { path: '/dashboard', label: '대시보드', icon: LayoutDashboard },
-  { path: '/board', label: '게시판', icon: MessageSquare },
   { path: '/pipeline', label: '파이프라인', icon: Kanban },
   { path: '/grants', label: '정부지원금사업', icon: Search },
   { path: '/procurement', label: '나라장터', icon: Gavel },
@@ -124,6 +123,20 @@ const Navbar: React.FC = () => {
 
               <NotificationBell />
 
+              <Link
+                to="/board"
+                onClick={scrollToTop}
+                title="게시판"
+                className={`hidden lg:inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 xl:px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  location.pathname.startsWith('/board')
+                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                <span>게시판</span>
+              </Link>
+
               {/* User Avatar Dropdown */}
               <div className="relative hidden sm:block">
                 <button
@@ -205,6 +218,19 @@ const Navbar: React.FC = () => {
               </div>
 
               {/* Mobile Menu Toggle */}
+              <Link
+                to="/board"
+                onClick={scrollToTop}
+                title="게시판"
+                className={`lg:hidden inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold shrink-0 ${
+                  location.pathname.startsWith('/board')
+                    ? 'text-brand-600 dark:text-brand-400'
+                    : 'text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                게시판
+              </Link>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
@@ -265,6 +291,21 @@ const Navbar: React.FC = () => {
                     </Link>
                   );
                 })}
+                <Link
+                  to="/board"
+                  onClick={() => {
+                    scrollToTop();
+                    setMobileOpen(false);
+                  }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    location.pathname.startsWith('/board')
+                      ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  게시판
+                </Link>
               </nav>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-1">
