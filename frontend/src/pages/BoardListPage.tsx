@@ -87,7 +87,7 @@ const BoardListPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
         <div>
           <div className="inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 text-xs font-semibold mb-1">
@@ -136,7 +136,7 @@ const BoardListPage: React.FC = () => {
         </div>
       ) : (
         <div className="premium-card overflow-hidden">
-          <div className="grid grid-cols-[2.5rem_1fr_auto] sm:grid-cols-[3rem_1fr_5rem_4.5rem_3rem] gap-x-2 px-3 py-2.5 border-b border-gray-200 dark:border-gray-700 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <div className="grid grid-cols-[2.75rem_1fr_auto] sm:grid-cols-[3.5rem_minmax(0,1fr)_7rem_6.5rem_4rem] gap-x-3 px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             <span className="text-center">번호</span>
             <span>제목</span>
             <span className="hidden sm:block text-center">작성자</span>
@@ -148,7 +148,7 @@ const BoardListPage: React.FC = () => {
               <li key={post.id} className="group">
                 <Link
                   to={`/board/${post.id}`}
-                  className="grid grid-cols-[2.5rem_1fr_auto] sm:grid-cols-[3rem_1fr_5rem_4.5rem_3rem] gap-x-2 items-center px-3 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  className="grid grid-cols-[2.75rem_1fr_auto] sm:grid-cols-[3.5rem_minmax(0,1fr)_7rem_6.5rem_4rem] gap-x-3 items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
                   <span className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 tabular-nums">
                     {post.pinned ? (

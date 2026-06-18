@@ -72,13 +72,13 @@ const BoardDetailPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="max-w-3xl mx-auto px-4 py-12 text-center text-sm text-gray-500">불러오는 중…</div>;
+    return <div className="max-w-4xl mx-auto px-4 py-12 text-center text-sm text-gray-500">불러오는 중…</div>;
   }
 
   if (!post) return null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       <Link to="/board" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-brand-600 mb-4">
         <ArrowLeft className="w-3.5 h-3.5" />
         목록으로
