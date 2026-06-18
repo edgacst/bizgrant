@@ -5,6 +5,9 @@ import toast from 'react-hot-toast';
 import client from '../api/client';
 import { isLoggedIn } from '../utils/authSession';
 
+/** 푸터 요금제 링크 노출 (일시 비활성 — /pricing 페이지·라우트는 유지) */
+const SHOW_FOOTER_PRICING_LINKS = false;
+
 type FooterLinkProps = {
   to: string;
   children: React.ReactNode;
@@ -92,7 +95,9 @@ const Footer: React.FC = () => {
               <li><FooterLink to="/procurement" className="hover:text-white transition-colors">나라장터</FooterLink></li>
               <li><FooterLink to="/pipeline" className="hover:text-white transition-colors">파이프라인</FooterLink></li>
               <li><FooterLink to="/calendar" className="hover:text-white transition-colors">캘린더</FooterLink></li>
-              <li><FooterLink to="/pricing" className="hover:text-white transition-colors">요금제</FooterLink></li>
+              {SHOW_FOOTER_PRICING_LINKS && (
+                <li><FooterLink to="/pricing" className="hover:text-white transition-colors">요금제</FooterLink></li>
+              )}
             </ul>
           </div>
 
@@ -102,7 +107,9 @@ const Footer: React.FC = () => {
               <li><FooterLink to="/guide" className="hover:text-white transition-colors">사용방법</FooterLink></li>
               <li><FooterLink to="/board" className="hover:text-white transition-colors">공개 게시판</FooterLink></li>
               <li><FooterLink to="/about" className="hover:text-white transition-colors">소개</FooterLink></li>
-              <li><FooterLink to="/pricing" className="hover:text-white transition-colors">요금제</FooterLink></li>
+              {SHOW_FOOTER_PRICING_LINKS && (
+                <li><FooterLink to="/pricing" className="hover:text-white transition-colors">요금제</FooterLink></li>
+              )}
               <li>
                 <FooterLink to="/pricing#enterprise-contact" className="hover:text-white transition-colors">
                   문의
