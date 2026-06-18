@@ -9,6 +9,7 @@ import {
   type BoardComment,
 } from '../api/board';
 import { isAdminUser, isLoggedIn } from '../utils/authSession';
+import { maskAuthorName } from '../utils/maskAuthorName';
 
 type BoardCommentsProps = {
   postId: number;
@@ -90,7 +91,9 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
     }
   };
 
-  const renderComment = (comment: BoardComment, label: string, depth = 0) => (
+  const renderComment = (comment: BoardComment, label: string, depth = 0) => {
+    const displayName = maskAuthorName(comment.authorName);
+    return (
     <div key={comment.id} className={depth > 0 ? 'ml-6 pl-3 border-l-2 border-gray-200 dark:border-gray-700' : ''}>
       <div className="py-3">
         <div className="flex items-start gap-2">
@@ -99,7 +102,7 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="font-semibold text-gray-900 dark:text-white">{comment.authorName}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">{displayName}</span>
               <span className="text-gray-400">{formatDateTime(comment.createdAt)}</span>
             </div>
             <p className="mt-1.5 text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words">{comment.content}</p>
@@ -109,7 +112,7 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
                   type="button"
                   onClick={() => {
                     setReplyTo(comment);
-                    setContent(`@${comment.authorName} `);
+                    setContent(`@${displayName} `);
                   }}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500 hover:text-brand-600"
                 >
@@ -135,7 +138,8 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
         renderComment(reply, `${label}-${replyIndex + 1}`, depth + 1),
       )}
     </div>
-  );
+    );
+  };
 
   const totalCount = comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0);
 
@@ -159,7 +163,7 @@ const BoardComments: React.FC<BoardCommentsProps> = ({ postId }) => {
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         {replyTo && (
           <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2.5 py-1.5 rounded-lg">
-            <span>@{replyTo.authorName} 님에게 답글 작성 중</span>
+            <span>@{maskAuthorName(replyTo.authorName)} 님에게 답글 작성 중</span>
             <button type="button" onClick={() => { setReplyTo(null); setContent(''); }} className="font-semibold hover:underline">
               취소
             </button>

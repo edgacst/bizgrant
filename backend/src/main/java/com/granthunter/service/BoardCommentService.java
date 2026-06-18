@@ -76,7 +76,7 @@ public class BoardCommentService {
                 .postId(postId)
                 .parentId(parentId)
                 .authorId(user.getId())
-                .authorName(resolveAuthorName(user))
+                .authorName(BoardAuthorUtils.maskForStorage(resolveAuthorName(user)))
                 .content(content)
                 .build();
         return toResponse(boardCommentRepository.save(comment), userId, false);

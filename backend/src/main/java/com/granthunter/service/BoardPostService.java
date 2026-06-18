@@ -55,7 +55,7 @@ public class BoardPostService {
                 .title(request.getTitle().trim())
                 .content(request.getContent().trim())
                 .authorId(user.getId())
-                .authorName(resolveAuthorName(user))
+                .authorName(BoardAuthorUtils.maskForStorage(resolveAuthorName(user)))
                 .pinned(false)
                 .published(true)
                 .build();

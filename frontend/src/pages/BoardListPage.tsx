@@ -6,6 +6,7 @@ import { deleteBoardPost, fetchBoardPosts, type BoardPost } from '../api/board';
 import { usePageSeo } from '../hooks/usePageSeo';
 import { PAGE_SEO } from '../seo/config';
 import { isAdminUser, isLoggedIn } from '../utils/authSession';
+import { maskAuthorName } from '../utils/maskAuthorName';
 
 const PAGE_SIZE = 15;
 
@@ -164,10 +165,10 @@ const BoardListPage: React.FC = () => {
                       {post.title}
                     </span>
                     <span className="sm:hidden text-[11px] text-gray-400 mt-0.5 block truncate">
-                      {post.authorName} · {formatDate(post.createdAt)}
+                      {maskAuthorName(post.authorName)} · {formatDate(post.createdAt)}
                     </span>
                   </span>
-                  <span className="hidden sm:block text-center text-xs text-gray-500 truncate">{post.authorName}</span>
+                  <span className="hidden sm:block text-center text-xs text-gray-500 truncate">{maskAuthorName(post.authorName)}</span>
                   <span className="hidden sm:block text-center text-xs text-gray-400 tabular-nums">{formatDate(post.createdAt)}</span>
                   <span className="text-center text-xs text-gray-400 tabular-nums inline-flex items-center justify-center gap-0.5">
                     <Eye className="w-3 h-3 sm:hidden" />

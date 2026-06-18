@@ -18,4 +18,12 @@ echo "==> 공개 게시판 데모 Q&A 시드"
   psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-bizgrant}" -v ON_ERROR_STOP=1 \
   < "$SQL_FILE"
 
+MASK_FILE="backend/sql/V5__mask_board_author_names.sql"
+if [[ -f "$MASK_FILE" ]]; then
+  echo "==> 작성자명 마스킹 갱신"
+  "${COMPOSE[@]}" exec -T postgres \
+    psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-bizgrant}" -v ON_ERROR_STOP=1 \
+    < "$MASK_FILE"
+fi
+
 echo "완료. https://bizgrant.kr/board 에서 확인하세요."

@@ -11,6 +11,9 @@ public final class BoardAuthorUtils {
             return "익명";
         }
         String value = name.trim();
+        if (value.contains("*")) {
+            return value;
+        }
         if (value.contains("@")) {
             int at = value.indexOf('@');
             if (at <= 0) {
@@ -18,13 +21,21 @@ public final class BoardAuthorUtils {
             }
             return value.charAt(0) + "***" + value.substring(at);
         }
-        int len = value.length();
-        if (len == 1) {
+        int len = value.codePointCount(0, value.length());
+        if (len <= 1) {
             return value;
         }
         if (len == 2) {
-            return value.charAt(0) + "*";
+            int firstEnd = value.offsetByCodePoints(0, 1);
+            return value.substring(0, firstEnd) + "*";
         }
-        return value.charAt(0) + "*".repeat(len - 2) + value.charAt(len - 1);
+        int firstEnd = value.offsetByCodePoints(0, 1);
+        int lastStart = value.offsetByCodePoints(0, len - 1);
+        String stars = "*".repeat(len - 2);
+        return value.substring(0, firstEnd) + stars + value.substring(lastStart);
+    }
+
+    public static String maskForStorage(String rawName) {
+        return maskDisplayName(rawName);
     }
 }

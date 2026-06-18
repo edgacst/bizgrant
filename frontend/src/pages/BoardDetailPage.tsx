@@ -6,6 +6,7 @@ import BoardComments from '../components/BoardComments';
 import { deleteBoardPost, fetchBoardPost, pinBoardPost, type BoardPost } from '../api/board';
 import { usePageSeo } from '../hooks/usePageSeo';
 import { isAdminUser, isLoggedIn } from '../utils/authSession';
+import { maskAuthorName } from '../utils/maskAuthorName';
 
 function formatDateTime(value: string) {
   if (!value) return '';
@@ -97,7 +98,7 @@ const BoardDetailPage: React.FC = () => {
           {post.title}
         </h1>
         <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400">
-          <span className="font-medium text-gray-700 dark:text-gray-300">{post.authorName}</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">{maskAuthorName(post.authorName)}</span>
           <span>·</span>
           <span>{formatDateTime(post.createdAt)}</span>
           <span>·</span>
