@@ -8,6 +8,7 @@ import com.granthunter.repository.BoardCommentRepository;
 import com.granthunter.repository.BoardPostRepository;
 import com.granthunter.repository.UserRepository;
 import com.granthunter.util.BoardAuthorUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

@@ -9,6 +9,7 @@ import com.granthunter.repository.BoardCommentRepository;
 import com.granthunter.repository.BoardPostRepository;
 import com.granthunter.repository.UserRepository;
 import com.granthunter.util.BoardAuthorUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
