@@ -33,6 +33,13 @@ function injectSiteVerificationMeta(html: string, env: Record<string, string>): 
 </script>`)
   }
 
+  const adsenseClient = env.VITE_ADSENSE_CLIENT?.trim()
+  if (adsenseClient && /^ca-pub-\d+$/i.test(adsenseClient)) {
+    tags.push(
+      `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}" crossorigin="anonymous"></script>`,
+    )
+  }
+
   if (tags.length === 0) {
     return html
   }

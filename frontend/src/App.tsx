@@ -28,7 +28,9 @@ import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
 import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
 import AnalyticsPageView from './components/AnalyticsPageView';
+import AdSense from './components/AdSense';
 import SiteHeader from './components/SiteHeader';
+import { ADSENSE_SLOT_FOOTER } from './lib/adsense';
 import AdminRoute from './components/AdminRoute';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import DocumentArchivePage from './pages/DocumentArchivePage';
@@ -79,6 +81,11 @@ const PublicLayout: React.FC = () => {
       <main className="flex-1">
         <Outlet />
       </main>
+      {ADSENSE_SLOT_FOOTER && (
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4">
+          <AdSense slot={ADSENSE_SLOT_FOOTER} format="horizontal" className="min-h-[90px]" />
+        </div>
+      )}
       <Footer />
       <BackToTop />
     </div>

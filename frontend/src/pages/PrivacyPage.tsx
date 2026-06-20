@@ -102,6 +102,7 @@ const PrivacyPage: React.FC = () => (
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               <tr><td className="px-4 py-2 text-xs">Amazon Web Services (AWS)</td><td className="px-4 py-2 text-xs">서비스 인프라 운영</td></tr>
               <tr><td className="px-4 py-2 text-xs">Google (Firebase)</td><td className="px-4 py-2 text-xs">푸시 알림 발송</td></tr>
+              <tr><td className="px-4 py-2 text-xs">Google (AdSense)</td><td className="px-4 py-2 text-xs">맞춤형 광고 게재</td></tr>
             </tbody>
           </table>
           <p className="mt-2">회사는 위탁 계약 체결 시 「개인정보 보호법」 제26조에 따라 위탁 업무 수행 목적 외 개인정보 처리 금지, 기술적·관리적 보호 조치, 재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 계약서 등 문서에 명시하고, 수탁자가 개인정보를 안전하게 처리하는지를 감독하고 있습니다.</p>
@@ -145,8 +146,14 @@ const PrivacyPage: React.FC = () => (
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제9조 (자동 수집 장치의 설치·운영 및 거부)</h2>
           <ol className="list-decimal list-inside space-y-1">
             <li>회사는 이용자에게 개별적인 맞춤 서비스를 제공하기 위해 이용 정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용합니다.</li>
+            <li>Google AdSense 등 제3자 광고 서비스는 맞춤형 광고 제공을 위해 쿠키를 사용할 수 있습니다. Google의 광고 쿠키 사용에 대한 자세한 내용은{' '}
+              <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">
+                Google 광고 정책
+              </a>
+              을 참고하시기 바랍니다.
+            </li>
             <li>이용자는 쿠키 설치에 대한 선택권을 가지고 있습니다. 따라서 이용자는 웹 브라우저에서 옵션을 설정함으로써 모든 쿠키를 허용하거나, 쿠키가 저장될 때마다 확인을 거치거나, 모든 쿠키의 저장을 거부할 수도 있습니다.</li>
-            <li>쿠키 저장을 거부할 경우 맞춤형 서비스 이용에 어려움이 발생할 수 있습니다.</li>
+            <li>쿠키 저장을 거부할 경우 맞춤형 서비스·광고 이용에 어려움이 발생할 수 있습니다.</li>
           </ol>
         </section>
 
