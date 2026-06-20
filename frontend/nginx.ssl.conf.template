@@ -58,6 +58,11 @@ server {
         try_files /sitemap.xml =404;
     }
 
+    location = /ads.txt {
+        default_type text/plain;
+        try_files /ads.txt =404;
+    }
+
     location /actuator/ {
         proxy_pass http://backend:8080/actuator/;
     }
