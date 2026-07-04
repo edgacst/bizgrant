@@ -7,14 +7,12 @@ alwaysApply: true
 
 코드 수정 후 **로컬에서 push** → **서버에서 pull + 재배포**.
 
-## 서버 반영 (SSH `root@187.127.107.200`)
+## 서버 반영 (SSH)
 
 ```bash
-cd ~/bizgrant
+cd /root/bizgrant
 git pull origin main
-chmod +x deploy/vps/*.sh
-./deploy/vps/update.sh
-./deploy/vps/sync-grants.sh
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ## 공고 데이터가 0일 때
