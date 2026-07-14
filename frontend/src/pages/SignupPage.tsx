@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Building2,
@@ -37,6 +37,8 @@ const COMPANY_SIZES = [
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const previewExpired = Boolean((location.state as { previewExpired?: boolean } | null)?.previewExpired);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -50,6 +52,15 @@ const SignupPage: React.FC = () => {
     industry: INDUSTRIES[0],
     companySize: COMPANY_SIZES[0],
   });
+
+  useEffect(() => {
+    if (previewExpired) {
+      toast('무료 미리보기 5분이 종료되었습니다. 회원가입 후 공고를 계속 볼 수 있습니다.', {
+        icon: '⏱️',
+        duration: 5000,
+      });
+    }
+  }, [previewExpired]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -100,9 +111,15 @@ const SignupPage: React.FC = () => {
               <p className="text-gray-500 dark:text-gray-400 mt-1.5 text-sm">
                 BizGrant와 함께 정부지원금사업을 찾아보세요
               </p>
-              <p className="mt-3 text-sm font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-900/40 rounded-xl px-4 py-3 text-left leading-relaxed">
-                <span className="font-extrabold">회원가입만 하면 모든 기능을 이용</span>할 수 있습니다.
-              </p>
+              {previewExpired ? (
+                <p className="mt-3 text-sm font-semibold text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/40 rounded-xl px-4 py-3 text-left leading-relaxed">
+                  무료 미리보기 시간이 끝났습니다. <span className="font-extrabold">회원가입 후</span> 공고 검색·알림·북마크를 계속 이용하세요.
+                </p>
+              ) : (
+                <p className="mt-3 text-sm font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-900/40 rounded-xl px-4 py-3 text-left leading-relaxed">
+                  <span className="font-extrabold">회원가입만 하면 모든 기능을 이용</span>할 수 있습니다.
+                </p>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">

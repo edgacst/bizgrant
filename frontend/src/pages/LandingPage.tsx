@@ -305,7 +305,7 @@ const LandingPage: React.FC = () => {
 
             {/* Bottom trust line */}
             <div className="mt-10 flex flex-col items-center gap-3">
-              <p className="text-sm text-gray-400">회원가입 후 공고 검색·알림 설정·서류 준비 기능을 이용할 수 있습니다</p>
+              <p className="text-sm text-gray-400">비회원은 공고 목록을 5분간 미리볼 수 있습니다 · 회원가입 후 검색·알림·서류 기능 이용</p>
             </div>
           </div>
         </div>

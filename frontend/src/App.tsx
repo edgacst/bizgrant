@@ -3,6 +3,7 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import GuestPreviewRoute from './components/GuestPreviewRoute';
 import LandingPage from './pages/LandingPage';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
@@ -130,6 +131,22 @@ const App: React.FC = () => {
           <Route path="/board/:id/edit" element={<BoardWritePage />} />
           <Route path="/board/:id" element={<BoardDetailPage />} />
           <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
+          <Route
+            path="/grants"
+            element={
+              <GuestPreviewRoute>
+                <GrantListPage />
+              </GuestPreviewRoute>
+            }
+          />
+          <Route
+            path="/grants/:id"
+            element={
+              <GuestPreviewRoute>
+                <GrantDetailPage />
+              </GuestPreviewRoute>
+            }
+          />
         </Route>
 
         {/* Protected routes */}
@@ -141,9 +158,7 @@ const App: React.FC = () => {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/grants" element={<GrantListPage />} />
           <Route path="/procurement" element={<ProcurementPage />} />
-          <Route path="/grants/:id" element={<GrantDetailPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/documents" element={<DocumentArchivePage />} />

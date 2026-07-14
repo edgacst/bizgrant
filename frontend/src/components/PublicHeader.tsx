@@ -34,7 +34,7 @@ const PublicHeader: React.FC = () => {
           <Link to="/guide" className={linkClass(isGuide)}>
             사용방법
           </Link>
-          <Link to="/login" className={`inline-flex items-center gap-1.5 ${linkClass(isGrants)}`}>
+          <Link to="/grants" className={`inline-flex items-center gap-1.5 ${linkClass(isGrants)}`}>
             <Search className="w-4 h-4 shrink-0" />
             공고 탐색
           </Link>
