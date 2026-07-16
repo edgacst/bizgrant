@@ -44,19 +44,23 @@ const PublicHeader: React.FC = () => {
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <DarkModeToggle />
-          <Link to="/login" className={`hidden md:inline ${linkClass(false)}`}>
+          <Link to="/login" className={`${linkClass(false)} text-xs sm:text-sm`}>
             로그인
           </Link>
-          <Link to="/signup" className="hidden sm:inline btn btn-primary text-sm px-3 sm:px-5 py-2.5 whitespace-nowrap">
+          <Link
+            to="/signup"
+            className="btn btn-primary text-xs sm:text-sm px-2.5 sm:px-5 py-2 sm:py-2.5 whitespace-nowrap"
+          >
             무료 시작
           </Link>
           <Link
             to="/board"
             title="공개 게시판"
-            className={`inline-flex items-center gap-1.5 shrink-0 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors ${boardTabClass}`}
+            className={`inline-flex items-center gap-1.5 shrink-0 px-2 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors ${boardTabClass}`}
           >
             <MessageSquare className="w-4 h-4 shrink-0" />
-            <span>공개 게시판</span>
+            <span className="sm:hidden">게시판</span>
+            <span className="hidden sm:inline">공개 게시판</span>
           </Link>
         </div>
       </div>
